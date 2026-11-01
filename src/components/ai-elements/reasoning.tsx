@@ -156,12 +156,12 @@ export type ReasoningTriggerProps = ComponentProps<
 
 const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number) => {
   if (isStreaming || duration === 0) {
-    return <Shimmer duration={1}>Thinking...</Shimmer>;
+    return <Shimmer duration={1}>Analizando…</Shimmer>;
   }
   if (duration === undefined) {
-    return <p>Thought for a few seconds</p>;
+    return <p>Analizado en unos segundos</p>;
   }
-  return <p>Thought for {duration} seconds</p>;
+  return <p>Analizado en {duration} s</p>;
 };
 
 export const ReasoningTrigger = memo(

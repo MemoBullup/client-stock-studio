@@ -957,7 +957,7 @@ export const PromptInputTextarea = ({
   onChange,
   onKeyDown,
   className,
-  placeholder = "What would you like to know?",
+  placeholder = "Escribe tu pregunta…",
   ...props
 }: PromptInputTextareaProps) => {
   const controller = useOptionalPromptInputController();
