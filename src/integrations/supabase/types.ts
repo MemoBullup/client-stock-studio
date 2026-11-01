@@ -557,6 +557,85 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_adjustment_requests: {
+        Row: {
+          ai_proposal: Json | null
+          applied_adjustment_id: string | null
+          created_at: string
+          id: string
+          is_demo: boolean
+          location_id: string
+          mode: Database["public"]["Enums"]["adjustment_mode"]
+          quantity: number
+          reason: string
+          requested_by: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_text: string | null
+          status: Database["public"]["Enums"]["request_status"]
+          variant_id: string
+        }
+        Insert: {
+          ai_proposal?: Json | null
+          applied_adjustment_id?: string | null
+          created_at?: string
+          id?: string
+          is_demo?: boolean
+          location_id: string
+          mode: Database["public"]["Enums"]["adjustment_mode"]
+          quantity: number
+          reason: string
+          requested_by?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_text?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          variant_id: string
+        }
+        Update: {
+          ai_proposal?: Json | null
+          applied_adjustment_id?: string | null
+          created_at?: string
+          id?: string
+          is_demo?: boolean
+          location_id?: string
+          mode?: Database["public"]["Enums"]["adjustment_mode"]
+          quantity?: number
+          reason?: string
+          requested_by?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_text?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_adjustment_requests_applied_adjustment_id_fkey"
+            columns: ["applied_adjustment_id"]
+            isOneToOne: false
+            referencedRelation: "stock_adjustments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_adjustment_requests_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_adjustment_requests_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_adjustments: {
         Row: {
           created_at: string
@@ -1103,6 +1182,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_stock_adjustment: {
+        Args: {
+          _location_id: string
+          _mode: Database["public"]["Enums"]["adjustment_mode"]
+          _quantity: number
+          _reason: string
+          _variant_id: string
+        }
+        Returns: string
+      }
       bootstrap_first_admin: { Args: { _email: string }; Returns: undefined }
       category_product_counts: {
         Args: never
@@ -1172,6 +1261,10 @@ export type Database = {
           pending_count: number
         }[]
       }
+      review_adjustment_request: {
+        Args: { _approve: boolean; _id: string; _note?: string }
+        Returns: string
+      }
       search_variants: {
         Args: { _limit?: number; _q: string }
         Returns: {
@@ -1196,8 +1289,24 @@ export type Database = {
         }
         Returns: undefined
       }
+      suggest_variant_candidates: {
+        Args: { _limit?: number; _text: string }
+        Returns: {
+          allows_decimal: boolean
+          attributes: string
+          id: string
+          product_name: string
+          product_type: string
+          score: number
+          sku: string
+          unit_plural: string
+          unit_singular: string
+          variant_label: string
+        }[]
+      }
     }
     Enums: {
+      adjustment_mode: "set" | "increase" | "decrease"
       app_role: "admin" | "editor"
       attribute_data_type: "text" | "number" | "select" | "multiselect"
       attribute_value_state: "value" | "not_applicable" | "pending"
@@ -1335,6 +1444,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      adjustment_mode: ["set", "increase", "decrease"],
       app_role: ["admin", "editor"],
       attribute_data_type: ["text", "number", "select", "multiselect"],
       attribute_value_state: ["value", "not_applicable", "pending"],

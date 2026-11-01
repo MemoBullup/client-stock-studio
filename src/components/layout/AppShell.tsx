@@ -10,6 +10,7 @@ import {
   LogOut,
   Menu,
   PackagePlus,
+  Sparkles,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -36,7 +37,7 @@ interface NavItem {
   label: string;
   short: string;
   icon: LucideIcon;
-  to?: "/inicio" | "/catalogos" | "/usuarios";
+  to?: "/inicio" | "/ajustes" | "/catalogos" | "/usuarios";
   adminOnly?: boolean;
   /** Bloque en el que se habilita; si existe, aún no está disponible. */
   upcoming?: string;
@@ -46,6 +47,7 @@ const NAV: NavItem[] = [
   { label: "Inicio", short: "Inicio", icon: Home, to: "/inicio" },
   { label: "Capturar SKU", short: "Capturar", icon: PackagePlus, upcoming: "B" },
   { label: "Inventario", short: "Inventario", icon: Boxes, upcoming: "B" },
+  { label: "Ajustes asistidos", short: "Ajustes", icon: Sparkles, to: "/ajustes" },
   { label: "Pendientes de fotografía", short: "Fotografía", icon: Camera, upcoming: "D" },
   { label: "Categorías y ubicaciones", short: "Catálogos", icon: FolderTree, to: "/catalogos", adminOnly: true },
   { label: "Informes", short: "Informes", icon: FileSpreadsheet, adminOnly: true, upcoming: "C" },
@@ -103,11 +105,11 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
                       <span
                         aria-disabled="true"
                         title={`${item.label}: disponible en el bloque ${item.upcoming}`}
-                        className="flex cursor-not-allowed items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium text-graphite-muted/70"
+                        className="flex cursor-not-allowed items-center gap-1.5 rounded-full px-2.5 py-2 text-xs font-medium text-graphite-muted/70"
                       >
                         <Icon className="size-3.5" aria-hidden />
-                        {item.short}
-                        <span className="rounded-full border border-graphite-border px-1.5 text-[10px] leading-4">
+                        <span className="sr-only 2xl:not-sr-only">{item.short}</span>
+                        <span className="hidden rounded-full border border-graphite-border px-1.5 text-[10px] leading-4 2xl:inline">
                           Próx.
                         </span>
                       </span>
@@ -154,7 +156,7 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
                 </span>
               )}
             </Link>
-            <Badge variant={isAdmin ? "graphite" : "secondary"} className="hidden sm:inline-flex">
+            <Badge variant={isAdmin ? "graphite" : "secondary"} className="hidden sm:inline-flex lg:hidden 2xl:inline-flex">
               {me.role ? ROLE_LABEL[me.role] : "Sin rol"}
             </Badge>
             <DropdownMenu>

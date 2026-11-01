@@ -33,3 +33,24 @@ export function parseMinimum(
     return { ok: false, error: "Esta unidad solo admite cantidades enteras" };
   return { ok: true, value };
 }
+
+export type AdjustmentMode = "set" | "increase" | "decrease";
+
+/**
+ * Calcula la existencia resultante de un ajuste. Requiere un conteo previo
+ * (pendiente de conteo no se ajusta) y nunca permite existencias negativas.
+ * El servidor (apply_stock_adjustment) aplica la misma regla.
+ */
+export function computeAdjustment(
+  previous: number | null | undefined,
+  mode: AdjustmentMode,
+  quantity: number,
+): { ok: true; value: number } | { ok: false; error: string } {
+  if (previous === null || previous === undefined)
+    return { ok: false, error: "Pendiente de conteo en esta ubicación: registra primero el conteo inicial." };
+  if (!Number.isFinite(quantity) || quantity < 0) return { ok: false, error: "La cantidad no puede ser negativa" };
+  const raw = mode === "set" ? quantity : mode === "increase" ? previous + quantity : previous - quantity;
+  const value = Math.round(raw * 1000) / 1000;
+  if (value < 0) return { ok: false, error: `El ajuste dejaría existencias negativas (hay ${previous}).` };
+  return { ok: true, value };
+}

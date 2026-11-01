@@ -102,9 +102,9 @@ function InicioPage() {
               <h2 id="meta-title" className="text-sm font-medium text-muted-foreground">
                 SKU registrados
               </h2>
-              <p className="mt-1 text-5xl font-bold tracking-tight tabular">
+              <div className="mt-1 text-5xl font-bold tracking-tight tabular">
                 {isLoading ? <Skeleton className="h-12 w-32" /> : formatNumber(registered, 0)}
-              </p>
+              </div>
               <p className="mt-1 text-sm text-muted-foreground">
                 de una meta de <strong className="text-foreground">{formatNumber(goal, 0)}</strong> SKU
               </p>
