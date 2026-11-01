@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { proposeAdjustment } from "@/lib/adjustments.functions";
-import type { CandidateDTO, ProposeResult } from "@/lib/adjustments.server";
+import type { CandidateDTO, ProposeResult } from "@/lib/adjustments.types";
 import { friendlyError } from "@/lib/errors";
 import { formatDateTime, formatQuantity } from "@/lib/format";
 import { useMe } from "@/lib/session";
