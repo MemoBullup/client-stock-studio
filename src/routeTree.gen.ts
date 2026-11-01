@@ -16,6 +16,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
 import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
 import { Route as AuthenticatedAlertasRouteImport } from './routes/_authenticated/alertas'
+import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
 import { Route as AuthenticatedAdminCatalogosRouteImport } from './routes/_authenticated/_admin/catalogos'
@@ -54,6 +55,11 @@ const AuthenticatedAlertasRoute = AuthenticatedAlertasRouteImport.update({
   path: '/alertas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAsistenteRoute = AuthenticatedAsistenteRouteImport.update({
+  id: '/asistente',
+  path: '/asistente',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/alertas': typeof AuthenticatedAlertasRoute
+  '/asistente': typeof AuthenticatedAsistenteRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/api/assistant': typeof ApiAssistantRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/alertas': typeof AuthenticatedAlertasRoute
+  '/asistente': typeof AuthenticatedAsistenteRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/api/assistant': typeof ApiAssistantRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/ajustes': typeof AuthenticatedAjustesRoute
   '/_authenticated/alertas': typeof AuthenticatedAlertasRoute
+  '/_authenticated/asistente': typeof AuthenticatedAsistenteRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/api/assistant': typeof ApiAssistantRoute
   '/_authenticated/_admin/catalogos': typeof AuthenticatedAdminCatalogosRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/ajustes'
     | '/alertas'
+    | '/asistente'
     | '/inicio'
     | '/api/assistant'
     | '/catalogos'
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/ajustes'
     | '/alertas'
+    | '/asistente'
     | '/inicio'
     | '/api/assistant'
     | '/catalogos'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_admin'
     | '/_authenticated/ajustes'
     | '/_authenticated/alertas'
+    | '/_authenticated/asistente'
     | '/_authenticated/inicio'
     | '/api/assistant'
     | '/_authenticated/_admin/catalogos'
@@ -210,6 +222,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAlertasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/asistente': {
+      id: '/_authenticated/asistente'
+      path: '/asistente'
+      fullPath: '/asistente'
+      preLoaderRoute: typeof AuthenticatedAsistenteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inicio': {
       id: '/_authenticated/inicio'
       path: '/inicio'
@@ -261,6 +280,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedAjustesRoute: typeof AuthenticatedAjustesRoute
   AuthenticatedAlertasRoute: typeof AuthenticatedAlertasRoute
+  AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
 }
 
@@ -268,6 +288,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedAjustesRoute: AuthenticatedAjustesRoute,
   AuthenticatedAlertasRoute: AuthenticatedAlertasRoute,
+  AuthenticatedAsistenteRoute: AuthenticatedAsistenteRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
 }
 
