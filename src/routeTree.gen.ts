@@ -17,6 +17,7 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
 import { Route as AuthenticatedAlertasRouteImport } from './routes/_authenticated/alertas'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
+import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
 import { Route as AuthenticatedAdminCatalogosRouteImport } from './routes/_authenticated/_admin/catalogos'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/_admin/usuarios'
 
@@ -58,6 +59,11 @@ const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   path: '/inicio',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiAssistantRoute = ApiAssistantRouteImport.update({
+  id: '/api/assistant',
+  path: '/api/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminCatalogosRoute =
   AuthenticatedAdminCatalogosRouteImport.update({
     id: '/catalogos',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/alertas': typeof AuthenticatedAlertasRoute
   '/inicio': typeof AuthenticatedInicioRoute
+  '/api/assistant': typeof ApiAssistantRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/alertas': typeof AuthenticatedAlertasRoute
   '/inicio': typeof AuthenticatedInicioRoute
+  '/api/assistant': typeof ApiAssistantRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/_authenticated/ajustes': typeof AuthenticatedAjustesRoute
   '/_authenticated/alertas': typeof AuthenticatedAlertasRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
+  '/api/assistant': typeof ApiAssistantRoute
   '/_authenticated/_admin/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/_authenticated/_admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
     | '/ajustes'
     | '/alertas'
     | '/inicio'
+    | '/api/assistant'
     | '/catalogos'
     | '/usuarios'
   fileRoutesByTo: FileRoutesByTo
@@ -123,6 +133,7 @@ export interface FileRouteTypes {
     | '/ajustes'
     | '/alertas'
     | '/inicio'
+    | '/api/assistant'
     | '/catalogos'
     | '/usuarios'
   id:
@@ -135,6 +146,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ajustes'
     | '/_authenticated/alertas'
     | '/_authenticated/inicio'
+    | '/api/assistant'
     | '/_authenticated/_admin/catalogos'
     | '/_authenticated/_admin/usuarios'
   fileRoutesById: FileRoutesById
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiAssistantRoute: typeof ApiAssistantRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInicioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/assistant': {
+      id: '/api/assistant'
+      path: '/api/assistant'
+      fullPath: '/api/assistant'
+      preLoaderRoute: typeof ApiAssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/_admin/catalogos': {
       id: '/_authenticated/_admin/catalogos'
       path: '/catalogos'
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiAssistantRoute: ApiAssistantRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
