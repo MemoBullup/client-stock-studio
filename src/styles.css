@@ -143,14 +143,15 @@
   --chart-4: oklch(0.78 0.09 345);
   --chart-5: oklch(0.72 0.15 70);
 
-  --sidebar: oklch(0.255 0.008 262);
-  --sidebar-foreground: oklch(0.97 0.004 250);
-  --sidebar-primary: oklch(0.925 0.2 118);
-  --sidebar-primary-foreground: oklch(0.2 0.012 262);
-  --sidebar-accent: oklch(0.32 0.01 262);
-  --sidebar-accent-foreground: oklch(0.97 0.004 250);
-  --sidebar-border: oklch(0.38 0.012 262);
-  --sidebar-ring: oklch(0.925 0.2 118);
+  /* Superficies secundarias (también usadas por tablas y bloques de las respuestas del asistente) */
+  --sidebar: oklch(0.955 0.014 248);
+  --sidebar-foreground: oklch(0.22 0.012 262);
+  --sidebar-primary: oklch(0.255 0.008 262);
+  --sidebar-primary-foreground: oklch(0.97 0.004 250);
+  --sidebar-accent: oklch(0.925 0.028 245);
+  --sidebar-accent-foreground: oklch(0.22 0.02 258);
+  --sidebar-border: oklch(0.895 0.014 250);
+  --sidebar-ring: oklch(0.52 0.12 252);
 }
 
 @layer base {
