@@ -16,6 +16,7 @@
 - Costs live only in `variant_costs`/`cost_history` (admin-only RLS); never join cost columns into editor-reachable queries, views, exports or audit rows. Absence of a row means "costo pendiente", never 0.
 - SKU is assigned only by the `variants_before_write` trigger via `generate_sku()` (Postgres sequence) when a variant becomes `registered`; client code never sends or edits `sku`. Relations and URLs use `variants.id` (stable UUID).
 - Stock: no `stock_levels` row = pending count; a row with 0 = counted zero. Initial counts allow one `confirmed` row per variant+location+session; duplicates go to `in_review`, never summed.
+- Minimum stock lives in `stock_minimums` (per variant + location, base unit, admin-write). An alert means a counted quantity strictly below the minimum; no count = pending, never an alert. DB functions `list_stock_minimums`/`low_stock_summary` and `src/lib/stock.ts` must agree on this rule.
 - Multi-step writes (product + variant + attributes + count) must go through a single Postgres function with an idempotency key, so retries/double clicks don't duplicate.
 - Routes: signed-in pages under `src/routes/_authenticated/`; admin-only pages under `_authenticated/_admin/` (client gate + RLS). Public signup is disabled; accounts are created by admins via `src/lib/users.functions.ts` (service role loaded inside the handler after an admin check).
 - Every operational table has `is_demo` so demo data can be removed without touching real records.
