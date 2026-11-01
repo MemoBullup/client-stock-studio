@@ -52,6 +52,7 @@ Reglas obligatorias:
 - Si la unidad base no admite decimales, no propongas fracciones.
 - Usa EXISTENCIAS para entender la situación actual; no dejes existencias negativas.
 - reason: motivo corto y claro en español (máx. 120 caracteres). explanation: 1-2 frases en español.
+- En reason y explanation NUNCA escribas los códigos V# o L#: usa el SKU real (ej. DEMO-000002 o ALY-000001) y el nombre de la ubicación.
 - confidence: "alta" solo si SKU, ubicación y cantidad quedan claros sin suponer nada.`;
 
 function friendlyGatewayError(error: unknown): string {
@@ -196,6 +197,15 @@ export async function proposeAdjustment(
   }
   const mode = output.mode === "set" || output.mode === "increase" || output.mode === "decrease" ? output.mode : null;
 
+  // Por si el modelo menciona códigos internos, se reemplazan por SKU y ubicación reales.
+  const humanize = (t: string) =>
+    t
+      .replace(/\(?\bV(\d+)\b\)?/g, (m, n) => vCode.get(`V${n}`)?.sku ?? m)
+      .replace(/\(?\bL(\d+)\b\)?/g, (m, n) => {
+        const l = lCode.get(`L${n}`);
+        return l ? l.name : m;
+      });
+
   // Pone primero los candidatos más relevantes para que el usuario pueda corregir.
   const ordered = chosen ? [chosen, ...candidates.filter((c) => c.id !== chosen.id)] : candidates;
 
@@ -206,9 +216,9 @@ export async function proposeAdjustment(
       locationId: loc?.id ?? null,
       mode,
       quantity,
-      reason: (output.reason ?? "").trim().slice(0, 200) || "Ajuste descrito por el usuario",
+      reason: humanize(output.reason ?? "").trim().slice(0, 200) || "Ajuste descrito por el usuario",
       confidence: chosen && loc && mode && quantity !== null ? output.confidence : "baja",
-      explanation: (output.explanation ?? "").trim().slice(0, 400),
+      explanation: humanize(output.explanation ?? "").replace(/\s{2,}/g, " ").trim().slice(0, 400),
       missingInfo: missing,
     },
     candidates: ordered.slice(0, 15),
