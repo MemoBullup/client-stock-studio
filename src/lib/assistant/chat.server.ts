@@ -129,17 +129,15 @@ export async function handleAssistantChat(request: Request): Promise<Response> {
     .reverse()
     .filter((m) => m.id !== userMessage.id);
 
-  const saveUser = await supabase
-    .from("assistant_messages")
-    .upsert(
-      {
-        user_id: userId,
-        message_id: userMessage.id,
-        role: "user",
-        message: userMessage as unknown as Json,
-      },
-      { onConflict: "user_id,message_id" },
-    );
+  const saveUser = await supabase.from("assistant_messages").upsert(
+    {
+      user_id: userId,
+      message_id: userMessage.id,
+      role: "user",
+      message: userMessage as unknown as Json,
+    },
+    { onConflict: "user_id,message_id" },
+  );
   if (saveUser.error) return json(500, "No se pudo guardar tu pregunta. Intenta de nuevo.");
 
   const uiMessages = [...history, userMessage];
