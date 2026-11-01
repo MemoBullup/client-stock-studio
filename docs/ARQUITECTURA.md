@@ -16,7 +16,7 @@ Especificación completa del cliente: [`docs/especificacion.md`](./especificacio
 | Existencia | `stock_levels` | Cantidad por variante y ubicación (≥ 0). Sin fila = pendiente de conteo; fila con 0 = contado sin existencias. |
 | Conteo inicial | `stock_counts` + `inventory_sessions` | Un solo conteo confirmado por SKU + ubicación + sesión. Un segundo intento queda «en revisión», nunca se suma. |
 | Niveles mínimos | `stock_minimums` | Mínimo por SKU y ubicación, en la unidad base. Lo define el Administrador; todos ven las alertas. Alerta = existencia contada menor al mínimo; sin conteo = pendiente (no alerta). |
-| Ajustes | `stock_adjustments` | Solo Administrador, con motivo e historial. |
+| Ajustes | `stock_adjustments`, `stock_adjustment_requests` | Solo el Administrador aplica, con motivo e historial; requiere conteo previo y nunca deja negativos. El Editor envía solicitudes (pueden venir del asistente de IA) que el Administrador aprueba o rechaza. |
 | Costos privados | `variant_costs`, `cost_history` | Tabla separada, accesible solo para Administrador. Sin fila = costo pendiente (nunca 0). |
 | Imágenes | `variant_images` | Varias por SKU, principal, orden, miniatura, texto alternativo. Ligadas al ID estable. |
 | Categorías / ubicaciones | `categories`, `locations` | Árboles editables. El servidor impide ciclos y limita niveles (categorías: configurable, 4 por defecto). |
@@ -47,4 +47,11 @@ Especificación completa del cliente: [`docs/especificacion.md`](./especificacio
 Los QR usarán la URL base configurada (`app_settings.qr_base_url`) + el ID interno de la variante. Las etiquetas definitivas deben imprimirse con el dominio de producción, no con enlaces de vista previa.
 
 ## Datos demostrativos
-Categorías y ubicaciones de ejemplo llevan `is_demo = true` y se muestran con la etiqueta DEMO. Los ~30 SKU ficticios se cargan en el bloque B. Todas las tablas operativas tienen `is_demo` para poder retirar solo lo demostrativo.
+Categorías y ubicaciones de ejemplo llevan `is_demo = true` y se muestran con la etiqueta DEMO. Los 30 SKU ficticios (prefijo DEMO-) ya están cargados. Todas las tablas operativas tienen `is_demo` para poder retirar solo lo demostrativo.
+
+## Ajustes asistidos con IA
+El usuario describe el ajuste en texto libre. El servidor busca SKU confirmados que coincidan (sin costos), arma la lista de ubicaciones y pide al modelo elegir SKU, ubicación, tipo (fijar total / sumar / restar) y cantidad. La propuesta se valida en el servidor y una persona siempre la revisa: el Editor la envía como solicitud y el Administrador la aplica.
+
+## Accesos y datos de demostración
+- Cuentas demo: `admin.demo@example.com` (Administrador) y `editor.demo@example.com` (Editor). Desactívalas desde «Usuarios y configuración» antes de trabajar con datos reales.
+- 30 SKU ficticios con prefijo `DEMO-`, marcados `is_demo`; los SKU reales empiezan en `ALY-000001`.
