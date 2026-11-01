@@ -27,3 +27,21 @@ describe("alertas de existencias mínimas", () => {
     expect(parseMinimum("2,5", true)).toEqual({ ok: true, value: 2.5 });
   });
 });
+
+import { computeAdjustment } from "./stock";
+
+describe("ajustes de inventario", () => {
+  it("fijar total reemplaza la cantidad", () => {
+    expect(computeAdjustment(35.5, "set", 30)).toEqual({ ok: true, value: 30 });
+  });
+  it("sumar y restar parten de la existencia actual", () => {
+    expect(computeAdjustment(35.5, "increase", 3)).toEqual({ ok: true, value: 38.5 });
+    expect(computeAdjustment(12, "decrease", 4)).toEqual({ ok: true, value: 8 });
+  });
+  it("no permite dejar existencias negativas", () => {
+    expect(computeAdjustment(2, "decrease", 5).ok).toBe(false);
+  });
+  it("no ajusta un SKU pendiente de conteo", () => {
+    expect(computeAdjustment(null, "increase", 1).ok).toBe(false);
+  });
+});
