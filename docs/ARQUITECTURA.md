@@ -1,0 +1,49 @@
+# Aly · Inventario — Arquitectura y decisiones
+
+Especificación completa del cliente: [`docs/especificacion.md`](./especificacion.md).
+
+## Pila
+- **Interfaz**: TanStack Start (React 19) + Tailwind v4. Todo en español, formato es-MX, moneda configurable (MXN).
+- **Servidor y datos**: Lovable Cloud (PostgreSQL, autenticación y almacenamiento de archivos).
+- **Permisos**: se aplican en la base de datos (políticas por fila y funciones del servidor), no solo en la interfaz.
+
+## Entidades
+| Entidad | Tabla | Notas |
+|---|---|---|
+| Producto / modelo | `products` | Agrupa variantes. Categoría comercial (`category_id`, nula = «Por clasificar») y tipo de producto. No guarda existencias. |
+| Variante inventariable (SKU) | `variants` | ID interno estable (`id`, UUID) + `sku` legible. Estados separados: registro, revisión, fotografía. Unidad base explícita. |
+| Atributos | `attributes`, `product_type_attributes`, `variant_attribute_values` | Texto, número, selección, selección múltiple. Por tipo: obligatorio / define variante. Valor real, «No aplica» o «Dato pendiente». |
+| Existencia | `stock_levels` | Cantidad por variante y ubicación (≥ 0). Sin fila = pendiente de conteo; fila con 0 = contado sin existencias. |
+| Conteo inicial | `stock_counts` + `inventory_sessions` | Un solo conteo confirmado por SKU + ubicación + sesión. Un segundo intento queda «en revisión», nunca se suma. |
+| Ajustes | `stock_adjustments` | Solo Administrador, con motivo e historial. |
+| Costos privados | `variant_costs`, `cost_history` | Tabla separada, accesible solo para Administrador. Sin fila = costo pendiente (nunca 0). |
+| Imágenes | `variant_images` | Varias por SKU, principal, orden, miniatura, texto alternativo. Ligadas al ID estable. |
+| Categorías / ubicaciones | `categories`, `locations` | Árboles editables. El servidor impide ciclos y limita niveles (categorías: configurable, 4 por defecto). |
+| Historial | `audit_log` | Registro automático de cambios (sin costos). Solo Administrador. |
+| Configuración | `app_settings` | Nombre, logotipo, moneda, prefijo de SKU, URL base de QR, meta, tamaño de etiqueta. |
+
+## SKU
+- Se genera en el servidor al confirmar el registro (`draft → registered`), con una secuencia de PostgreSQL: única, sin colisiones con altas simultáneas y sin reutilizar números (ni de archivados).
+- Formato `PREFIJO + consecutivo` (ej. `ALY-000001`). El prefijo aplica a nuevas altas.
+- No contiene categoría, ubicación ni precio, y nunca cambia (un disparador lo bloquea).
+
+## Roles
+- **Administrador** y **Editor** (tabla `user_roles`, un rol por persona). Nadie puede asignarse su rol.
+- Cuentas autorizadas: el registro público está desactivado; el Administrador crea las cuentas desde «Usuarios y configuración».
+- Una cuenta sin rol o desactivada ve «Cuenta pendiente de autorización» y no puede leer datos.
+- El Editor no puede leer `variant_costs`, `cost_history`, `audit_log` ni `stock_adjustments`; no puede editar registros confirmados, archivar, validar ni aprobar fotografías (lo impide la base de datos).
+
+## Procedimiento seguro para crear al primer Administrador
+1. En Lovable: **Cloud → Users → Add user** y crea la cuenta con correo y contraseña (queda confirmada).
+2. Desde la base de datos (lo hace el equipo técnico; no existe forma de hacerlo desde la app):
+   ```sql
+   select public.bootstrap_first_admin('correo@ejemplo.com');
+   ```
+   La función solo funciona si todavía no existe ningún Administrador y no puede ejecutarse desde el navegador.
+3. Ese Administrador crea el resto de las cuentas y asigna roles desde la aplicación. Siempre debe quedar al menos un Administrador activo.
+
+## QR y dominio
+Los QR usarán la URL base configurada (`app_settings.qr_base_url`) + el ID interno de la variante. Las etiquetas definitivas deben imprimirse con el dominio de producción, no con enlaces de vista previa.
+
+## Datos demostrativos
+Categorías y ubicaciones de ejemplo llevan `is_demo = true` y se muestran con la etiqueta DEMO. Los ~30 SKU ficticios se cargan en el bloque B. Todas las tablas operativas tienen `is_demo` para poder retirar solo lo demostrativo.
