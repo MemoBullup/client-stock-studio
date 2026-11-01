@@ -15,23 +15,17 @@ const resetSchema = z.object({
   password: z.string().min(8, "Mínimo 8 caracteres").max(72),
 });
 
-async function assertAdmin(supabase: { rpc: (...args: never[]) => unknown }, userId: string) {
-  const client = supabase as unknown as {
-    rpc: (
-      fn: "has_role",
-      args: { _user_id: string; _role: "admin" | "editor" },
-    ) => Promise<{ data: boolean | null; error: { message: string } | null }>;
-  };
-  const { data, error } = await client.rpc("has_role", { _user_id: userId, _role: "admin" });
-  if (error || !data) throw new Error("Solo un Administrador puede gestionar usuarios");
-}
-
 /** Crea una cuenta autorizada (el registro público está desactivado). */
 export const createStaffUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => createUserSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase as never, context.userId);
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Solo un Administrador puede gestionar usuarios");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const created = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
@@ -58,7 +52,12 @@ export const resetStaffPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => resetSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase as never, context.userId);
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Solo un Administrador puede gestionar usuarios");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const res = await supabaseAdmin.auth.admin.updateUserById(data.userId, { password: data.password });
     if (res.error) throw new Error(res.error.message);
