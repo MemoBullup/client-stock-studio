@@ -738,6 +738,57 @@ export type Database = {
           },
         ]
       }
+      stock_minimums: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          is_demo: boolean
+          location_id: string
+          min_quantity: number
+          notes: string | null
+          updated_at: string
+          updated_by: string | null
+          variant_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          is_demo?: boolean
+          location_id: string
+          min_quantity: number
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          variant_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          is_demo?: boolean
+          location_id?: string
+          min_quantity?: number
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_minimums_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_minimums_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       units: {
         Row: {
           allows_decimal: boolean
@@ -1082,11 +1133,56 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      list_stock_minimums: {
+        Args: {
+          _limit?: number
+          _offset?: number
+          _only_alerts?: boolean
+          _search?: string
+        }
+        Returns: {
+          allows_decimal: boolean
+          counted_at: string
+          location_id: string
+          min_quantity: number
+          product_name: string
+          quantity: number
+          record_status: Database["public"]["Enums"]["record_status"]
+          sku: string
+          total_count: number
+          unit_plural: string
+          unit_singular: string
+          updated_at: string
+          variant_id: string
+          variant_label: string
+        }[]
+      }
       location_stock_counts: {
         Args: never
         Returns: {
           location_id: string
           sku_count: number
+        }[]
+      }
+      low_stock_summary: {
+        Args: never
+        Returns: {
+          below_count: number
+          configured_count: number
+          pending_count: number
+        }[]
+      }
+      search_variants: {
+        Args: { _limit?: number; _q: string }
+        Returns: {
+          allows_decimal: boolean
+          id: string
+          product_name: string
+          record_status: Database["public"]["Enums"]["record_status"]
+          sku: string
+          unit_plural: string
+          unit_singular: string
+          variant_label: string
         }[]
       }
       set_user_active: {

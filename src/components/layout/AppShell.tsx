@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  Bell,
   Boxes,
   Camera,
   FileSpreadsheet,
@@ -27,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
+import { useLowStockSummary } from "@/lib/alerts";
 import { ROLE_LABEL, useSettings, type Me } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
@@ -61,6 +63,8 @@ function initials(name: string) {
 
 export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
   const isAdmin = me.role === "admin";
+  const { data: alerts } = useLowStockSummary();
+  const below = alerts?.below ?? 0;
   const items = NAV.filter((i) => !i.adminOnly || isAdmin);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: settings } = useSettings();
@@ -133,6 +137,23 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
+            <Link
+              to="/alertas"
+              className={cn(
+                "relative flex size-10 items-center justify-center rounded-full transition hover:brightness-95",
+                below > 0 ? "bg-warning-soft text-warning-foreground" : "bg-muted text-muted-foreground",
+                pathname.startsWith("/alertas") && "ring-2 ring-primary",
+              )}
+              aria-label={below > 0 ? `Alertas de existencias: ${below} SKU bajo mínimo` : "Alertas de existencias: sin alertas"}
+              title="Alertas de existencias"
+            >
+              <Bell className="size-4" aria-hidden />
+              {below > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-graphite px-1 text-[10px] font-bold text-primary tabular">
+                  {below > 99 ? "99+" : below}
+                </span>
+              )}
+            </Link>
             <Badge variant={isAdmin ? "graphite" : "secondary"} className="hidden sm:inline-flex">
               {me.role ? ROLE_LABEL[me.role] : "Sin rol"}
             </Badge>

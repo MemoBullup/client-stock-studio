@@ -15,6 +15,7 @@ Especificación completa del cliente: [`docs/especificacion.md`](./especificacio
 | Atributos | `attributes`, `product_type_attributes`, `variant_attribute_values` | Texto, número, selección, selección múltiple. Por tipo: obligatorio / define variante. Valor real, «No aplica» o «Dato pendiente». |
 | Existencia | `stock_levels` | Cantidad por variante y ubicación (≥ 0). Sin fila = pendiente de conteo; fila con 0 = contado sin existencias. |
 | Conteo inicial | `stock_counts` + `inventory_sessions` | Un solo conteo confirmado por SKU + ubicación + sesión. Un segundo intento queda «en revisión», nunca se suma. |
+| Niveles mínimos | `stock_minimums` | Mínimo por SKU y ubicación, en la unidad base. Lo define el Administrador; todos ven las alertas. Alerta = existencia contada menor al mínimo; sin conteo = pendiente (no alerta). |
 | Ajustes | `stock_adjustments` | Solo Administrador, con motivo e historial. |
 | Costos privados | `variant_costs`, `cost_history` | Tabla separada, accesible solo para Administrador. Sin fila = costo pendiente (nunca 0). |
 | Imágenes | `variant_images` | Varias por SKU, principal, orden, miniatura, texto alternativo. Ligadas al ID estable. |
