@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, ClipboardCheck, FileClock, FolderTree, MapPin, Tags, Users } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, ClipboardCheck, FileClock, FolderTree, MapPin, Tags, Users } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { useLowStockSummary } from "@/lib/alerts";
 import { formatNumber } from "@/lib/format";
 import { useMe, useSettings } from "@/lib/session";
 
@@ -76,6 +77,7 @@ function InicioPage() {
   const registered = stats?.registered ?? 0;
   const pct = Math.min(100, (registered / goal) * 100);
   const isAdmin = me?.role === "admin";
+  const { data: alerts, isLoading: alertsLoading } = useLowStockSummary();
   const today = new Intl.DateTimeFormat("es-MX", { weekday: "long", day: "numeric", month: "long" }).format(
     new Date(),
   );
@@ -157,6 +159,36 @@ function InicioPage() {
           )}
         </section>
       </div>
+
+      <Link
+        to="/alertas"
+        className={
+          (alerts?.below ?? 0) > 0
+            ? "mt-4 flex flex-wrap items-center gap-4 rounded-3xl border border-warning bg-warning-soft p-5 transition hover:brightness-[0.98]"
+            : "surface-card mt-4 flex flex-wrap items-center gap-4 p-5 transition hover:brightness-[0.99]"
+        }
+      >
+        <span className="flex size-11 items-center justify-center rounded-full bg-graphite text-primary">
+          <AlertTriangle className="size-5" aria-hidden />
+        </span>
+        <span className="flex-1">
+          <span className="block font-bold">
+            {alertsLoading
+              ? "Revisando existencias…"
+              : (alerts?.below ?? 0) > 0
+                ? `${alerts!.below} SKU por debajo de su nivel mínimo`
+                : "Sin alertas de existencias"}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {(alerts?.configured ?? 0) === 0
+              ? "Todavía no hay niveles mínimos configurados."
+              : `${alerts!.configured} mínimos configurados · ${alerts!.pending} pendientes de conteo`}
+          </span>
+        </span>
+        <span className="inline-flex items-center gap-1 text-sm font-semibold">
+          Ver alertas <ArrowUpRight className="size-4" />
+        </span>
+      </Link>
 
       <section className="surface-card mt-4 p-6 sm:p-8" aria-labelledby="avance-title">
         <div className="flex flex-wrap items-center justify-between gap-2">
