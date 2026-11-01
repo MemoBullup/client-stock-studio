@@ -181,7 +181,9 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
       const swap = idx + dir;
       if (swap < 0 || swap >= siblings.length) return;
       const next = siblings.slice();
-      [next[idx], next[swap]] = [next[swap], next[idx]];
+      const a = next[idx]!;
+      next[idx] = next[swap]!;
+      next[swap] = a;
       const updates = next
         .map((s, i) => ({ id: s.id, sort_order: (i + 1) * 10, prev: s.sort_order }))
         .filter((u) => u.sort_order !== u.prev);
@@ -635,11 +637,12 @@ function DeleteDialog({
   const remove = useMutation({
     mutationFn: async () => {
       if (kind === "categories") {
-        const { error } = await supabase.rpc("delete_category", {
+        const args: { _id: string; _reassign: boolean; _reassign_to?: string } = {
           _id: item.id,
           _reassign: needsReassign,
-          _reassign_to: needsReassign && target !== NONE ? target : undefined,
-        });
+        };
+        if (needsReassign && target !== NONE) args._reassign_to = target;
+        const { error } = await supabase.rpc("delete_category", args);
         if (error) throw error;
       } else {
         const { error } = await supabase.rpc("delete_location", { _id: item.id });

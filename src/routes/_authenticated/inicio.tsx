@@ -187,7 +187,7 @@ function InicioPage() {
   );
 }
 
-function Stat({ label, value, loading }: { label: string; value?: number; loading: boolean }) {
+function Stat({ label, value, loading }: { label: string; value?: number | undefined; loading: boolean }) {
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -204,7 +204,7 @@ function MiniTile({
 }: {
   icon: typeof FolderTree;
   label: string;
-  value?: number;
+  value?: number | undefined;
   loading: boolean;
 }) {
   return (

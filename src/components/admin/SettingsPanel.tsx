@@ -42,7 +42,7 @@ export function SettingsPanel() {
   const { data: settings, isLoading } = useSettings();
   const qc = useQueryClient();
   const [form, setForm] = useState<FormState | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export function SettingsPanel() {
     mutationFn: async (file: File) => {
       if (!/^image\/(png|jpeg|webp)$/.test(file.type)) throw new Error("Usa una imagen PNG, JPG o WEBP.");
       if (file.size > 5 * 1024 * 1024) throw new Error("La imagen debe pesar menos de 5 MB.");
-      const ext = file.type.split("/")[1].replace("jpeg", "jpg");
+      const ext = (file.type.split("/")[1] ?? "png").replace("jpeg", "jpg");
       const path = `logo/${crypto.randomUUID()}.${ext}`;
       const up = await supabase.storage.from("branding").upload(path, file, { contentType: file.type });
       if (up.error) throw up.error;
@@ -258,8 +258,8 @@ function Field({
 }: {
   id: string;
   label: string;
-  hint?: string;
-  error?: string;
+  hint?: string | undefined;
+  error?: string | undefined;
   children: React.ReactNode;
 }) {
   return (

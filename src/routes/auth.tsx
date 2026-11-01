@@ -50,7 +50,7 @@ function AuthPage() {
     e.preventDefault();
     const next: typeof errors = {};
     const parsed = emailSchema.safeParse(email);
-    if (!parsed.success) next.email = parsed.error.issues[0]?.message;
+    if (!parsed.success) next.email = parsed.error.issues[0]?.message ?? "Correo inválido";
     if (!password) next.password = "Escribe tu contraseña";
     setErrors(next);
     if (Object.keys(next).length) return;
@@ -68,7 +68,7 @@ function AuthPage() {
     e.preventDefault();
     const parsed = emailSchema.safeParse(email);
     if (!parsed.success) {
-      setErrors({ email: parsed.error.issues[0]?.message });
+      setErrors({ email: parsed.error.issues[0]?.message ?? "Correo inválido" });
       return;
     }
     setErrors({});
@@ -253,7 +253,7 @@ function Field({
   id: string;
   label: string;
   icon: React.ReactNode;
-  error?: string;
+  error?: string | undefined;
   children: React.ReactNode;
 }) {
   return (

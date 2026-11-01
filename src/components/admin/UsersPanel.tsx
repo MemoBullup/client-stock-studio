@@ -141,7 +141,7 @@ export function UsersPanel() {
                     Rol de {u.fullName}
                   </Label>
                   <Select
-                    value={u.role ?? undefined}
+                    value={u.role ?? ""}
                     onValueChange={(v) => setRole.mutate({ id: u.id, role: v as AppRole })}
                     disabled={setRole.isPending}
                   >
@@ -189,7 +189,7 @@ function CreateUserDialog({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
   const create = useServerFn(createStaffUser);
   const [form, setForm] = useState({ fullName: "", email: "", password: randomPassword(), role: "editor" as AppRole });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Partial<Record<"fullName" | "email" | "password" | "role" | "form", string>>>({});
   const [done, setDone] = useState(false);
 
   const mutation = useMutation({
@@ -348,7 +348,7 @@ function FormField({
 }: {
   id: string;
   label: string;
-  error?: string;
+  error?: string | undefined;
   children: React.ReactNode;
 }) {
   return (
