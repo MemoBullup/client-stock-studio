@@ -32,4 +32,3 @@ export type ProposeResult =
       stock: Array<{ variantId: string; locationId: string; quantity: number }>;
     }
   | { ok: false; error: string; candidates: CandidateDTO[] };
-

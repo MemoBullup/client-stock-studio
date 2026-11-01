@@ -74,6 +74,33 @@ export type Database = {
         }
         Relationships: []
       }
+      assistant_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: Json
+          message_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: Json
+          message_id: string
+          role: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: Json
+          message_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       attributes: {
         Row: {
           code: string
@@ -1221,6 +1248,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      inventory_overview: {
+        Args: never
+        Returns: {
+          active_locations: number
+          counted_skus: number
+          pending_count_skus: number
+          registered_skus: number
+          zero_stock_skus: number
+        }[]
+      }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       list_stock_minimums: {
         Args: {
@@ -1261,6 +1298,17 @@ export type Database = {
           pending_count: number
         }[]
       }
+      pending_count_variants: {
+        Args: { _limit?: number }
+        Returns: {
+          id: string
+          product_name: string
+          sku: string
+          total_count: number
+          unit_plural: string
+          variant_label: string
+        }[]
+      }
       review_adjustment_request: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: string
@@ -1288,6 +1336,15 @@ export type Database = {
           _user_id: string
         }
         Returns: undefined
+      }
+      stock_totals_by_unit: {
+        Args: never
+        Returns: {
+          sku_count: number
+          total: number
+          unit_plural: string
+          unit_singular: string
+        }[]
       }
       suggest_variant_candidates: {
         Args: { _limit?: number; _text: string }

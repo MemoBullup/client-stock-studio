@@ -29,6 +29,20 @@
       "when": 1793559528377,
       "tag": "0003_ai_adjustment_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793560601405,
+      "tag": "0004_assistant_messages",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793560724853,
+      "tag": "0005_assistant_inventory_functions",
+      "breakpoints": true
     }
   ]
 }

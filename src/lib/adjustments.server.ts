@@ -12,7 +12,12 @@ import { pathOf, type TreeItem } from "@/lib/tree";
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
 const MODEL = "openai/gpt-6-astra";
 
-import type { AdjustmentMode, CandidateDTO, ProposalDTO, ProposeResult } from "@/lib/adjustments.types";
+import type {
+  AdjustmentMode,
+  CandidateDTO,
+  ProposalDTO,
+  ProposeResult,
+} from "@/lib/adjustments.types";
 
 interface ModelOutput {
   variant_code: string | null;
@@ -28,7 +33,16 @@ interface ModelOutput {
 const outputSchema = jsonSchema<ModelOutput>({
   type: "object",
   additionalProperties: false,
-  required: ["variant_code", "location_code", "mode", "quantity", "reason", "confidence", "explanation", "missing_info"],
+  required: [
+    "variant_code",
+    "location_code",
+    "mode",
+    "quantity",
+    "reason",
+    "confidence",
+    "explanation",
+    "missing_info",
+  ],
   properties: {
     variant_code: { type: ["string", "null"], description: "Código V# del SKU elegido o null" },
     location_code: { type: ["string", "null"], description: "Código L# de la ubicación o null" },
@@ -57,11 +71,15 @@ Reglas obligatorias:
 
 function friendlyGatewayError(error: unknown): string {
   const status = APICallError.isInstance(error) ? error.statusCode : undefined;
-  if (status === 402) return "Se agotaron los créditos de IA del espacio de trabajo. Pide al responsable que agregue créditos.";
-  if (status === 429) return "El asistente recibió demasiadas solicitudes. Espera un momento e intenta de nuevo.";
-  if (status === 403) return "El asistente de IA no está disponible para este espacio de trabajo en este momento.";
+  if (status === 402)
+    return "Se agotaron los créditos de IA del espacio de trabajo. Pide al responsable que agregue créditos.";
+  if (status === 429)
+    return "El asistente recibió demasiadas solicitudes. Espera un momento e intenta de nuevo.";
+  if (status === 403)
+    return "El asistente de IA no está disponible para este espacio de trabajo en este momento.";
   if (status === 401) return "El asistente de IA no está configurado correctamente.";
-  if (status && status >= 500) return "El asistente de IA no respondió. Intenta de nuevo en unos segundos.";
+  if (status && status >= 500)
+    return "El asistente de IA no respondió. Intenta de nuevo en unos segundos.";
   return "No se pudo generar una propuesta. Intenta describir el ajuste de otra forma o captúralo manualmente.";
 }
 
@@ -70,7 +88,8 @@ export async function proposeAdjustment(
   text: string,
 ): Promise<ProposeResult> {
   const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) return { ok: false, error: "El asistente de IA no está configurado.", candidates: [] };
+  if (!apiKey)
+    return { ok: false, error: "El asistente de IA no está configurado.", candidates: [] };
 
   // 1. Candidatos visibles para este usuario (RLS) — sin costos.
   const candRes = await supabase.rpc("suggest_variant_candidates", { _text: text, _limit: 30 });
@@ -81,11 +100,20 @@ export async function proposeAdjustment(
   const [varRes, locRes, stockRes] = await Promise.all([
     ids.length
       ? supabase.from("variants").select("id, units_per_presentation").in("id", ids)
-      : Promise.resolve({ data: [] as { id: string; units_per_presentation: number | null }[], error: null }),
+      : Promise.resolve({
+          data: [] as { id: string; units_per_presentation: number | null }[],
+          error: null,
+        }),
     supabase.from("locations").select("id, parent_id, name, sort_order, depth, is_active"),
     ids.length
-      ? supabase.from("stock_levels").select("variant_id, location_id, quantity").in("variant_id", ids)
-      : Promise.resolve({ data: [] as { variant_id: string; location_id: string; quantity: number }[], error: null }),
+      ? supabase
+          .from("stock_levels")
+          .select("variant_id, location_id, quantity")
+          .in("variant_id", ids)
+      : Promise.resolve({
+          data: [] as { variant_id: string; location_id: string; quantity: number }[],
+          error: null,
+        }),
   ]);
   if (varRes.error) throw new Error(varRes.error.message);
   if (locRes.error) throw new Error(locRes.error.message);
@@ -107,7 +135,8 @@ export async function proposeAdjustment(
   if (candidates.length === 0) {
     return {
       ok: false,
-      error: "No encontré ningún SKU confirmado que coincida con la descripción. Menciona el nombre, color, medida o SKU.",
+      error:
+        "No encontré ningún SKU confirmado que coincida con la descripción. Menciona el nombre, color, medida o SKU.",
       candidates: [],
     };
   }
@@ -128,11 +157,15 @@ export async function proposeAdjustment(
 
   const candText = [...vCode]
     .map(([code, c]) => {
-      const conv = c.unitsPerPresentation ? ` | ${c.unitsPerPresentation} ${c.unitPlural} por rollo` : "";
+      const conv = c.unitsPerPresentation
+        ? ` | ${c.unitsPerPresentation} ${c.unitPlural} por rollo`
+        : "";
       return `${code} | ${c.sku ?? "sin SKU"} | ${c.productName}${c.variantLabel ? ` · ${c.variantLabel}` : ""} | unidad base: ${c.unitSingular}${c.allowsDecimal ? " (admite decimales)" : " (solo enteros)"}${conv} | ${c.attributes || "sin atributos"}`;
     })
     .join("\n");
-  const locText = [...lCode].map(([code, l]) => `${code} | ${pathOf(locations, l.id, " > ")}`).join("\n");
+  const locText = [...lCode]
+    .map(([code, l]) => `${code} | ${pathOf(locations, l.id, " > ")}`)
+    .join("\n");
   const stockText =
     stock
       .map((s) => {
@@ -186,16 +219,26 @@ export async function proposeAdjustment(
   }
 
   // 3. Validación en servidor: solo códigos existentes y cantidades coherentes.
-  const chosen = output.variant_code ? vCode.get(output.variant_code.trim().toUpperCase()) : undefined;
-  const loc = output.location_code ? lCode.get(output.location_code.trim().toUpperCase()) : undefined;
+  const chosen = output.variant_code
+    ? vCode.get(output.variant_code.trim().toUpperCase())
+    : undefined;
+  const loc = output.location_code
+    ? lCode.get(output.location_code.trim().toUpperCase())
+    : undefined;
   const missing = [...(output.missing_info ?? [])].slice(0, 5);
-  let quantity = typeof output.quantity === "number" && Number.isFinite(output.quantity) ? output.quantity : null;
+  let quantity =
+    typeof output.quantity === "number" && Number.isFinite(output.quantity)
+      ? output.quantity
+      : null;
   if (quantity !== null && quantity < 0) quantity = null;
   if (quantity !== null && chosen && !chosen.allowsDecimal && !Number.isInteger(quantity)) {
     missing.push(`La unidad «${chosen.unitSingular}» solo admite enteros; revisa la cantidad.`);
     quantity = null;
   }
-  const mode = output.mode === "set" || output.mode === "increase" || output.mode === "decrease" ? output.mode : null;
+  const mode =
+    output.mode === "set" || output.mode === "increase" || output.mode === "decrease"
+      ? output.mode
+      : null;
 
   // Por si el modelo menciona códigos internos, se reemplazan por SKU y ubicación reales.
   const humanize = (t: string) =>
@@ -216,9 +259,15 @@ export async function proposeAdjustment(
       locationId: loc?.id ?? null,
       mode,
       quantity,
-      reason: humanize(output.reason ?? "").trim().slice(0, 200) || "Ajuste descrito por el usuario",
+      reason:
+        humanize(output.reason ?? "")
+          .trim()
+          .slice(0, 200) || "Ajuste descrito por el usuario",
       confidence: chosen && loc && mode && quantity !== null ? output.confidence : "baja",
-      explanation: humanize(output.explanation ?? "").replace(/\s{2,}/g, " ").trim().slice(0, 400),
+      explanation: humanize(output.explanation ?? "")
+        .replace(/\s{2,}/g, " ")
+        .trim()
+        .slice(0, 400),
       missingInfo: missing,
     },
     candidates: ordered.slice(0, 15),

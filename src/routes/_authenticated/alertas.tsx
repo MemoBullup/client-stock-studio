@@ -28,7 +28,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { minimumsQuery, useLowStockSummary, type MinimumRow } from "@/lib/alerts";
 import { friendlyError } from "@/lib/errors";
@@ -44,7 +50,10 @@ export const Route = createFileRoute("/_authenticated/alertas")({
       { title: "Alertas de existencias · Aly Inventario" },
       { name: "description", content: "SKU por debajo de su nivel mínimo en cada ubicación." },
       { property: "og:title", content: "Alertas de existencias · Aly Inventario" },
-      { property: "og:description", content: "SKU por debajo de su nivel mínimo en cada ubicación." },
+      {
+        property: "og:description",
+        content: "SKU por debajo de su nivel mínimo en cada ubicación.",
+      },
     ],
   }),
   component: AlertasPage,
@@ -66,7 +75,11 @@ function useLocations() {
   });
 }
 
-type DialogState = { type: "create" } | { type: "edit"; row: MinimumRow } | { type: "delete"; row: MinimumRow } | null;
+type DialogState =
+  | { type: "create" }
+  | { type: "edit"; row: MinimumRow }
+  | { type: "delete"; row: MinimumRow }
+  | null;
 
 function AlertasPage() {
   const { data: me } = useMe();
@@ -87,7 +100,9 @@ function AlertasPage() {
 
   const summary = useLowStockSummary();
   const locations = useLocations();
-  const list = useQuery(minimumsQuery({ search, onlyAlerts: view === "alerts", page, pageSize: PAGE_SIZE }));
+  const list = useQuery(
+    minimumsQuery({ search, onlyAlerts: view === "alerts", page, pageSize: PAGE_SIZE }),
+  );
   const totalPages = Math.max(1, Math.ceil((list.data?.total ?? 0) / PAGE_SIZE));
 
   return (
@@ -140,7 +155,11 @@ function AlertasPage() {
 
       <section className="surface-card mt-4 p-4 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="inline-flex rounded-full bg-graphite p-1" role="tablist" aria-label="Vista">
+          <div
+            className="inline-flex rounded-full bg-graphite p-1"
+            role="tablist"
+            aria-label="Vista"
+          >
             {(
               [
                 ["alerts", "Bajo mínimo"],
@@ -157,7 +176,9 @@ function AlertasPage() {
                 }}
                 className={cn(
                   "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
-                  view === key ? "bg-primary text-primary-foreground" : "text-graphite-foreground hover:bg-graphite-soft",
+                  view === key
+                    ? "bg-primary text-primary-foreground"
+                    : "text-graphite-foreground hover:bg-graphite-soft",
                 )}
               >
                 {label}
@@ -182,14 +203,22 @@ function AlertasPage() {
               <Loader2 className="size-4 animate-spin" /> Cargando…
             </p>
           ) : list.isError ? (
-            <div role="alert" className="rounded-2xl bg-destructive/10 p-5 text-sm text-destructive">
+            <div
+              role="alert"
+              className="rounded-2xl bg-destructive/10 p-5 text-sm text-destructive"
+            >
               No se pudieron cargar las alertas. {friendlyError(list.error)}
               <Button variant="outline" size="sm" className="ml-3" onClick={() => list.refetch()}>
                 Reintentar
               </Button>
             </div>
           ) : (list.data?.rows.length ?? 0) === 0 ? (
-            <EmptyState view={view} search={search} isAdmin={isAdmin} configured={summary.data?.configured ?? 0} />
+            <EmptyState
+              view={view}
+              search={search}
+              isAdmin={isAdmin}
+              configured={summary.data?.configured ?? 0}
+            />
           ) : (
             list.data!.rows.map((row) => (
               <MinimumCard
@@ -210,10 +239,20 @@ function AlertasPage() {
               Página {page + 1} de {totalPages} · {list.data?.total} registros
             </span>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page === 0}
+                onClick={() => setPage((p) => p - 1)}
+              >
                 <ChevronLeft /> Anterior
               </Button>
-              <Button variant="outline" size="sm" disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page + 1 >= totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
                 Siguiente <ChevronRight />
               </Button>
             </div>
@@ -278,7 +317,14 @@ function SummaryTile({
       </span>
       <span>
         <span className="block text-3xl font-bold tabular">{loading ? "…" : (value ?? 0)}</span>
-        <span className={cn("text-sm", tone === "alert" ? "text-graphite-muted" : "text-muted-foreground")}>{label}</span>
+        <span
+          className={cn(
+            "text-sm",
+            tone === "alert" ? "text-graphite-muted" : "text-muted-foreground",
+          )}
+        >
+          {label}
+        </span>
       </span>
     </Comp>
   );
@@ -297,7 +343,11 @@ function MinimumCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const unit = { name_singular: row.unit_singular, name_plural: row.unit_plural, allows_decimal: row.allows_decimal };
+  const unit = {
+    name_singular: row.unit_singular,
+    name_plural: row.unit_plural,
+    allows_decimal: row.allows_decimal,
+  };
   const state = minimumState(row.quantity, row.min_quantity);
   const missing = shortfall(row.quantity, row.min_quantity);
   return (
@@ -313,7 +363,9 @@ function MinimumCard({
             {row.sku ?? "Borrador sin SKU"}
           </span>
           <span className="font-semibold">{row.product_name}</span>
-          {row.variant_label && <span className="text-sm text-muted-foreground">· {row.variant_label}</span>}
+          {row.variant_label && (
+            <span className="text-sm text-muted-foreground">· {row.variant_label}</span>
+          )}
         </div>
         <p className="mt-1 text-sm text-muted-foreground">{locationPath}</p>
       </div>
@@ -337,13 +389,27 @@ function MinimumCard({
             <CheckCircle2 /> En nivel
           </Badge>
         )}
-        {row.counted_at && <span className="text-xs text-muted-foreground">Contado {formatDate(row.counted_at)}</span>}
+        {row.counted_at && (
+          <span className="text-xs text-muted-foreground">
+            Contado {formatDate(row.counted_at)}
+          </span>
+        )}
         {isAdmin && (
           <div className="flex gap-1">
-            <Button variant="ghost" size="icon-sm" onClick={onEdit} aria-label={`Editar mínimo de ${row.sku ?? row.product_name}`}>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={onEdit}
+              aria-label={`Editar mínimo de ${row.sku ?? row.product_name}`}
+            >
               <Pencil />
             </Button>
-            <Button variant="ghost" size="icon-sm" onClick={onDelete} aria-label={`Quitar mínimo de ${row.sku ?? row.product_name}`}>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={onDelete}
+              aria-label={`Quitar mínimo de ${row.sku ?? row.product_name}`}
+            >
               <Trash2 />
             </Button>
           </div>
@@ -366,7 +432,8 @@ function EmptyState({
 }) {
   let text: string;
   if (search) text = `Nada coincide con «${search}».`;
-  else if (view === "alerts" && configured > 0) text = "Todo en orden: ningún SKU contado está por debajo de su mínimo.";
+  else if (view === "alerts" && configured > 0)
+    text = "Todo en orden: ningún SKU contado está por debajo de su mínimo.";
   else if (isAdmin)
     text = "Aún no hay niveles mínimos. Usa «Agregar mínimo» para definirlos por SKU y ubicación.";
   else text = "Aún no hay niveles mínimos configurados. El Administrador puede definirlos.";
@@ -418,7 +485,12 @@ function MinimumDialog({
   );
   const [locationId, setLocationId] = useState(row?.location_id ?? "");
   const [minRaw, setMinRaw] = useState(row ? String(row.min_quantity) : "");
-  const [errors, setErrors] = useState<{ variant?: string; location?: string; min?: string; form?: string }>({});
+  const [errors, setErrors] = useState<{
+    variant?: string;
+    location?: string;
+    min?: string;
+    form?: string;
+  }>({});
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(q), 250);
@@ -489,7 +561,8 @@ function MinimumDialog({
             {variant ? (
               <div className="flex items-center justify-between gap-2 rounded-2xl bg-muted p-3 text-sm">
                 <span>
-                  <span className="font-mono font-semibold">{variant.sku ?? "Borrador"}</span> · {variant.product_name}
+                  <span className="font-mono font-semibold">{variant.sku ?? "Borrador"}</span> ·{" "}
+                  {variant.product_name}
                   {variant.variant_label ? ` · ${variant.variant_label}` : ""}
                 </span>
                 {!editing && (
@@ -508,7 +581,11 @@ function MinimumDialog({
                   autoFocus
                   aria-invalid={!!errors.variant}
                 />
-                <div className="max-h-56 overflow-y-auto rounded-2xl border" role="listbox" aria-label="Resultados">
+                <div
+                  className="max-h-56 overflow-y-auto rounded-2xl border"
+                  role="listbox"
+                  aria-label="Resultados"
+                >
                   {results.isLoading ? (
                     <p className="p-3 text-sm text-muted-foreground">Buscando…</p>
                   ) : (results.data?.length ?? 0) === 0 ? (
@@ -527,8 +604,11 @@ function MinimumDialog({
                         onClick={() => setVariant(v)}
                         className="block w-full border-b px-3 py-2 text-left text-sm last:border-b-0 hover:bg-accent focus:bg-accent focus:outline-none"
                       >
-                        <span className="font-mono font-semibold">{v.sku ?? "Borrador"}</span> · {v.product_name}
-                        {v.variant_label ? <span className="text-muted-foreground"> · {v.variant_label}</span> : null}
+                        <span className="font-mono font-semibold">{v.sku ?? "Borrador"}</span> ·{" "}
+                        {v.product_name}
+                        {v.variant_label ? (
+                          <span className="text-muted-foreground"> · {v.variant_label}</span>
+                        ) : null}
                       </button>
                     ))
                   )}
@@ -566,10 +646,14 @@ function MinimumDialog({
                 className="w-40 tabular"
                 aria-invalid={!!errors.min}
               />
-              <span className="text-sm text-muted-foreground">{variant ? variant.unit_plural : "unidad base"}</span>
+              <span className="text-sm text-muted-foreground">
+                {variant ? variant.unit_plural : "unidad base"}
+              </span>
             </div>
             {variant && !variant.allows_decimal && (
-              <p className="text-xs text-muted-foreground">Esta unidad solo admite números enteros.</p>
+              <p className="text-xs text-muted-foreground">
+                Esta unidad solo admite números enteros.
+              </p>
             )}
             {errors.min && <p className="text-sm text-destructive">{errors.min}</p>}
           </div>
@@ -625,8 +709,8 @@ function DeleteMinimumDialog({
         <DialogHeader>
           <DialogTitle>Quitar nivel mínimo</DialogTitle>
           <DialogDescription>
-            {row.sku ?? row.product_name} en {locationPath}. Ya no se generarán alertas para esta ubicación. Las
-            existencias no cambian.
+            {row.sku ?? row.product_name} en {locationPath}. Ya no se generarán alertas para esta
+            ubicación. Las existencias no cambian.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

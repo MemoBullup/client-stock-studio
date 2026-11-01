@@ -52,6 +52,9 @@ Categorías y ubicaciones de ejemplo llevan `is_demo = true` y se muestran con l
 ## Ajustes asistidos con IA
 El usuario describe el ajuste en texto libre. El servidor busca SKU confirmados que coincidan (sin costos), arma la lista de ubicaciones y pide al modelo elegir SKU, ubicación, tipo (fijar total / sumar / restar) y cantidad. La propuesta se valida en el servidor y una persona siempre la revisa: el Editor la envía como solicitud y el Administrador la aplica.
 
+## Asistente de inventario
+Chat en lenguaje natural para Administradores y Editores. Una conversación por persona, guardada en la base de datos. El modelo consulta datos actuales mediante herramientas de solo lectura (resumen, búsqueda de SKU, existencias por SKU y por ubicación, alertas y mínimos, ubicaciones, pendientes de conteo) que usan los permisos de quien pregunta. No ve costos ni puede modificar el inventario.
+
 ## Accesos y datos de demostración
 - Cuentas demo: `admin.demo@example.com` (Administrador) y `editor.demo@example.com` (Editor). Desactívalas desde «Usuarios y configuración» antes de trabajar con datos reales.
 - 30 SKU ficticios con prefijo `DEMO-`, marcados `is_demo`; los SKU reales empiezan en `ALY-000001`.
