@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { MotionProps } from "motion/react";
-import { motion } from "motion/react";
+import { motion, type MotionStyle } from "motion/react";
 import type { CSSProperties, ElementType, JSX } from "react";
 import { memo, useMemo } from "react";
 
@@ -61,7 +61,7 @@ const ShimmerComponent = ({
           "--spread": `${dynamicSpread}px`,
           backgroundImage:
             "var(--bg), linear-gradient(var(--color-muted-foreground), var(--color-muted-foreground))",
-        } as CSSProperties
+        } as CSSProperties as MotionStyle
       }
       transition={{
         duration,
