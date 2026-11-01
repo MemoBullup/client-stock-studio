@@ -78,6 +78,7 @@ export const ToolHeader = ({
   type,
   state,
   toolName,
+  icon,
   ...props
 }: ToolHeaderProps) => {
   const derivedName =

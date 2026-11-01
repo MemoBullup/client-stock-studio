@@ -251,16 +251,13 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
                       const meta = TOOL_META[name];
                       const Icon = meta?.icon ?? Boxes;
                       return (
-                        <Tool key={key} defaultOpen={false} className="mb-0">
-                          <div className="flex items-center gap-2 pl-3">
-                            <Icon className="size-4 text-muted-foreground" aria-hidden />
-                            <ToolHeader
-                              className="flex-1 pl-0"
-                              type={part.type as `tool-${string}`}
-                              state={part.state}
-                              title={meta?.label ?? name}
-                            />
-                          </div>
+                        <Tool key={key} defaultOpen={false} className="mb-0 rounded-2xl">
+                          <ToolHeader
+                            type={part.type as `tool-${string}`}
+                            state={part.state}
+                            title={meta?.label ?? name}
+                            icon={<Icon className="size-4 text-muted-foreground" aria-hidden />}
+                          />
                           <ToolContent>
                             <ToolInput input={part.input} />
                             <ToolOutput output={part.output} errorText={part.errorText} />
