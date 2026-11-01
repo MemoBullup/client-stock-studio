@@ -5,7 +5,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { proposeAdjustment as proposeAdjustmentServer } from "@/lib/adjustments.server";
 
 const schema = z.object({
-  text: z.string().trim().min(5, "Describe el ajuste con un poco más de detalle").max(1000, "Máximo 1000 caracteres"),
+  text: z
+    .string()
+    .trim()
+    .min(5, "Describe el ajuste con un poco más de detalle")
+    .max(1000, "Máximo 1000 caracteres"),
 });
 
 /** Propone SKU, ubicación y cantidad a partir de texto libre. No modifica datos. */

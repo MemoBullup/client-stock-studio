@@ -10,7 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { proposeAdjustment } from "@/lib/adjustments.functions";
@@ -26,9 +32,17 @@ export const Route = createFileRoute("/_authenticated/ajustes")({
   head: () => ({
     meta: [
       { title: "Ajustes asistidos · Aly Inventario" },
-      { name: "description", content: "Describe un ajuste de inventario y recibe una propuesta de SKU, ubicación y cantidad." },
+      {
+        name: "description",
+        content:
+          "Describe un ajuste de inventario y recibe una propuesta de SKU, ubicación y cantidad.",
+      },
       { property: "og:title", content: "Ajustes asistidos · Aly Inventario" },
-      { property: "og:description", content: "Describe un ajuste de inventario y recibe una propuesta de SKU, ubicación y cantidad." },
+      {
+        property: "og:description",
+        content:
+          "Describe un ajuste de inventario y recibe una propuesta de SKU, ubicación y cantidad.",
+      },
     ],
   }),
   component: AjustesPage,
@@ -50,7 +64,9 @@ function useLocations() {
   return useQuery({
     queryKey: ["locations-lite"],
     queryFn: async (): Promise<TreeItem[]> => {
-      const { data, error } = await supabase.from("locations").select("id, parent_id, name, sort_order, depth, is_active");
+      const { data, error } = await supabase
+        .from("locations")
+        .select("id, parent_id, name, sort_order, depth, is_active");
       if (error) throw error;
       return data ?? [];
     },
@@ -105,7 +121,11 @@ function AjustesPage() {
       />
 
       <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
-        <form onSubmit={onSubmit} className="surface-card grid content-start gap-4 p-5 sm:p-6" noValidate>
+        <form
+          onSubmit={onSubmit}
+          className="surface-card grid content-start gap-4 p-5 sm:p-6"
+          noValidate
+        >
           <div className="grid gap-2">
             <Label htmlFor="adj-text">¿Qué pasó con el inventario?</Label>
             <Textarea
@@ -123,7 +143,8 @@ function AjustesPage() {
               className="rounded-2xl"
             />
             <p id="adj-help" className="text-xs text-muted-foreground">
-              Menciona el producto (nombre, color o medida), la ubicación y la cantidad. Ctrl + Enter para enviar.
+              Menciona el producto (nombre, color o medida), la ubicación y la cantidad. Ctrl +
+              Enter para enviar.
             </p>
             {textError && <p className="text-sm text-destructive">{textError}</p>}
           </div>
@@ -144,7 +165,10 @@ function AjustesPage() {
             {ask.isPending ? "Analizando…" : "Proponer ajuste"}
           </Button>
           {aiError && (
-            <p role="alert" className="rounded-2xl bg-warning-soft p-4 text-sm text-warning-foreground">
+            <p
+              role="alert"
+              className="rounded-2xl bg-warning-soft p-4 text-sm text-warning-foreground"
+            >
               {aiError}
             </p>
           )}
@@ -167,8 +191,8 @@ function AjustesPage() {
             <Sparkles className="size-6 text-primary" aria-hidden />
             <h2 className="text-xl font-bold">La propuesta aparecerá aquí</h2>
             <p className="text-sm text-graphite-muted">
-              La IA solo elige entre SKU confirmados y ubicaciones existentes. Nada se modifica hasta que una persona
-              revisa y confirma.
+              La IA solo elige entre SKU confirmados y ubicaciones existentes. Nada se modifica
+              hasta que una persona revisa y confirma.
             </p>
           </div>
         )}
@@ -203,11 +227,20 @@ function ProposalEditor({
 
   const variant: CandidateDTO | undefined = result.candidates.find((c) => c.id === variantId);
   const unit = variant
-    ? { name_singular: variant.unitSingular, name_plural: variant.unitPlural, allows_decimal: variant.allowsDecimal }
+    ? {
+        name_singular: variant.unitSingular,
+        name_plural: variant.unitPlural,
+        allows_decimal: variant.allowsDecimal,
+      }
     : null;
-  const current = result.stock.find((s) => s.variantId === variantId && s.locationId === locationId)?.quantity ?? null;
+  const current =
+    result.stock.find((s) => s.variantId === variantId && s.locationId === locationId)?.quantity ??
+    null;
   const parsedQty = parseMinimum(qtyRaw, variant?.allowsDecimal ?? true);
-  const preview = variant && locationId && parsedQty.ok ? computeAdjustment(current, mode, parsedQty.value) : null;
+  const preview =
+    variant && locationId && parsedQty.ok
+      ? computeAdjustment(current, mode, parsedQty.value)
+      : null;
 
   const locationOptions = useMemo(
     () =>
@@ -250,7 +283,11 @@ function ProposalEditor({
       }
     },
     onSuccess: () => {
-      toast.success(isAdmin ? "Ajuste aplicado y registrado en el historial" : "Solicitud enviada al Administrador");
+      toast.success(
+        isAdmin
+          ? "Ajuste aplicado y registrado en el historial"
+          : "Solicitud enviada al Administrador",
+      );
       qc.invalidateQueries({ queryKey: ["adjustment-requests"] });
       qc.invalidateQueries({ queryKey: ["stock-alerts"] });
       onDone();
@@ -259,16 +296,25 @@ function ProposalEditor({
   });
 
   return (
-    <section className="surface-card grid content-start gap-4 p-5 sm:p-6" aria-labelledby="prop-title">
+    <section
+      className="surface-card grid content-start gap-4 p-5 sm:p-6"
+      aria-labelledby="prop-title"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id="prop-title" className="text-lg font-bold">
           Propuesta
         </h2>
-        <Badge variant={p.confidence === "alta" ? "success" : p.confidence === "media" ? "info" : "warning"}>
+        <Badge
+          variant={
+            p.confidence === "alta" ? "success" : p.confidence === "media" ? "info" : "warning"
+          }
+        >
           Confianza {p.confidence}
         </Badge>
       </div>
-      {p.explanation && <p className="rounded-2xl bg-sky p-4 text-sm text-sky-foreground">{p.explanation}</p>}
+      {p.explanation && (
+        <p className="rounded-2xl bg-sky p-4 text-sm text-sky-foreground">{p.explanation}</p>
+      )}
       {p.missingInfo.length > 0 && (
         <ul className="list-disc rounded-2xl bg-warning-soft py-3 pl-8 pr-4 text-sm text-warning-foreground">
           {p.missingInfo.map((m) => (
@@ -292,7 +338,9 @@ function ProposalEditor({
             ))}
           </SelectContent>
         </Select>
-        {variant?.attributes && <p className="text-xs text-muted-foreground">{variant.attributes}</p>}
+        {variant?.attributes && (
+          <p className="text-xs text-muted-foreground">{variant.attributes}</p>
+        )}
       </div>
 
       <div className="grid gap-2">
@@ -312,7 +360,9 @@ function ProposalEditor({
         {variant && unit && stockLocations.length > 0 && (
           <p className="text-xs text-muted-foreground">
             Existencias de este SKU:{" "}
-            {stockLocations.map((s) => `${pathOf(locations, s.locationId)}: ${formatQuantity(s.quantity, unit)}`).join(" · ")}
+            {stockLocations
+              .map((s) => `${pathOf(locations, s.locationId)}: ${formatQuantity(s.quantity, unit)}`)
+              .join(" · ")}
           </p>
         )}
       </div>
@@ -321,7 +371,11 @@ function ProposalEditor({
         <span className="text-sm font-medium" id="prop-mode">
           Tipo de ajuste
         </span>
-        <div className="inline-flex w-fit rounded-full bg-graphite p-1" role="radiogroup" aria-labelledby="prop-mode">
+        <div
+          className="inline-flex w-fit rounded-full bg-graphite p-1"
+          role="radiogroup"
+          aria-labelledby="prop-mode"
+        >
           {(Object.keys(MODE_LABEL) as AdjustmentMode[]).map((m) => (
             <button
               key={m}
@@ -331,7 +385,9 @@ function ProposalEditor({
               onClick={() => setMode(m)}
               className={cn(
                 "rounded-full px-4 py-1.5 text-sm font-semibold",
-                mode === m ? "bg-primary text-primary-foreground" : "text-graphite-foreground hover:bg-graphite-soft",
+                mode === m
+                  ? "bg-primary text-primary-foreground"
+                  : "text-graphite-foreground hover:bg-graphite-soft",
               )}
             >
               {MODE_LABEL[m]}
@@ -353,7 +409,9 @@ function ProposalEditor({
           />
           <span className="text-sm text-muted-foreground">{variant ? variant.unitPlural : ""}</span>
         </div>
-        {qtyRaw !== "" && !parsedQty.ok && <p className="text-sm text-destructive">{parsedQty.error}</p>}
+        {qtyRaw !== "" && !parsedQty.ok && (
+          <p className="text-sm text-destructive">{parsedQty.error}</p>
+        )}
       </div>
 
       {variant && unit && locationId && (
@@ -365,7 +423,10 @@ function ProposalEditor({
           aria-live="polite"
         >
           {current === null ? (
-            <span>Este SKU está pendiente de conteo en esa ubicación; no se puede ajustar hasta registrar su conteo inicial.</span>
+            <span>
+              Este SKU está pendiente de conteo en esa ubicación; no se puede ajustar hasta
+              registrar su conteo inicial.
+            </span>
           ) : preview?.ok ? (
             <>
               <span>
@@ -388,7 +449,12 @@ function ProposalEditor({
 
       <div className="grid gap-2">
         <Label htmlFor="prop-reason">Motivo (queda en el historial)</Label>
-        <Input id="prop-reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={200} />
+        <Input
+          id="prop-reason"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          maxLength={200}
+        />
       </div>
 
       {error && (
@@ -397,7 +463,10 @@ function ProposalEditor({
         </p>
       )}
       <div className="flex flex-wrap gap-2">
-        <Button onClick={() => submit.mutate()} disabled={submit.isPending || current === null || !!(preview && !preview.ok)}>
+        <Button
+          onClick={() => submit.mutate()}
+          disabled={submit.isPending || current === null || !!(preview && !preview.ok)}
+        >
           {submit.isPending ? <Loader2 className="animate-spin" /> : isAdmin ? <Check /> : <Send />}
           {isAdmin ? "Aplicar ajuste" : "Enviar al Administrador"}
         </Button>
@@ -450,13 +519,20 @@ function RequestsList({ isAdmin, locations }: { isAdmin: boolean; locations: Tre
       const people = [...new Set(rows.map((r) => r.requested_by))];
       const variantIds = [...new Set(rows.map((r) => r.variant_id))];
       const [profiles, stock] = await Promise.all([
-        people.length ? supabase.from("profiles").select("id, full_name").in("id", people) : Promise.resolve({ data: [] }),
+        people.length
+          ? supabase.from("profiles").select("id, full_name").in("id", people)
+          : Promise.resolve({ data: [] }),
         variantIds.length
-          ? supabase.from("stock_levels").select("variant_id, location_id, quantity").in("variant_id", variantIds)
+          ? supabase
+              .from("stock_levels")
+              .select("variant_id, location_id, quantity")
+              .in("variant_id", variantIds)
           : Promise.resolve({ data: [] }),
       ]);
       const names = new Map((profiles.data ?? []).map((p) => [p.id, p.full_name]));
-      const levels = new Map((stock.data ?? []).map((s) => [`${s.variant_id}:${s.location_id}`, Number(s.quantity)]));
+      const levels = new Map(
+        (stock.data ?? []).map((s) => [`${s.variant_id}:${s.location_id}`, Number(s.quantity)]),
+      );
       return rows.map((r) => ({
         ...r,
         quantity: Number(r.quantity),
@@ -468,7 +544,10 @@ function RequestsList({ isAdmin, locations }: { isAdmin: boolean; locations: Tre
 
   const review = useMutation({
     mutationFn: async ({ id, approve }: { id: string; approve: boolean }) => {
-      const { error } = await supabase.rpc("review_adjustment_request", { _id: id, _approve: approve });
+      const { error } = await supabase.rpc("review_adjustment_request", {
+        _id: id,
+        _approve: approve,
+      });
       if (error) throw error;
     },
     onSuccess: (_d, v) => {
@@ -522,20 +601,32 @@ function RequestsList({ isAdmin, locations }: { isAdmin: boolean; locations: Tre
           </p>
         ) : (
           requests.data!.map((r) => {
-            const unit = r.variants?.base_unit ?? { name_singular: "unidad", name_plural: "unidades", allows_decimal: true };
+            const unit = r.variants?.base_unit ?? {
+              name_singular: "unidad",
+              name_plural: "unidades",
+              allows_decimal: true,
+            };
             const after = computeAdjustment(r.current, r.mode, r.quantity);
             return (
-              <article key={r.id} className="flex flex-col gap-3 rounded-2xl border bg-card p-4 md:flex-row md:items-center">
+              <article
+                key={r.id}
+                className="flex flex-col gap-3 rounded-2xl border bg-card p-4 md:flex-row md:items-center"
+              >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-graphite px-2.5 py-0.5 font-mono text-xs text-graphite-foreground">
                       {r.variants?.sku}
                     </span>
                     <span className="font-semibold">{r.variants?.products?.name}</span>
-                    {r.variants?.variant_label && <span className="text-sm text-muted-foreground">· {r.variants.variant_label}</span>}
+                    {r.variants?.variant_label && (
+                      <span className="text-sm text-muted-foreground">
+                        · {r.variants.variant_label}
+                      </span>
+                    )}
                   </div>
                   <p className="mt-1 text-sm">
-                    <strong>{MODE_LABEL[r.mode]}</strong> {formatQuantity(r.quantity, unit)} en {pathOf(locations, r.location_id)}
+                    <strong>{MODE_LABEL[r.mode]}</strong> {formatQuantity(r.quantity, unit)} en{" "}
+                    {pathOf(locations, r.location_id)}
                     {r.status === "open" && after.ok && r.current !== null && (
                       <span className="text-muted-foreground">
                         {" "}
@@ -546,17 +637,29 @@ function RequestsList({ isAdmin, locations }: { isAdmin: boolean; locations: Tre
                   <p className="text-xs text-muted-foreground">
                     {r.reason} · {r.requesterName} · {formatDateTime(r.created_at)}
                   </p>
-                  {r.source_text && <p className="mt-1 text-xs italic text-muted-foreground">«{r.source_text}»</p>}
+                  {r.source_text && (
+                    <p className="mt-1 text-xs italic text-muted-foreground">«{r.source_text}»</p>
+                  )}
                   {r.review_note && <p className="mt-1 text-xs">Nota: {r.review_note}</p>}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   {r.status === "open" ? (
                     isAdmin ? (
                       <>
-                        <Button size="sm" disabled={review.isPending || !after.ok} onClick={() => review.mutate({ id: r.id, approve: true })} title={after.ok ? undefined : after.error}>
+                        <Button
+                          size="sm"
+                          disabled={review.isPending || !after.ok}
+                          onClick={() => review.mutate({ id: r.id, approve: true })}
+                          title={after.ok ? undefined : after.error}
+                        >
                           <Check /> Aprobar
                         </Button>
-                        <Button size="sm" variant="outline" disabled={review.isPending} onClick={() => review.mutate({ id: r.id, approve: false })}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={review.isPending}
+                          onClick={() => review.mutate({ id: r.id, approve: false })}
+                        >
                           <X /> Rechazar
                         </Button>
                       </>

@@ -4,7 +4,10 @@ import { createClient } from "@supabase/supabase-js";
 import { APICallError, convertToModelMessages, isStepCount, streamText, type UIMessage } from "ai";
 
 import type { Database, Json } from "@/integrations/supabase/types";
-import { createLovableAiGatewayRunIdFetch, withLovableAiGatewayRunIdHeader } from "@/lib/ai/run-id.server";
+import {
+  createLovableAiGatewayRunIdFetch,
+  withLovableAiGatewayRunIdHeader,
+} from "@/lib/ai/run-id.server";
 import { createInventoryTools } from "@/lib/assistant/tools.server";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
@@ -13,7 +16,10 @@ const HISTORY_LIMIT = 40;
 const MAX_QUESTION = 2000;
 
 function instructions() {
-  const today = new Intl.DateTimeFormat("es-MX", { dateStyle: "full", timeZone: "America/Mexico_City" }).format(new Date());
+  const today = new Intl.DateTimeFormat("es-MX", {
+    dateStyle: "full",
+    timeZone: "America/Mexico_City",
+  }).format(new Date());
   return `Eres el asistente de inventario de Aly — Creaciones con estilo (listones, aplicaciones decorativas, dijes y productos impresos), en México. Hoy es ${today}.
 Respondes preguntas en español sobre existencias, niveles mínimos y ubicaciones usando SIEMPRE las herramientas, que leen los datos actuales.
 
@@ -30,15 +36,22 @@ Reglas:
 
 function friendlyError(error: unknown): string {
   const status = APICallError.isInstance(error) ? error.statusCode : undefined;
-  if (status === 402) return "Se agotaron los créditos de IA del espacio de trabajo. Pide al responsable que agregue créditos.";
-  if (status === 429) return "El asistente recibió demasiadas preguntas seguidas. Espera un momento e intenta de nuevo.";
-  if (status === 403) return "El asistente de IA no está disponible para este espacio de trabajo en este momento.";
-  if (status && status >= 500) return "El asistente no respondió. Intenta de nuevo en unos segundos.";
+  if (status === 402)
+    return "Se agotaron los créditos de IA del espacio de trabajo. Pide al responsable que agregue créditos.";
+  if (status === 429)
+    return "El asistente recibió demasiadas preguntas seguidas. Espera un momento e intenta de nuevo.";
+  if (status === 403)
+    return "El asistente de IA no está disponible para este espacio de trabajo en este momento.";
+  if (status && status >= 500)
+    return "El asistente no respondió. Intenta de nuevo en unos segundos.";
   return "No se pudo completar la respuesta. Intenta de nuevo.";
 }
 
 const json = (status: number, message: string) =>
-  new Response(JSON.stringify({ error: message }), { status, headers: { "content-type": "application/json" } });
+  new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
 
 function createUserClient(token: string) {
   const url = process.env["SUPABASE_URL"];
@@ -65,13 +78,18 @@ function isValidUserMessage(m: unknown): m is UIMessage {
     .filter((p) => p.type === "text")
     .map((p) => (p as { text: string }).text)
     .join("");
-  return text.trim().length > 0 && text.length <= MAX_QUESTION && msg.parts.every((p) => p.type === "text");
+  return (
+    text.trim().length > 0 &&
+    text.length <= MAX_QUESTION &&
+    msg.parts.every((p) => p.type === "text")
+  );
 }
 
 export async function handleAssistantChat(request: Request): Promise<Response> {
   const auth = request.headers.get("authorization") ?? "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  if (!token || token.split(".").length !== 3) return json(401, "Tu sesión expiró. Vuelve a iniciar sesión.");
+  if (!token || token.split(".").length !== 3)
+    return json(401, "Tu sesión expiró. Vuelve a iniciar sesión.");
 
   const supabase = createUserClient(token);
   const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
@@ -90,8 +108,13 @@ export async function handleAssistantChat(request: Request): Promise<Response> {
     return json(400, "Solicitud inválida.");
   }
   const incoming = Array.isArray(body.messages) ? body.messages.at(-1) : undefined;
-  if (!isValidUserMessage(incoming)) return json(400, "Escribe una pregunta (máximo 2000 caracteres).");
-  const userMessage: UIMessage = { id: incoming.id.slice(0, 200), role: "user", parts: incoming.parts };
+  if (!isValidUserMessage(incoming))
+    return json(400, "Escribe una pregunta (máximo 2000 caracteres).");
+  const userMessage: UIMessage = {
+    id: incoming.id.slice(0, 200),
+    role: "user",
+    parts: incoming.parts,
+  };
 
   // Historial guardado del servidor (no se confía en el historial enviado por el navegador).
   const stored = await supabase
@@ -101,22 +124,35 @@ export async function handleAssistantChat(request: Request): Promise<Response> {
     .order("created_at", { ascending: false })
     .limit(HISTORY_LIMIT);
   if (stored.error) return json(500, "No se pudo leer el historial de la conversación.");
-  const history = (stored.data ?? []).map((r) => r.message as unknown as UIMessage).reverse().filter((m) => m.id !== userMessage.id);
+  const history = (stored.data ?? [])
+    .map((r) => r.message as unknown as UIMessage)
+    .reverse()
+    .filter((m) => m.id !== userMessage.id);
 
   const saveUser = await supabase
     .from("assistant_messages")
     .upsert(
-      { user_id: userId, message_id: userMessage.id, role: "user", message: userMessage as unknown as Json },
+      {
+        user_id: userId,
+        message_id: userMessage.id,
+        role: "user",
+        message: userMessage as unknown as Json,
+      },
       { onConflict: "user_id,message_id" },
     );
   if (saveUser.error) return json(500, "No se pudo guardar tu pregunta. Intenta de nuevo.");
 
   const uiMessages = [...history, userMessage];
   // Las piezas de razonamiento de turnos anteriores no se reenvían (no son necesarias y pueden caducar).
-  const forModel = uiMessages.map((m) => ({ ...m, parts: m.parts.filter((p) => p.type !== "reasoning") }));
+  const forModel = uiMessages.map((m) => ({
+    ...m,
+    parts: m.parts.filter((p) => p.type !== "reasoning"),
+  }));
   const tools = createInventoryTools(supabase);
 
-  const runIdFetch = createLovableAiGatewayRunIdFetch(request.headers.get("X-Lovable-AIG-Run-ID") ?? undefined);
+  const runIdFetch = createLovableAiGatewayRunIdFetch(
+    request.headers.get("X-Lovable-AIG-Run-ID") ?? undefined,
+  );
   const provider = createOpenAI({
     baseURL: GATEWAY_URL,
     apiKey,

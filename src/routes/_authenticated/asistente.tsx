@@ -2,7 +2,18 @@ import { useChat } from "@ai-sdk/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DefaultChatTransport, isToolUIPart, type UIMessage } from "ai";
-import { Boxes, Loader2, MapPin, RotateCcw, Search, TriangleAlert, ClipboardList, BarChart3, ListChecks, Clock } from "lucide-react";
+import {
+  Boxes,
+  Loader2,
+  MapPin,
+  RotateCcw,
+  Search,
+  TriangleAlert,
+  ClipboardList,
+  BarChart3,
+  ListChecks,
+  Clock,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -23,7 +34,13 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning";
 import { Shimmer } from "@/components/ai-elements/shimmer";
-import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "@/components/ai-elements/tool";
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from "@/components/ai-elements/tool";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -42,9 +59,15 @@ export const Route = createFileRoute("/_authenticated/asistente")({
   head: () => ({
     meta: [
       { title: "Asistente de inventario · Aly Inventario" },
-      { name: "description", content: "Pregunta en lenguaje natural por existencias, mínimos y ubicaciones." },
+      {
+        name: "description",
+        content: "Pregunta en lenguaje natural por existencias, mínimos y ubicaciones.",
+      },
       { property: "og:title", content: "Asistente de inventario · Aly Inventario" },
-      { property: "og:description", content: "Pregunta en lenguaje natural por existencias, mínimos y ubicaciones." },
+      {
+        property: "og:description",
+        content: "Pregunta en lenguaje natural por existencias, mínimos y ubicaciones.",
+      },
     ],
   }),
   component: AsistentePage,
@@ -90,18 +113,28 @@ function AsistentePage() {
   return (
     <div className="mx-auto flex h-[calc(100dvh-9rem)] max-w-4xl flex-col">
       {history.isLoading ? (
-        <div className="surface-card flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground" role="status">
+        <div
+          className="surface-card flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground"
+          role="status"
+        >
           <Loader2 className="size-4 animate-spin" /> Cargando conversación…
         </div>
       ) : history.isError ? (
-        <div role="alert" className="surface-card flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center text-sm">
+        <div
+          role="alert"
+          className="surface-card flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center text-sm"
+        >
           No se pudo cargar la conversación. {friendlyError(history.error)}
           <Button variant="outline" onClick={() => history.refetch()}>
             Reintentar
           </Button>
         </div>
       ) : (
-        <ChatWindow key={chatKey} initialMessages={history.data ?? []} onReset={() => setChatKey((k) => k + 1)} />
+        <ChatWindow
+          key={chatKey}
+          initialMessages={history.data ?? []}
+          onReset={() => setChatKey((k) => k + 1)}
+        />
       )}
     </div>
   );
@@ -118,7 +151,13 @@ function parseError(error: Error | undefined): string | null {
   return friendlyError(error);
 }
 
-function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]; onReset: () => void }) {
+function ChatWindow({
+  initialMessages,
+  onReset,
+}: {
+  initialMessages: UIMessage[];
+  onReset: () => void;
+}) {
   const qc = useQueryClient();
   const containerRef = useRef<HTMLDivElement>(null);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -134,7 +173,9 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
           return token ? { Authorization: `Bearer ${token}` } : {};
         },
         // El servidor usa su propio historial guardado; solo enviamos la pregunta nueva.
-        prepareSendMessagesRequest: ({ id, messages }) => ({ body: { id, messages: messages.slice(-1) } }),
+        prepareSendMessagesRequest: ({ id, messages }) => ({
+          body: { id, messages: messages.slice(-1) },
+        }),
       }),
     [],
   );
@@ -149,7 +190,8 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
   const busy = status === "submitted" || status === "streaming";
   const errorText = parseError(error);
 
-  const focusInput = () => containerRef.current?.querySelector<HTMLTextAreaElement>("textarea")?.focus();
+  const focusInput = () =>
+    containerRef.current?.querySelector<HTMLTextAreaElement>("textarea")?.focus();
   useEffect(() => {
     if (status === "ready" || status === "error") focusInput();
   }, [status]);
@@ -168,7 +210,10 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
   async function resetConversation() {
     setResetting(true);
     const { data: u } = await supabase.auth.getUser();
-    const { error: delError } = await supabase.from("assistant_messages").delete().eq("user_id", u.user?.id ?? "");
+    const { error: delError } = await supabase
+      .from("assistant_messages")
+      .delete()
+      .eq("user_id", u.user?.id ?? "");
     setResetting(false);
     setConfirmReset(false);
     if (delError) {
@@ -180,7 +225,8 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
   }
 
   const last = messages.at(-1);
-  const waitingForFirstToken = status === "submitted" || (status === "streaming" && last?.role === "user");
+  const waitingForFirstToken =
+    status === "submitted" || (status === "streaming" && last?.role === "user");
 
   return (
     <div ref={containerRef} className="surface-card flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -189,7 +235,8 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
         <div className="min-w-0 flex-1">
           <h1 className="font-bold leading-tight">Asistente de inventario</h1>
           <p className="truncate text-xs text-muted-foreground">
-            Responde con los datos actuales de existencias, mínimos y ubicaciones. No ve costos ni modifica nada.
+            Responde con los datos actuales de existencias, mínimos y ubicaciones. No ve costos ni
+            modifica nada.
           </p>
         </div>
         {messages.length > 0 && (
@@ -203,10 +250,16 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
         <ConversationContent className="gap-6 px-4 py-6 sm:px-6">
           {messages.length === 0 ? (
             <ConversationEmptyState>
-              <img src={butterfly.url} alt="" className="size-16 rounded-full bg-brand-pink-soft p-2" />
+              <img
+                src={butterfly.url}
+                alt=""
+                className="size-16 rounded-full bg-brand-pink-soft p-2"
+              />
               <div className="space-y-1">
                 <h2 className="text-lg font-bold">¿Qué quieres saber del inventario?</h2>
-                <p className="text-sm text-muted-foreground">Pregunta como se lo dirías a un compañero.</p>
+                <p className="text-sm text-muted-foreground">
+                  Pregunta como se lo dirías a un compañero.
+                </p>
               </div>
               <div className="mt-2 flex max-w-xl flex-wrap justify-center gap-2">
                 {SUGGESTIONS.map((s) => (
@@ -237,7 +290,8 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
                       );
                     }
                     if (part.type === "reasoning") {
-                      const streamingThis = busy && mi === messages.length - 1 && i === m.parts.length - 1;
+                      const streamingThis =
+                        busy && mi === messages.length - 1 && i === m.parts.length - 1;
                       if (!part.text.trim() && !streamingThis) return null;
                       return (
                         <Reasoning key={key} isStreaming={streamingThis} defaultOpen={false}>
@@ -279,7 +333,10 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
             </Message>
           )}
           {errorText && (
-            <div role="alert" className="rounded-2xl bg-warning-soft p-4 text-sm text-warning-foreground">
+            <div
+              role="alert"
+              className="rounded-2xl bg-warning-soft p-4 text-sm text-warning-foreground"
+            >
               {errorText}
             </div>
           )}
@@ -296,8 +353,14 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
             aria-label="Pregunta para el asistente de inventario"
           />
           <PromptInputFooter className="justify-between">
-            <span className="text-xs text-muted-foreground">Enter para enviar · Shift + Enter para nueva línea</span>
-            <PromptInputSubmit status={status} onStop={stop} aria-label={busy ? "Detener" : "Enviar pregunta"} />
+            <span className="text-xs text-muted-foreground">
+              Enter para enviar · Shift + Enter para nueva línea
+            </span>
+            <PromptInputSubmit
+              status={status}
+              onStop={stop}
+              aria-label={busy ? "Detener" : "Enviar pregunta"}
+            />
           </PromptInputFooter>
         </PromptInput>
       </div>
@@ -312,7 +375,13 @@ function ChatWindow({ initialMessages, onReset }: { initialMessages: UIMessage[]
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={(e) => { e.preventDefault(); void resetConversation(); }} disabled={resetting}>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void resetConversation();
+              }}
+              disabled={resetting}
+            >
               {resetting && <Loader2 className="animate-spin" />} Borrar historial
             </AlertDialogAction>
           </AlertDialogFooter>
