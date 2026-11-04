@@ -17,7 +17,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { friendlyError } from "@/lib/errors";
@@ -51,7 +57,10 @@ export function UsersPanel() {
     queryKey: ["staff"],
     queryFn: async (): Promise<StaffRow[]> => {
       const [p, r] = await Promise.all([
-        supabase.from("profiles").select("id, full_name, email, is_active, created_at").order("created_at"),
+        supabase
+          .from("profiles")
+          .select("id, full_name, email, is_active, created_at")
+          .order("created_at"),
         supabase.from("user_roles").select("user_id, role"),
       ]);
       if (p.error) throw p.error;
@@ -99,7 +108,8 @@ export function UsersPanel() {
         <div>
           <h2 className="text-lg font-bold">Personal autorizado</h2>
           <p className="text-sm text-muted-foreground">
-            Solo las cuentas creadas aquí pueden entrar. Nadie puede elegir ni cambiar su propio rol.
+            Solo las cuentas creadas aquí pueden entrar. Nadie puede elegir ni cambiar su propio
+            rol.
           </p>
         </div>
         <Button onClick={() => setCreating(true)}>
@@ -188,8 +198,15 @@ const createSchema = z.object({
 function CreateUserDialog({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
   const create = useServerFn(createStaffUser);
-  const [form, setForm] = useState({ fullName: "", email: "", password: randomPassword(), role: "editor" as AppRole });
-  const [errors, setErrors] = useState<Partial<Record<"fullName" | "email" | "password" | "role" | "form", string>>>({});
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    password: randomPassword(),
+    role: "editor" as AppRole,
+  });
+  const [errors, setErrors] = useState<
+    Partial<Record<"fullName" | "email" | "password" | "role" | "form", string>>
+  >({});
   const [done, setDone] = useState(false);
 
   const mutation = useMutation({
@@ -240,21 +257,45 @@ function CreateUserDialog({ onClose }: { onClose: () => void }) {
               <DialogDescription>La cuenta queda confirmada y lista para entrar.</DialogDescription>
             </DialogHeader>
             <FormField id="nu-name" label="Nombre completo" error={errors.fullName}>
-              <Input id="nu-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} autoFocus />
+              <Input
+                id="nu-name"
+                value={form.fullName}
+                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                autoFocus
+              />
             </FormField>
             <FormField id="nu-email" label="Correo electrónico" error={errors.email}>
-              <Input id="nu-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <Input
+                id="nu-email"
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
             </FormField>
             <FormField id="nu-pass" label="Contraseña temporal" error={errors.password}>
               <div className="flex gap-2">
-                <Input id="nu-pass" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="font-mono" />
-                <Button type="button" variant="outline" size="icon" onClick={() => setForm({ ...form, password: randomPassword() })} aria-label="Generar otra contraseña">
+                <Input
+                  id="nu-pass"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="font-mono"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setForm({ ...form, password: randomPassword() })}
+                  aria-label="Generar otra contraseña"
+                >
                   <Wand2 />
                 </Button>
               </div>
             </FormField>
             <FormField id="nu-role" label="Rol" error={errors.role}>
-              <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as AppRole })}>
+              <Select
+                value={form.role}
+                onValueChange={(v) => setForm({ ...form, role: v as AppRole })}
+              >
                 <SelectTrigger id="nu-role" className="rounded-2xl">
                   <SelectValue />
                 </SelectTrigger>
@@ -311,8 +352,19 @@ function ResetPasswordDialog({ user, onClose }: { user: StaffRow; onClose: () =>
         ) : (
           <FormField id="rp-pass" label="Contraseña temporal" error={error ?? undefined}>
             <div className="flex gap-2">
-              <Input id="rp-pass" value={password} onChange={(e) => setPassword(e.target.value)} className="font-mono" />
-              <Button type="button" variant="outline" size="icon" onClick={() => setPassword(randomPassword())} aria-label="Generar otra contraseña">
+              <Input
+                id="rp-pass"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="font-mono"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setPassword(randomPassword())}
+                aria-label="Generar otra contraseña"
+              >
                 <Wand2 />
               </Button>
             </div>
@@ -328,7 +380,9 @@ function ResetPasswordDialog({ user, onClose }: { user: StaffRow; onClose: () =>
               </Button>
               <Button
                 disabled={mutation.isPending}
-                onClick={() => (password.length < 8 ? setError("Mínimo 8 caracteres") : mutation.mutate())}
+                onClick={() =>
+                  password.length < 8 ? setError("Mínimo 8 caracteres") : mutation.mutate()
+                }
               >
                 {mutation.isPending && <Loader2 className="animate-spin" />} Guardar
               </Button>

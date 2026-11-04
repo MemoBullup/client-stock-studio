@@ -3,11 +3,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
   ChevronDown,
+  Camera,
   Copy,
+  FileSpreadsheet,
   Grid3x3,
   Loader2,
   PackagePlus,
   Plus,
+  Printer,
   Search,
   Trash2,
   X,
@@ -19,6 +22,8 @@ import { AttributeInput } from "@/components/capture/AttributeInput";
 import { CategoryPicker } from "@/components/capture/CategoryPicker";
 import { CombinationsDialog, type ComboPick } from "@/components/capture/CombinationsDialog";
 import { CountDialog, type CountTarget } from "@/components/capture/CountDialog";
+import { ImportPanel } from "@/components/capture/ImportPanel";
+import { PhotoQueue, type QueuedPhoto } from "@/components/photos/PhotoQueue";
 import { TreeSelect } from "@/components/capture/TreeSelect";
 import { PageHeader } from "@/components/layout/AppShell";
 import { Badge } from "@/components/ui/badge";
@@ -76,6 +81,7 @@ import {
 } from "@/lib/catalog";
 import { friendlyError } from "@/lib/errors";
 import { formatNumber } from "@/lib/format";
+import { uploadVariantPhoto } from "@/lib/photos";
 import { useMe } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
@@ -84,6 +90,7 @@ interface CaptureSearch {
   producto?: string | undefined;
   plantilla?: string | undefined;
   incluir?: string | undefined;
+  modo?: "archivo" | undefined;
 }
 
 export const Route = createFileRoute("/_authenticated/capturar")({
@@ -92,6 +99,7 @@ export const Route = createFileRoute("/_authenticated/capturar")({
     producto: typeof s["producto"] === "string" ? s["producto"] : undefined,
     plantilla: typeof s["plantilla"] === "string" ? s["plantilla"] : undefined,
     incluir: typeof s["incluir"] === "string" ? s["incluir"] : undefined,
+    modo: s["modo"] === "archivo" ? "archivo" : undefined,
   }),
   head: () => ({
     meta: [
@@ -281,6 +289,9 @@ function CapturarPage() {
     sku: string | null;
   } | null>(null);
   const [countTarget, setCountTarget] = useState<CountTarget | null>(null);
+  const [photos, setPhotos] = useState<QueuedPhoto[]>([]);
+  const [uploading, setUploading] = useState<{ done: number; total: number } | null>(null);
+  const printAfter = useRef(false);
   // Atributos que esta pantalla no muestra: al editar se conservan tal como estaban.
   const [passthrough, setPassthrough] = useState<AttrPayload[]>([]);
   const appliedSource = useRef<string | null>(null);
@@ -759,6 +770,30 @@ function CapturarPage() {
           `${inReview} conteo(s) quedaron en revisión porque ya existía un conteo en esa ubicación.`,
         );
 
+      // Fotos elegidas: se ligan a la variante de su fila (mismo orden que se envió).
+      const rowIndex = new Map(rows.map((r, i) => [r.key, i]));
+      const jobs = photos
+        .map((p) => ({ p, v: result.variants[rowIndex.get(p.rowKey ?? "") ?? 0] }))
+        .filter((j): j is { p: QueuedPhoto; v: SavedVariant } => !!j.v);
+      setPhotos([]);
+      if (jobs.length) void uploadQueued(jobs, result.product_name);
+
+      const printable = result.variants
+        .filter((v) => v.record_status === "registered")
+        .map((v) => v.id);
+      const wantsLabels = printAfter.current;
+      printAfter.current = false;
+      if (wantsLabels && printable.length > 0) {
+        if (isAdmin || printable.length === 1) {
+          resetAfterSave();
+          navigate({ to: "/etiquetas", search: { ids: printable.join(",") } });
+          return;
+        }
+        toast.info(
+          "Imprime cada etiqueta desde la lista de guardados; los lotes los genera un Administrador.",
+        );
+      }
+
       if (editing) {
         navigate({ to: "/inventario/$variantId", params: { variantId: editing.id } });
         return;
@@ -772,6 +807,35 @@ function CapturarPage() {
       toast.error("No se guardó. Lo capturado sigue aquí para reintentar.");
     },
   });
+
+  async function uploadQueued(
+    jobs: Array<{ p: QueuedPhoto; v: SavedVariant }>,
+    productName: string,
+  ) {
+    setUploading({ done: 0, total: jobs.length });
+    let failed = 0;
+    for (const [i, { p, v }] of jobs.entries()) {
+      try {
+        await uploadVariantPhoto(
+          v.id,
+          p.file,
+          [productName, v.variant_label].filter(Boolean).join(" · "),
+        );
+      } catch {
+        failed++;
+      } finally {
+        URL.revokeObjectURL(p.preview);
+        setUploading({ done: i + 1, total: jobs.length });
+      }
+    }
+    setUploading(null);
+    qc.invalidateQueries({ queryKey: ["variant-images"] });
+    qc.invalidateQueries({ queryKey: ["catalog", "search"] });
+    qc.invalidateQueries({ queryKey: ["variant"] });
+    if (failed)
+      toast.error(`${failed} foto(s) no se subieron. Puedes subirlas desde la ficha del SKU.`);
+    else toast.success(jobs.length === 1 ? "Foto subida" : `${jobs.length} fotos subidas`);
+  }
 
   function resetAfterSave() {
     setSaveKey(newKey());
@@ -943,6 +1007,56 @@ function CapturarPage() {
     );
   }
 
+  const modeTabs = !editing && (
+    <div
+      className="mb-6 inline-flex rounded-full bg-card p-1 shadow-card"
+      role="tablist"
+      aria-label="Forma de capturar"
+    >
+      <Link
+        to="/capturar"
+        search={{}}
+        role="tab"
+        aria-selected={search.modo !== "archivo"}
+        className={cn(
+          "inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition",
+          search.modo !== "archivo"
+            ? "bg-graphite text-graphite-foreground"
+            : "text-muted-foreground hover:text-foreground",
+        )}
+      >
+        <PackagePlus className="size-4" /> Uno por uno
+      </Link>
+      <Link
+        to="/capturar"
+        search={{ modo: "archivo" }}
+        role="tab"
+        aria-selected={search.modo === "archivo"}
+        className={cn(
+          "inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition",
+          search.modo === "archivo"
+            ? "bg-graphite text-graphite-foreground"
+            : "text-muted-foreground hover:text-foreground",
+        )}
+      >
+        <FileSpreadsheet className="size-4" /> Desde Excel o CSV
+      </Link>
+    </div>
+  );
+
+  if (search.modo === "archivo" && !editing) {
+    return (
+      <div className="pb-10">
+        <PageHeader
+          title="Capturar desde archivo"
+          description="Sube una hoja de Excel o CSV con varios productos. Se revisa fila por fila antes de guardar y el SKU lo genera el sistema."
+        />
+        {modeTabs}
+        <ImportPanel />
+      </div>
+    );
+  }
+
   return (
     <div className="pb-28" onKeyDown={onKeyDown}>
       <PageHeader
@@ -966,6 +1080,8 @@ function CapturarPage() {
           ) : undefined
         }
       />
+
+      {modeTabs}
 
       {noSession && !editingRegistered && (
         <div
@@ -1010,6 +1126,23 @@ function CapturarPage() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
+              {(() => {
+                const ids = lastSaved.variants
+                  .filter((v) => v.record_status === "registered")
+                  .map((v) => v.id);
+                if (!ids.length) return null;
+                const visible = isAdmin ? [ids] : ids.map((id) => [id]);
+                return visible.slice(0, isAdmin ? 1 : 3).map((group) => (
+                  <Button key={group.join(",")} variant="outline" size="sm" asChild>
+                    <Link to="/etiquetas" search={{ ids: group.join(",") }}>
+                      <Printer />
+                      {group.length > 1
+                        ? `Imprimir ${group.length} etiquetas`
+                        : `Etiqueta ${lastSaved.variants.find((v) => v.id === group[0])?.sku ?? ""}`}
+                    </Link>
+                  </Button>
+                ));
+              })()}
               <Button variant="outline" size="sm" onClick={newVariantOfSaved}>
                 <Plus /> Crear variante del mismo modelo
               </Button>
@@ -1647,6 +1780,32 @@ function CapturarPage() {
                     )}
                   </CollapsibleContent>
                 </Collapsible>
+
+                <section className="surface-card p-5" aria-labelledby="fotos-titulo">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <h2 id="fotos-titulo" className="flex items-center gap-2 text-lg font-bold">
+                      <Camera className="size-5 text-primary" aria-hidden /> Fotografías
+                    </h2>
+                    {uploading && (
+                      <span
+                        className="flex items-center gap-2 text-sm text-muted-foreground"
+                        role="status"
+                      >
+                        <Loader2 className="size-4 animate-spin" /> Subiendo fotos {uploading.done}{" "}
+                        de {uploading.total}…
+                      </span>
+                    )}
+                  </div>
+                  <PhotoQueue
+                    photos={photos}
+                    onChange={setPhotos}
+                    rows={rows.map((r, i) => ({
+                      key: r.key,
+                      label: rowLabel(r) || `Variante ${i + 1}`,
+                    }))}
+                    disabled={save.isPending || rows.length === 0}
+                  />
+                </section>
               </>
             )}
 
@@ -1813,8 +1972,26 @@ function CapturarPage() {
             <Button variant="outline" onClick={() => setSummary(null)} disabled={save.isPending}>
               Seguir editando
             </Button>
+            {!editingRegistered && (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  printAfter.current = true;
+                  save.mutate("registered");
+                }}
+                disabled={
+                  save.isPending ||
+                  !!(summary && (summary.dupBatch.size > 0 || summary.dupExisting.size > 0))
+                }
+              >
+                <Printer /> Guardar y generar etiqueta
+              </Button>
+            )}
             <Button
-              onClick={() => save.mutate("registered")}
+              onClick={() => {
+                printAfter.current = false;
+                save.mutate("registered");
+              }}
               disabled={
                 save.isPending ||
                 !!(summary && (summary.dupBatch.size > 0 || summary.dupExisting.size > 0))

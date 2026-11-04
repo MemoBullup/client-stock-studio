@@ -17,10 +17,14 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAlertasRouteImport } from './routes/_authenticated/alertas'
 import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
 import { Route as AuthenticatedCapturarRouteImport } from './routes/_authenticated/capturar'
+import { Route as AuthenticatedEscanearRouteImport } from './routes/_authenticated/escanear'
+import { Route as AuthenticatedEtiquetasRouteImport } from './routes/_authenticated/etiquetas'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedRevisionesRouteImport } from './routes/_authenticated/revisiones'
 import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
+import { Route as QVariantIdRouteImport } from './routes/q.$variantId'
 import { Route as AuthenticatedAdminCatalogosRouteImport } from './routes/_authenticated/_admin/catalogos'
+import { Route as AuthenticatedAdminInformesRouteImport } from './routes/_authenticated/_admin/informes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/_admin/usuarios'
 import { Route as AuthenticatedInventarioIndexRouteImport } from './routes/_authenticated/inventario.index'
 import { Route as AuthenticatedInventarioVariantIdRouteImport } from './routes/_authenticated/inventario.$variantId'
@@ -63,6 +67,16 @@ const AuthenticatedCapturarRoute = AuthenticatedCapturarRouteImport.update({
   path: '/capturar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEscanearRoute = AuthenticatedEscanearRouteImport.update({
+  id: '/escanear',
+  path: '/escanear',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEtiquetasRoute = AuthenticatedEtiquetasRouteImport.update({
+  id: '/etiquetas',
+  path: '/etiquetas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
@@ -78,10 +92,21 @@ const ApiAssistantRoute = ApiAssistantRouteImport.update({
   path: '/api/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QVariantIdRoute = QVariantIdRouteImport.update({
+  id: '/q/$variantId',
+  path: '/q/$variantId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminCatalogosRoute =
   AuthenticatedAdminCatalogosRouteImport.update({
     id: '/catalogos',
     path: '/catalogos',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminInformesRoute =
+  AuthenticatedAdminInformesRouteImport.update({
+    id: '/informes',
+    path: '/informes',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminUsuariosRoute =
@@ -110,10 +135,14 @@ export interface FileRoutesByFullPath {
   '/alertas': typeof AuthenticatedAlertasRoute
   '/asistente': typeof AuthenticatedAsistenteRoute
   '/capturar': typeof AuthenticatedCapturarRoute
+  '/escanear': typeof AuthenticatedEscanearRoute
+  '/etiquetas': typeof AuthenticatedEtiquetasRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/revisiones': typeof AuthenticatedRevisionesRoute
   '/api/assistant': typeof ApiAssistantRoute
+  '/q/$variantId': typeof QVariantIdRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
+  '/informes': typeof AuthenticatedAdminInformesRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
   '/inventario/': typeof AuthenticatedInventarioIndexRoute
@@ -125,10 +154,14 @@ export interface FileRoutesByTo {
   '/alertas': typeof AuthenticatedAlertasRoute
   '/asistente': typeof AuthenticatedAsistenteRoute
   '/capturar': typeof AuthenticatedCapturarRoute
+  '/escanear': typeof AuthenticatedEscanearRoute
+  '/etiquetas': typeof AuthenticatedEtiquetasRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/revisiones': typeof AuthenticatedRevisionesRoute
   '/api/assistant': typeof ApiAssistantRoute
+  '/q/$variantId': typeof QVariantIdRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
+  '/informes': typeof AuthenticatedAdminInformesRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
   '/inventario': typeof AuthenticatedInventarioIndexRoute
@@ -143,10 +176,14 @@ export interface FileRoutesById {
   '/_authenticated/alertas': typeof AuthenticatedAlertasRoute
   '/_authenticated/asistente': typeof AuthenticatedAsistenteRoute
   '/_authenticated/capturar': typeof AuthenticatedCapturarRoute
+  '/_authenticated/escanear': typeof AuthenticatedEscanearRoute
+  '/_authenticated/etiquetas': typeof AuthenticatedEtiquetasRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/revisiones': typeof AuthenticatedRevisionesRoute
   '/api/assistant': typeof ApiAssistantRoute
+  '/q/$variantId': typeof QVariantIdRoute
   '/_authenticated/_admin/catalogos': typeof AuthenticatedAdminCatalogosRoute
+  '/_authenticated/_admin/informes': typeof AuthenticatedAdminInformesRoute
   '/_authenticated/_admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
   '/_authenticated/inventario/': typeof AuthenticatedInventarioIndexRoute
@@ -160,10 +197,14 @@ export interface FileRouteTypes {
     | '/alertas'
     | '/asistente'
     | '/capturar'
+    | '/escanear'
+    | '/etiquetas'
     | '/inicio'
     | '/revisiones'
     | '/api/assistant'
+    | '/q/$variantId'
     | '/catalogos'
+    | '/informes'
     | '/usuarios'
     | '/inventario/$variantId'
     | '/inventario/'
@@ -175,10 +216,14 @@ export interface FileRouteTypes {
     | '/alertas'
     | '/asistente'
     | '/capturar'
+    | '/escanear'
+    | '/etiquetas'
     | '/inicio'
     | '/revisiones'
     | '/api/assistant'
+    | '/q/$variantId'
     | '/catalogos'
+    | '/informes'
     | '/usuarios'
     | '/inventario/$variantId'
     | '/inventario'
@@ -192,10 +237,14 @@ export interface FileRouteTypes {
     | '/_authenticated/alertas'
     | '/_authenticated/asistente'
     | '/_authenticated/capturar'
+    | '/_authenticated/escanear'
+    | '/_authenticated/etiquetas'
     | '/_authenticated/inicio'
     | '/_authenticated/revisiones'
     | '/api/assistant'
+    | '/q/$variantId'
     | '/_authenticated/_admin/catalogos'
+    | '/_authenticated/_admin/informes'
     | '/_authenticated/_admin/usuarios'
     | '/_authenticated/inventario/$variantId'
     | '/_authenticated/inventario/'
@@ -207,6 +256,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiAssistantRoute: typeof ApiAssistantRoute
+  QVariantIdRoute: typeof QVariantIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -267,6 +317,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCapturarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/escanear': {
+      id: '/_authenticated/escanear'
+      path: '/escanear'
+      fullPath: '/escanear'
+      preLoaderRoute: typeof AuthenticatedEscanearRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/etiquetas': {
+      id: '/_authenticated/etiquetas'
+      path: '/etiquetas'
+      fullPath: '/etiquetas'
+      preLoaderRoute: typeof AuthenticatedEtiquetasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inicio': {
       id: '/_authenticated/inicio'
       path: '/inicio'
@@ -288,11 +352,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/q/$variantId': {
+      id: '/q/$variantId'
+      path: '/q/$variantId'
+      fullPath: '/q/$variantId'
+      preLoaderRoute: typeof QVariantIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/_admin/catalogos': {
       id: '/_authenticated/_admin/catalogos'
       path: '/catalogos'
       fullPath: '/catalogos'
       preLoaderRoute: typeof AuthenticatedAdminCatalogosRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/informes': {
+      id: '/_authenticated/_admin/informes'
+      path: '/informes'
+      fullPath: '/informes'
+      preLoaderRoute: typeof AuthenticatedAdminInformesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/_admin/usuarios': {
@@ -321,12 +399,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCatalogosRoute: typeof AuthenticatedAdminCatalogosRoute
+  AuthenticatedAdminInformesRoute: typeof AuthenticatedAdminInformesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
     AuthenticatedAdminCatalogosRoute: AuthenticatedAdminCatalogosRoute,
+    AuthenticatedAdminInformesRoute: AuthenticatedAdminInformesRoute,
     AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   }
 
@@ -340,6 +420,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAlertasRoute: typeof AuthenticatedAlertasRoute
   AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRoute
   AuthenticatedCapturarRoute: typeof AuthenticatedCapturarRoute
+  AuthenticatedEscanearRoute: typeof AuthenticatedEscanearRoute
+  AuthenticatedEtiquetasRoute: typeof AuthenticatedEtiquetasRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedRevisionesRoute: typeof AuthenticatedRevisionesRoute
   AuthenticatedInventarioVariantIdRoute: typeof AuthenticatedInventarioVariantIdRoute
@@ -351,6 +433,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAlertasRoute: AuthenticatedAlertasRoute,
   AuthenticatedAsistenteRoute: AuthenticatedAsistenteRoute,
   AuthenticatedCapturarRoute: AuthenticatedCapturarRoute,
+  AuthenticatedEscanearRoute: AuthenticatedEscanearRoute,
+  AuthenticatedEtiquetasRoute: AuthenticatedEtiquetasRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedRevisionesRoute: AuthenticatedRevisionesRoute,
   AuthenticatedInventarioVariantIdRoute: AuthenticatedInventarioVariantIdRoute,
@@ -366,6 +450,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiAssistantRoute: ApiAssistantRoute,
+  QVariantIdRoute: QVariantIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

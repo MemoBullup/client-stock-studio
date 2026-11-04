@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   BadgeCheck,
   Copy,
-  ImageOff,
   Loader2,
   MapPin,
   MessageSquareWarning,
@@ -18,6 +17,9 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import { CountDialog, type CountTarget } from "@/components/capture/CountDialog";
+import { QrCard } from "@/components/labels/QrCard";
+import { PhotoGallery } from "@/components/photos/PhotoGallery";
+import { VariantThumb } from "@/components/photos/VariantThumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -312,13 +314,11 @@ function FichaPage() {
         </Button>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex gap-4">
-            <div
-              className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-muted text-muted-foreground"
-              title="Sin fotografía"
-            >
-              <ImageOff className="size-6" aria-hidden />
-              <span className="sr-only">Sin fotografía</span>
-            </div>
+            <VariantThumb
+              variantId={v.id}
+              alt={`${p.name}${v.variant_label ? ` · ${v.variant_label}` : ""}`}
+              className="size-20"
+            />
             <div>
               <p className="font-mono text-sm font-bold">{v.sku ?? "Borrador sin SKU"}</p>
               <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{p.name}</h1>
@@ -474,9 +474,7 @@ function FichaPage() {
           {(v.notes || p.notes) && (
             <p className="mt-2 text-sm text-muted-foreground">{v.notes ?? p.notes}</p>
           )}
-          <p className="mt-4 rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
-            El QR y las etiquetas se habilitan en el bloque C.
-          </p>
+          <QrCard variantId={v.id} sku={v.sku} />
         </section>
 
         <section className="surface-card p-5 lg:col-span-2" aria-labelledby="attr-titulo">
@@ -534,6 +532,19 @@ function FichaPage() {
             onSaved={invalidate}
           />
         )}
+
+        <PhotoGallery
+          variantId={v.id}
+          photoStatus={v.photo_status}
+          canManage={
+            v.record_status !== "archived" &&
+            (isAdmin || (v.created_by === me?.id && v.photo_status !== "approved"))
+          }
+          isAdmin={isAdmin}
+          meId={me?.id}
+          altDefault={`${p.name}${v.variant_label ? ` · ${v.variant_label}` : ""}`}
+          onChanged={invalidate}
+        />
 
         <section
           className={isAdmin ? "surface-card p-5 lg:col-span-2" : "surface-card p-5 lg:col-span-3"}

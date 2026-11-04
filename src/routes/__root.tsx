@@ -81,9 +81,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Aly · Inventario" },
-      { name: "description", content: "Captura, clasificación y consulta del inventario de Aly — Creaciones con estilo." },
+      {
+        name: "description",
+        content: "Captura, clasificación y consulta del inventario de Aly — Creaciones con estilo.",
+      },
       { property: "og:title", content: "Aly · Inventario" },
-      { property: "og:description", content: "Captura, clasificación y consulta del inventario de Aly — Creaciones con estilo." },
+      {
+        property: "og:description",
+        content: "Captura, clasificación y consulta del inventario de Aly — Creaciones con estilo.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "theme-color", content: "#2b2c30" },

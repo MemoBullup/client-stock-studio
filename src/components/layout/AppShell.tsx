@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   PackagePlus,
+  ScanLine,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -37,7 +38,14 @@ interface NavItem {
   label: string;
   short: string;
   icon: LucideIcon;
-  to?: "/inicio" | "/capturar" | "/inventario" | "/asistente" | "/catalogos" | "/usuarios";
+  to?:
+    | "/inicio"
+    | "/capturar"
+    | "/inventario"
+    | "/asistente"
+    | "/catalogos"
+    | "/informes"
+    | "/usuarios";
   adminOnly?: boolean;
   /** Bloque en el que se habilita; si existe, aún no está disponible. */
   upcoming?: string;
@@ -61,7 +69,7 @@ const NAV: NavItem[] = [
     to: "/catalogos",
     adminOnly: true,
   },
-  { label: "Informes", short: "Informes", icon: FileSpreadsheet, adminOnly: true, upcoming: "C" },
+  { label: "Informes", short: "Informes", icon: FileSpreadsheet, to: "/informes", adminOnly: true },
   {
     label: "Usuarios y configuración",
     short: "Usuarios",
@@ -101,12 +109,12 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
   return (
     <div className="min-h-screen pb-10">
       {settings?.is_demo_environment && (
-        <div className="bg-brand-pink-soft text-center text-xs font-medium text-foreground py-1.5 px-4 border-b border-brand-pink/40">
+        <div className="print:hidden bg-brand-pink-soft text-center text-xs font-medium text-foreground py-1.5 px-4 border-b border-brand-pink/40">
           Entorno de demostración · Los registros marcados como <strong>DEMO</strong> son ficticios
           y pueden retirarse sin afectar los datos reales.
         </div>
       )}
-      <header className="sticky top-0 z-40 px-3 pt-3 sm:px-6">
+      <header className="sticky top-0 z-40 px-3 pt-3 sm:px-6 print:hidden">
         <div className="mx-auto flex max-w-[1400px] items-center gap-3 rounded-full bg-card/85 px-3 py-2 shadow-card backdrop-blur-md sm:px-4">
           <Link to="/inicio" className="flex shrink-0 items-center" aria-label="Ir a inicio">
             <BrandLogo className="h-10 w-auto sm:h-11" />
@@ -156,6 +164,17 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
+            <Link
+              to="/escanear"
+              className={cn(
+                "flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:brightness-95",
+                pathname.startsWith("/escanear") && "ring-2 ring-primary",
+              )}
+              aria-label="Escanear QR de una etiqueta"
+              title="Escanear QR"
+            >
+              <ScanLine className="size-4" aria-hidden />
+            </Link>
             <Link
               to="/alertas"
               className={cn(

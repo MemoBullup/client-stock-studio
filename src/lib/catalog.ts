@@ -168,43 +168,46 @@ export interface CatalogFilters {
   pagina?: number | undefined;
 }
 
+/** Una página del catálogo con filtros (búsqueda, filtros y orden en el servidor). */
+export async function fetchCatalogPage(filters: CatalogFilters, pageSize: number) {
+  const page = Math.max(1, filters.pagina ?? 1);
+  const measureValue = filters.medidaValor
+    ? Number(filters.medidaValor.replace(",", "."))
+    : undefined;
+  const raw = {
+    _q: filters.q || undefined,
+    _category_id: filters.categoria || undefined,
+    _unclassified: filters.porClasificar || undefined,
+    _product_type_id: filters.tipo || undefined,
+    _location_id: filters.ubicacion || undefined,
+    _stock: filters.existencia || undefined,
+    _photo: filters.foto || undefined,
+    _review: filters.revision || undefined,
+    _record: filters.registro || undefined,
+    _created_by: filters.capturista || undefined,
+    _from: filters.desde || undefined,
+    _to: filters.hasta || undefined,
+    _color: filters.color || undefined,
+    _measure_attr: filters.medida || undefined,
+    _measure_value: Number.isFinite(measureValue) ? measureValue : undefined,
+    _cost_pending: filters.costoPendiente || undefined,
+    _sort: filters.orden || "recent",
+    _limit: pageSize,
+    _offset: (page - 1) * pageSize,
+  };
+  const args = Object.fromEntries(
+    Object.entries(raw).filter(([, v]) => v !== undefined),
+  ) as SearchArgs;
+  const { data, error } = await supabase.rpc("search_catalog", args);
+  if (error) throw error;
+  const rows = data ?? [];
+  return { rows, total: Number(rows[0]?.total_count ?? 0) };
+}
+
 export function catalogQuery(filters: CatalogFilters, pageSize: number) {
   return queryOptions({
     queryKey: ["catalog", "search", filters, pageSize],
-    queryFn: async () => {
-      const page = Math.max(1, filters.pagina ?? 1);
-      const measureValue = filters.medidaValor
-        ? Number(filters.medidaValor.replace(",", "."))
-        : undefined;
-      const raw = {
-        _q: filters.q || undefined,
-        _category_id: filters.categoria || undefined,
-        _unclassified: filters.porClasificar || undefined,
-        _product_type_id: filters.tipo || undefined,
-        _location_id: filters.ubicacion || undefined,
-        _stock: filters.existencia || undefined,
-        _photo: filters.foto || undefined,
-        _review: filters.revision || undefined,
-        _record: filters.registro || undefined,
-        _created_by: filters.capturista || undefined,
-        _from: filters.desde || undefined,
-        _to: filters.hasta || undefined,
-        _color: filters.color || undefined,
-        _measure_attr: filters.medida || undefined,
-        _measure_value: Number.isFinite(measureValue) ? measureValue : undefined,
-        _cost_pending: filters.costoPendiente || undefined,
-        _sort: filters.orden || "recent",
-        _limit: pageSize,
-        _offset: (page - 1) * pageSize,
-      };
-      const args = Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v !== undefined),
-      ) as SearchArgs;
-      const { data, error } = await supabase.rpc("search_catalog", args);
-      if (error) throw error;
-      const rows = data ?? [];
-      return { rows, total: Number(rows[0]?.total_count ?? 0) };
-    },
+    queryFn: () => fetchCatalogPage(filters, pageSize),
     placeholderData: (prev) => prev,
     staleTime: 15_000,
   });

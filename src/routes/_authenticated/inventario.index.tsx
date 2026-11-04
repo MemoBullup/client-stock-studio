@@ -4,7 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardList,
-  ImageOff,
   LayoutGrid,
   Loader2,
   PackagePlus,
@@ -16,6 +15,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { TreeSelect } from "@/components/capture/TreeSelect";
+import { BulkActions } from "@/components/catalog/BulkActions";
+import { PhotoThumb } from "@/components/photos/VariantThumb";
 import { PageHeader } from "@/components/layout/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ import {
 } from "@/lib/catalog";
 import { friendlyError } from "@/lib/errors";
 import { formatDate, formatMoney, formatNumber } from "@/lib/format";
+import { useSignedUrls } from "@/lib/photos";
 import { useMe, useSettings } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
@@ -129,19 +131,16 @@ function QuantityCell({ row }: { row: CatalogRow }) {
   );
 }
 
-function Thumb({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "flex items-center justify-center rounded-xl bg-muted text-muted-foreground",
-        className,
-      )}
-      title="Sin fotografía"
-    >
-      <ImageOff className="size-4" aria-hidden />
-      <span className="sr-only">Sin fotografía</span>
-    </div>
-  );
+function Thumb({
+  className,
+  src,
+  alt,
+}: {
+  className?: string;
+  src?: string | undefined;
+  alt: string;
+}) {
+  return <PhotoThumb src={src} alt={alt} className={cn("rounded-xl", className)} />;
 }
 
 function InventarioPage() {
@@ -162,6 +161,10 @@ function InventarioPage() {
   const total = result.data?.total ?? 0;
   const page = filters.pagina ?? 1;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const thumbs = useSignedUrls(rows.map((r) => r.primary_image));
+  const thumbOf = (r: CatalogRow) =>
+    r.primary_image ? thumbs.data?.get(r.primary_image) : undefined;
 
   // Costos: solo Administrador y solo de los SKU visibles (la base de datos lo impide a otros).
   const ids = rows.map((r) => r.id);
@@ -233,6 +236,7 @@ function InventarioPage() {
         description="Busca por SKU, nombre, diseño, color, código de proveedor, etiqueta de uso o ubicación. No importan mayúsculas ni acentos."
         actions={
           <>
+            {isAdmin && <BulkActions filters={filters} total={total} />}
             <Button variant="outline" asChild>
               <Link to="/revisiones">
                 <ClipboardList /> Revisiones
@@ -558,7 +562,7 @@ function InventarioPage() {
                     }
                   >
                     <td className="px-4 py-2.5">
-                      <Thumb className="size-10" />
+                      <Thumb className="size-10" src={thumbOf(r)} alt={r.product_name} />
                     </td>
                     <td className="px-2 py-2.5 font-mono text-xs font-semibold">
                       <Link
@@ -613,7 +617,7 @@ function InventarioPage() {
                   params={{ variantId: r.id }}
                   className="surface-card flex h-full gap-3 p-4 transition hover:shadow-lg"
                 >
-                  <Thumb className="size-16 shrink-0" />
+                  <Thumb className="size-16 shrink-0" src={thumbOf(r)} alt={r.product_name} />
                   <div className="min-w-0 flex-1 space-y-1">
                     <p className="font-mono text-xs font-semibold">{r.sku ?? "Borrador"}</p>
                     <p className="truncate font-semibold">{r.product_name}</p>

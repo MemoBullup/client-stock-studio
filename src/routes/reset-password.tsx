@@ -14,9 +14,15 @@ export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
       { title: "Nueva contraseña · Aly Inventario" },
-      { name: "description", content: "Crea una nueva contraseña para tu cuenta de Aly Inventario." },
+      {
+        name: "description",
+        content: "Crea una nueva contraseña para tu cuenta de Aly Inventario.",
+      },
       { property: "og:title", content: "Nueva contraseña · Aly Inventario" },
-      { property: "og:description", content: "Crea una nueva contraseña para tu cuenta de Aly Inventario." },
+      {
+        property: "og:description",
+        content: "Crea una nueva contraseña para tu cuenta de Aly Inventario.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -62,18 +68,33 @@ function ResetPasswordPage() {
         <h1 className="text-2xl font-bold">Crear nueva contraseña</h1>
         {!ready ? (
           <p className="mt-3 text-sm text-muted-foreground">
-            Abre esta página desde el enlace que llegó a tu correo. Si el enlace expiró, solicita uno
-            nuevo desde la pantalla de acceso.
+            Abre esta página desde el enlace que llegó a tu correo. Si el enlace expiró, solicita
+            uno nuevo desde la pantalla de acceso.
           </p>
         ) : (
           <form onSubmit={onSubmit} className="mt-6 grid gap-4" noValidate>
             <div className="grid gap-2">
               <Label htmlFor="pw">Nueva contraseña</Label>
-              <Input id="pw" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 rounded-2xl" autoFocus />
+              <Input
+                id="pw"
+                type="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-12 rounded-2xl"
+                autoFocus
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="pw2">Confirmar contraseña</Label>
-              <Input id="pw2" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-12 rounded-2xl" />
+              <Input
+                id="pw2"
+                type="password"
+                autoComplete="new-password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                className="h-12 rounded-2xl"
+              />
             </div>
             {error && (
               <p role="alert" className="text-sm text-destructive">
