@@ -139,3 +139,18 @@ describe("posibles duplicados", () => {
     );
   });
 });
+
+describe("unidades de las especificaciones", () => {
+  const mk = (id: string, code: string) => ({
+    id, code, name_singular: code, name_plural: code, symbol: code, kind: "measure" as const, allows_decimal: true,
+  });
+  const measure = [mk("cm", "cm"), mk("mm", "mm"), mk("g", "g"), mk("kg", "kg")];
+  it("el peso solo ofrece gramos y kilogramos", async () => {
+    const { compatibleUnits } = await import("@/lib/capture");
+    expect(compatibleUnits({ default_unit_id: "g" }, measure).map((u) => u.code)).toEqual(["g", "kg"]);
+  });
+  it("las medidas no ofrecen unidades de peso", async () => {
+    const { compatibleUnits } = await import("@/lib/capture");
+    expect(compatibleUnits({ default_unit_id: "cm" }, measure).map((u) => u.code)).toEqual(["cm", "mm"]);
+  });
+});
