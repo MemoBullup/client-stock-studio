@@ -196,7 +196,7 @@ export function ImportPanel() {
         const payload = {
           idempotency_key: await stableUuid(`p:${JSON.stringify([type.id, mode, g.product, variantsPayload.map((v) => v.idempotency_key)])}`),
           status: mode,
-          product: existingId ? { id: existingId, update: false } : g.product,
+          product: existingId ? { ...g.product, id: existingId, update: false } : g.product,
           variants: variantsPayload,
         };
         const { data, error } = await supabase.rpc("save_capture", { _payload: payload as unknown as Json });
