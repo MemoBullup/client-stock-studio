@@ -104,6 +104,7 @@ export const Route = createFileRoute("/_authenticated/capturar")({
 });
 
 const NONE = "__none";
+const UNIT_ATTR_CODES = new Set(["presentacion", "contenido_presentacion"]);
 const RECENT_KEY = "aly-capture-recents";
 
 interface Row {
@@ -282,7 +283,9 @@ function CapturarPage() {
 
   const typeId = existing ? existing.typeId : product.typeId;
   const type: ProductTypeFull | undefined = types.find((t) => t.id === typeId);
-  const defs = type?.attributes ?? [];
+  // La presentación y su contenido se capturan en la sección de unidades (con conversión validada),
+  // así que no se piden dos veces como atributos.
+  const defs = (type?.attributes ?? []).filter((d) => !UNIT_ATTR_CODES.has(d.code));
   const sharedDefs = defs.filter((d) => !d.is_variant_defining);
   const rowDefs = defs.filter((d) => d.is_variant_defining);
   const baseUnit = units.find((u) => u.id === baseUnitId);
@@ -297,8 +300,7 @@ function CapturarPage() {
       nextShared[d.id] = (keepValues ? shared[d.id] : undefined) ?? emptyAttr(d);
     setShared(nextShared);
     setRows([newRow(t?.attributes.filter((a) => a.is_variant_defining) ?? [])]);
-    if (!keepValues || !baseUnitId)
-      setBaseUnitId(t?.default_unit_id ?? inventoryUnits[0]?.id ?? null);
+    setBaseUnitId(t?.default_unit_id ?? (keepValues ? baseUnitId : null) ?? inventoryUnits[0]?.id ?? null);
   }
 
   // ---------- Carga inicial: editar, nueva variante o plantilla ----------
