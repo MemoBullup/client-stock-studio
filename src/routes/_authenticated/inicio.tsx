@@ -425,7 +425,7 @@ function MiniTile({
   value?: number | undefined;
   loading: boolean;
   to: "/inventario";
-  search: Record<string, string | boolean>;
+  search: { existencia?: "pending"; foto?: "without"; porClasificar?: boolean; revision?: "pending" };
 }) {
   return (
     <Link to={to} search={search} className="rounded-2xl bg-graphite-soft p-4 transition hover:brightness-110">
