@@ -96,7 +96,9 @@ export function useSignedUrls(paths: Array<string | null | undefined>) {
     queryFn: async () => {
       const { data, error } = await supabase.storage.from(PHOTO_BUCKET).createSignedUrls(list, 3600);
       if (error) throw error;
-      return new Map((data ?? []).filter((d) => d.signedUrl).map((d) => [d.path ?? "", d.signedUrl]));
+      const out = new Map<string, string>();
+      for (const d of data ?? []) if (d.signedUrl && d.path) out.set(d.path, d.signedUrl);
+      return out;
     },
   });
 }
