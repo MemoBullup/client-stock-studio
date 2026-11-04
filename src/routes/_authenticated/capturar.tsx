@@ -995,6 +995,48 @@ function CapturarPage() {
     );
   }
 
+  const modeTabs = !editing && (
+    <div className="mb-6 inline-flex rounded-full bg-card p-1 shadow-card" role="tablist" aria-label="Forma de capturar">
+      <Link
+        to="/capturar"
+        search={{}}
+        role="tab"
+        aria-selected={search.modo !== "archivo"}
+        className={cn(
+          "inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition",
+          search.modo !== "archivo" ? "bg-graphite text-graphite-foreground" : "text-muted-foreground hover:text-foreground",
+        )}
+      >
+        <PackagePlus className="size-4" /> Uno por uno
+      </Link>
+      <Link
+        to="/capturar"
+        search={{ modo: "archivo" }}
+        role="tab"
+        aria-selected={search.modo === "archivo"}
+        className={cn(
+          "inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition",
+          search.modo === "archivo" ? "bg-graphite text-graphite-foreground" : "text-muted-foreground hover:text-foreground",
+        )}
+      >
+        <FileSpreadsheet className="size-4" /> Desde Excel o CSV
+      </Link>
+    </div>
+  );
+
+  if (search.modo === "archivo" && !editing) {
+    return (
+      <div className="pb-10">
+        <PageHeader
+          title="Capturar desde archivo"
+          description="Sube una hoja de Excel o CSV con varios productos. Se revisa fila por fila antes de guardar y el SKU lo genera el sistema."
+        />
+        {modeTabs}
+        <ImportPanel />
+      </div>
+    );
+  }
+
   return (
     <div className="pb-28" onKeyDown={onKeyDown}>
       <PageHeader
@@ -1018,6 +1060,8 @@ function CapturarPage() {
           ) : undefined
         }
       />
+
+      {modeTabs}
 
       {noSession && !editingRegistered && (
         <div
@@ -1062,6 +1106,21 @@ function CapturarPage() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
+              {(() => {
+                const ids = lastSaved.variants.filter((v) => v.record_status === "registered").map((v) => v.id);
+                if (!ids.length) return null;
+                const visible = isAdmin ? [ids] : ids.map((id) => [id]);
+                return visible.slice(0, isAdmin ? 1 : 3).map((group) => (
+                  <Button key={group.join(",")} variant="outline" size="sm" asChild>
+                    <Link to="/etiquetas" search={{ ids: group.join(",") }}>
+                      <Printer />
+                      {group.length > 1
+                        ? `Imprimir ${group.length} etiquetas`
+                        : `Etiqueta ${lastSaved.variants.find((v) => v.id === group[0])?.sku ?? ""}`}
+                    </Link>
+                  </Button>
+                ));
+              })()}
               <Button variant="outline" size="sm" onClick={newVariantOfSaved}>
                 <Plus /> Crear variante del mismo modelo
               </Button>
@@ -1699,6 +1758,25 @@ function CapturarPage() {
                     )}
                   </CollapsibleContent>
                 </Collapsible>
+
+                <section className="surface-card p-5" aria-labelledby="fotos-titulo">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <h2 id="fotos-titulo" className="flex items-center gap-2 text-lg font-bold">
+                      <Camera className="size-5 text-primary" aria-hidden /> Fotografías
+                    </h2>
+                    {uploading && (
+                      <span className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
+                        <Loader2 className="size-4 animate-spin" /> Subiendo fotos {uploading.done} de {uploading.total}…
+                      </span>
+                    )}
+                  </div>
+                  <PhotoQueue
+                    photos={photos}
+                    onChange={setPhotos}
+                    rows={rows.map((r, i) => ({ key: r.key, label: rowLabel(r) || `Variante ${i + 1}` }))}
+                    disabled={save.isPending || rows.length === 0}
+                  />
+                </section>
               </>
             )}
 
@@ -1865,6 +1943,21 @@ function CapturarPage() {
             <Button variant="outline" onClick={() => setSummary(null)} disabled={save.isPending}>
               Seguir editando
             </Button>
+            {!editingRegistered && (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  printAfter.current = true;
+                  save.mutate("registered");
+                }}
+                disabled={
+                  save.isPending ||
+                  !!(summary && (summary.dupBatch.size > 0 || summary.dupExisting.size > 0))
+                }
+              >
+                <Printer /> Guardar y generar etiqueta
+              </Button>
+            )}
             <Button
               onClick={() => save.mutate("registered")}
               disabled={
