@@ -9,11 +9,11 @@ import { useQrUrl } from "@/hooks/use-qr-url";
 import { supabase } from "@/integrations/supabase/client";
 import { friendlyError } from "@/lib/errors";
 import { formatNumber } from "@/lib/format";
+import { MAX_BATCH_LABELS } from "@/lib/qr";
 import { useMe, useSettings } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export const MAX_BATCH_LABELS = 500;
 
 interface LabelSearch {
   ids?: string | undefined;

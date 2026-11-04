@@ -1,6 +1,9 @@
 // QR estables por variante: la URL solo lleva el identificador interno (nunca costos ni cantidades).
 import QRCode from "qrcode";
 
+/** Máximo de etiquetas por lote (solo Administrador). */
+export const MAX_BATCH_LABELS = 500;
+
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
 /** URL que se codifica en el QR: <base>/q/<id>. Sin base configurada, usa la dirección actual. */
