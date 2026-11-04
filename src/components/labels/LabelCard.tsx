@@ -52,7 +52,7 @@ export function LabelCard({
         title={`QR de ${info.sku ?? "SKU"}`}
         className="shrink-0 self-center"
         // El tamaño en mm hace que el QR se imprima a escala real.
-        {...{ style: { width: `${qrSide}mm`, height: `${qrSide}mm` } }}
+        style={{ width: `${qrSide}mm`, height: `${qrSide}mm` }}
       />
       <div className="flex min-w-0 flex-1 flex-col justify-center" style={{ gap: `${small * 0.25}mm` }}>
         <p className="font-mono font-bold leading-none" style={{ fontSize: `${sku}mm` }}>
