@@ -1,6 +1,6 @@
 // Descarga completa de informes: pide todas las páginas al servidor (no solo la visible).
 import { supabase } from "@/integrations/supabase/client";
-import { catalogQuery, type CatalogFilters } from "@/lib/catalog";
+import { fetchCatalogPage, type CatalogFilters } from "@/lib/catalog";
 import { downloadCsv, downloadXlsx, fileStamp } from "@/lib/files";
 import { buildReportTable, type ExportRow, type ReportKind, type ReportPage } from "@/lib/reports";
 
@@ -42,8 +42,8 @@ export async function fetchFilteredIds(
   onProgress?: (done: number, total: number) => void,
 ): Promise<string[]> {
   const pageSize = 100;
-  const run = (pagina: number) => catalogQuery({ ...filters, pagina }, pageSize).queryFn!({} as never);
-  const first = (await run(1)) as { rows: Array<{ id: string }>; total: number };
+  const run = (pagina: number) => fetchCatalogPage({ ...filters, pagina }, pageSize);
+  const first = await run(1);
   const pages = Math.ceil(first.total / pageSize);
   const out: string[][] = [first.rows.map((r) => r.id)];
   onProgress?.(first.rows.length, first.total);
@@ -52,7 +52,7 @@ export async function fetchFilteredIds(
     const batch = await Promise.all(
       Array.from({ length: Math.min(4, pages - p + 1) }, (_, i) => run(p + i)),
     );
-    for (const b of batch as Array<{ rows: Array<{ id: string }> }>) {
+    for (const b of batch) {
       out.push(b.rows.map((r) => r.id));
       done += b.rows.length;
     }
