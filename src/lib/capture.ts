@@ -265,7 +265,13 @@ export function newKey(): string {
 /** Valor comparable de un atributo (sin mayúsculas ni acentos); null si no es un valor real. */
 export function comparableValue(
   dataType: AttrDataType,
-  v: { state: string; text?: string | null; number?: string | number | null; options?: string[] | null; unitId?: string | null },
+  v: {
+    state: string;
+    text?: string | null;
+    number?: string | number | null;
+    options?: string[] | null;
+    unitId?: string | null;
+  },
 ): string | null {
   if (v.state !== "value") return null;
   const norm = (t: string) =>
@@ -290,7 +296,10 @@ export function comparableValue(
  * Posible duplicado: todos los atributos que ambos tienen capturados coinciden
  * y la fila tiene al menos uno. Solo avisa; el bloqueo es para combinaciones completas.
  */
-export function isPossibleDuplicate(row: Record<string, string | null>, other: Record<string, string | null>): boolean {
+export function isPossibleDuplicate(
+  row: Record<string, string | null>,
+  other: Record<string, string | null>,
+): boolean {
   let shared = 0;
   for (const [id, value] of Object.entries(row)) {
     const o = other[id] ?? null;

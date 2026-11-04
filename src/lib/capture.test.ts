@@ -121,12 +121,21 @@ describe("variantes en lote", () => {
 
 describe("posibles duplicados", () => {
   it("avisa cuando los atributos capturados coinciden aunque falten otros", () => {
-    expect(isPossibleDuplicate({ ancho: "25|mm", color: "rojo", material: null }, { ancho: "25|mm", color: "rojo", material: "satin" })).toBe(true);
+    expect(
+      isPossibleDuplicate(
+        { ancho: "25|mm", color: "rojo", material: null },
+        { ancho: "25|mm", color: "rojo", material: "satin" },
+      ),
+    ).toBe(true);
   });
   it("no avisa si alguna medida o color es distinto", () => {
-    expect(isPossibleDuplicate({ ancho: "38|mm", color: "rojo" }, { ancho: "25|mm", color: "rojo" })).toBe(false);
+    expect(
+      isPossibleDuplicate({ ancho: "38|mm", color: "rojo" }, { ancho: "25|mm", color: "rojo" }),
+    ).toBe(false);
   });
   it("compara sin mayúsculas ni acentos", () => {
-    expect(comparableValue("select", { state: "value", text: "Arcoíris" })).toBe(comparableValue("select", { state: "value", text: "arcoiris" }));
+    expect(comparableValue("select", { state: "value", text: "Arcoíris" })).toBe(
+      comparableValue("select", { state: "value", text: "arcoiris" }),
+    );
   });
 });

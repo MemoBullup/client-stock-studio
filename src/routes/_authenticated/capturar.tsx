@@ -48,10 +48,13 @@ import type { Json } from "@/integrations/supabase/types";
 import {
   attrToPayload,
   buildVariantLabel,
+  comparableValue,
   computeCount,
   duplicateIndexes,
+  effectiveState,
   emptyAttr,
   emptyCount,
+  isPossibleDuplicate,
   newKey,
   parseNumber,
   parseTags,
@@ -266,6 +269,7 @@ function CapturarPage() {
   const [combosOpen, setCombosOpen] = useState(false);
   const [summary, setSummary] = useState<{
     dupExisting: Map<number, { id: string; sku: string | null; label: string | null }>;
+    possible: Map<number, Array<{ id: string; sku: string | null; label: string | null }>>;
     dupBatch: Set<number>;
   } | null>(null);
   const [checking, setChecking] = useState(false);
@@ -845,7 +849,59 @@ function CapturarPage() {
             label: d.existing_label,
           });
       }
-      setSummary({ dupExisting, dupBatch: duplicateIndexes(sigs) });
+      // Aviso (no bloqueo) de posibles duplicados con los atributos que sí se capturaron.
+      const possible = new Map<
+        number,
+        Array<{ id: string; sku: string | null; label: string | null }>
+      >();
+      if (existing) {
+        const { data: sibs } = await supabase
+          .from("variants")
+          .select(
+            "id, sku, variant_label, variant_attribute_values(attribute_id, value_state, value_text, value_number, value_options, unit_id)",
+          )
+          .eq("product_id", existing.id)
+          .neq("record_status", "archived");
+        const rowValues = (r: Row) =>
+          Object.fromEntries(
+            rowDefs.map((d) => [
+              d.id,
+              comparableValue(d.data_type, {
+                ...(r.attrs[d.id] ?? emptyAttr(d)),
+                state: effectiveState(d, r.attrs[d.id]),
+              }),
+            ]),
+          );
+        rows.forEach((r, i) => {
+          if (dupExisting.has(i)) return;
+          const mine = rowValues(r);
+          const hits = (sibs ?? [])
+            .filter((sv) => sv.id !== r.id)
+            .filter((sv) => {
+              const theirs = Object.fromEntries(
+                rowDefs.map((d) => {
+                  const a = sv.variant_attribute_values.find((x) => x.attribute_id === d.id);
+                  return [
+                    d.id,
+                    a
+                      ? comparableValue(d.data_type, {
+                          state: a.value_state,
+                          text: a.value_text,
+                          number: a.value_number,
+                          options: a.value_options,
+                          unitId: a.unit_id,
+                        })
+                      : null,
+                  ];
+                }),
+              );
+              return isPossibleDuplicate(mine, theirs);
+            })
+            .map((sv) => ({ id: sv.id, sku: sv.sku, label: sv.variant_label }));
+          if (hits.length) possible.set(i, hits);
+        });
+      }
+      setSummary({ dupExisting, possible, dupBatch: duplicateIndexes(sigs) });
     } catch (e) {
       setFormError(friendlyError(e));
     } finally {
@@ -1721,6 +1777,25 @@ function CapturarPage() {
                             {dupE.sku ?? "borrador"} {dupE.label ?? ""}
                           </Link>
                           . Ábrelo en lugar de duplicarlo.
+                        </p>
+                      )}
+                      {!dupE && summary.possible.get(i) && (
+                        <p className="mt-1 text-warning-foreground">
+                          Posible duplicado (coinciden los datos capturados):{" "}
+                          {summary.possible.get(i)!.map((h, k) => (
+                            <span key={h.id}>
+                              {k > 0 && ", "}
+                              <Link
+                                to="/inventario/$variantId"
+                                params={{ variantId: h.id }}
+                                className="font-semibold underline"
+                              >
+                                {h.sku ?? "borrador"} {h.label ?? ""}
+                              </Link>
+                            </span>
+                          ))}
+                          . Revísalo antes de guardar; si es otra variante, completa lo que la
+                          distingue.
                         </p>
                       )}
                       {dupB && (
