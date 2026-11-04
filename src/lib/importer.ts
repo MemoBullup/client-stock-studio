@@ -175,6 +175,8 @@ export interface ImportVariant {
   units_per_presentation: number | null;
   attributes: AttrPayload[];
   count: { pending: true } | { location_id: string; quantity: number };
+  /** Firma de las características que distinguen la variante (null si falta alguna). */
+  signature: string | null;
   errors: string[];
 }
 
@@ -311,6 +313,20 @@ export function parseImport(
       }
     }
 
+    const definingDefs = defs.filter((d) => d.is_variant_defining);
+    const definingVals = definingDefs.map((d) => attributes.find((a) => a.attribute_id === d.id));
+    const signature =
+      definingDefs.length > 0 && definingVals.every((a) => a && a.state !== "pending")
+        ? JSON.stringify(
+            definingVals.map((a) =>
+              a!.state === "not_applicable"
+                ? "-"
+                : normalizeText(String(a!.text ?? a!.number ?? "")) + "|" + (a!.unit_id ?? "") + "|" +
+                  (a!.options ?? []).map(normalizeText).sort().join(","),
+            ),
+          )
+        : null;
+
     let count: ImportVariant["count"] = { pending: true };
     const q = parseQuantity(cell(row, "cantidad"));
     if ("error" in q) errors.push(q.error);
@@ -356,6 +372,7 @@ export function parseImport(
       units_per_presentation: factor,
       attributes,
       count,
+      signature,
       errors,
     });
   });
@@ -366,11 +383,11 @@ export function parseImport(
     }
     const seen = new Map<string, number>();
     for (const v of g.variants) {
-      const sig = JSON.stringify([...v.attributes].sort((a, b) => a.attribute_id.localeCompare(b.attribute_id)));
-      const first = seen.get(sig);
-      if (first !== undefined && v.attributes.length > 0) {
+      if (!v.signature) continue;
+      const first = seen.get(v.signature);
+      if (first !== undefined) {
         v.errors.push(`Repite las mismas características que la fila ${first} del mismo producto.`);
-      } else seen.set(sig, v.line);
+      } else seen.set(v.signature, v.line);
     }
   }
 
