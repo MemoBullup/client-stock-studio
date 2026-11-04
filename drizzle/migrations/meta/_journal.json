@@ -50,6 +50,13 @@
       "when": 1793753215301,
       "tag": "0006_block_b_capture_inventory",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793756477376,
+      "tag": "0007_block_c_qr_reports_dashboard_photos",
+      "breakpoints": true
     }
   ]
 }

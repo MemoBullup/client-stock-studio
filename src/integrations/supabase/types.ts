@@ -1215,6 +1215,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _export_row: {
+        Args: {
+          _variant_id: string
+          _with_cost: boolean
+          _with_missing: boolean
+        }
+        Returns: Json
+      }
+      _missing_data: {
+        Args: { _variant_id: string; _with_cost: boolean }
+        Returns: string[]
+      }
       _record_initial_count: {
         Args: {
           _full: number
@@ -1228,6 +1240,7 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_dashboard: { Args: { _today_start: string }; Returns: Json }
       apply_stock_adjustment: {
         Args: {
           _location_id: string
@@ -1239,6 +1252,12 @@ export type Database = {
         Returns: string
       }
       bootstrap_first_admin: { Args: { _email: string }; Returns: undefined }
+      can_manage_variant_images: {
+        Args: { _variant_id: string }
+        Returns: boolean
+      }
+      can_upload_variant_photo: { Args: { _name: string }; Returns: boolean }
+      category_path_names: { Args: { _id: string }; Returns: string[] }
       category_product_counts: {
         Args: never
         Returns: {
@@ -1256,12 +1275,23 @@ export type Database = {
           signature: string
         }[]
       }
+      dashboard_overview: { Args: { _today_start: string }; Returns: Json }
       delete_category: {
         Args: { _id: string; _reassign?: boolean; _reassign_to?: string }
         Returns: undefined
       }
       delete_location: { Args: { _id: string }; Returns: undefined }
       discard_draft: { Args: { _variant_id: string }; Returns: undefined }
+      export_report: {
+        Args: {
+          _ids?: string[]
+          _include_costs?: boolean
+          _kind: string
+          _limit?: number
+          _offset?: number
+        }
+        Returns: Json
+      }
       generate_sku: { Args: never; Returns: string }
       get_public_branding: {
         Args: never
@@ -1289,6 +1319,18 @@ export type Database = {
         }[]
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      label_data: {
+        Args: { _ids: string[] }
+        Returns: {
+          defining_text: string
+          details: string
+          id: string
+          product_name: string
+          record_status: Database["public"]["Enums"]["record_status"]
+          sku: string
+          variant_label: string
+        }[]
+      }
       list_stock_minimums: {
         Args: {
           _limit?: number
@@ -1313,6 +1355,7 @@ export type Database = {
           variant_label: string
         }[]
       }
+      location_path_text: { Args: { _id: string }; Returns: string }
       location_stock_counts: {
         Args: never
         Returns: {
@@ -1410,6 +1453,7 @@ export type Database = {
           variant_label: string
         }[]
       }
+      set_primary_image: { Args: { _image_id: string }; Returns: undefined }
       set_user_active: {
         Args: { _active: boolean; _user_id: string }
         Returns: undefined
