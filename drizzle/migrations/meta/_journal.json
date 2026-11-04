@@ -57,6 +57,13 @@
       "when": 1793756477376,
       "tag": "0007_block_c_qr_reports_dashboard_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793765793397,
+      "tag": "0008_restrict_branding_logo_reads",
+      "breakpoints": true
     }
   ]
 }
