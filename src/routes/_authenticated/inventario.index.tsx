@@ -42,6 +42,7 @@ import { useMe, useSettings } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 25;
+type InventarioSearch = CatalogFilters & { vista?: "tabla" | "tarjetas" | undefined };
 const NONE = "__none";
 
 const str = (v: unknown) => (typeof v === "string" && v.trim() !== "" ? v : undefined);
@@ -50,26 +51,26 @@ function oneOf<T extends string>(v: unknown, list: readonly T[]): T | undefined 
 }
 
 export const Route = createFileRoute("/_authenticated/inventario/")({
-  validateSearch: (s: Record<string, unknown>): CatalogFilters & { vista?: "tabla" | "tarjetas" } => ({
-    q: str(s.q),
-    categoria: str(s.categoria),
-    porClasificar: s.porClasificar === true || s.porClasificar === "true" ? true : undefined,
-    tipo: str(s.tipo),
-    ubicacion: str(s.ubicacion),
-    existencia: oneOf(s.existencia, ["with", "zero", "pending"] as const),
-    foto: oneOf(s.foto, ["with", "without"] as const),
-    revision: oneOf(s.revision, ["pending", "validated"] as const),
-    registro: oneOf(s.registro, ["draft", "registered", "archived"] as const),
-    capturista: str(s.capturista),
-    desde: str(s.desde),
-    hasta: str(s.hasta),
-    color: str(s.color),
-    medida: str(s.medida),
-    medidaValor: str(s.medidaValor),
-    costoPendiente: s.costoPendiente === true || s.costoPendiente === "true" ? true : undefined,
-    orden: oneOf(s.orden, ["recent", "sku", "name", "quantity"] as const),
-    pagina: typeof s.pagina === "number" && s.pagina > 0 ? Math.floor(s.pagina) : undefined,
-    vista: oneOf(s.vista, ["tabla", "tarjetas"] as const),
+  validateSearch: (s: Record<string, unknown>): InventarioSearch => ({
+    q: str(s["q"]),
+    categoria: str(s["categoria"]),
+    porClasificar: s["porClasificar"] === true || s["porClasificar"] === "true" ? true : undefined,
+    tipo: str(s["tipo"]),
+    ubicacion: str(s["ubicacion"]),
+    existencia: oneOf(s["existencia"], ["with", "zero", "pending"] as const),
+    foto: oneOf(s["foto"], ["with", "without"] as const),
+    revision: oneOf(s["revision"], ["pending", "validated"] as const),
+    registro: oneOf(s["registro"], ["draft", "registered", "archived"] as const),
+    capturista: str(s["capturista"]),
+    desde: str(s["desde"]),
+    hasta: str(s["hasta"]),
+    color: str(s["color"]),
+    medida: str(s["medida"]),
+    medidaValor: str(s["medidaValor"]),
+    costoPendiente: s["costoPendiente"] === true || s["costoPendiente"] === "true" ? true : undefined,
+    orden: oneOf(s["orden"], ["recent", "sku", "name", "quantity"] as const),
+    pagina: typeof s["pagina"] === "number" && s["pagina"] > 0 ? Math.floor(s["pagina"]) : undefined,
+    vista: oneOf(s["vista"], ["tabla", "tarjetas"] as const),
   }),
   head: () => ({
     meta: [
@@ -162,7 +163,7 @@ function InventarioPage() {
   }, [q]);
   const [showFilters, setShowFilters] = useState(false);
 
-  function setFilter(patch: Partial<CatalogFilters & { vista?: "tabla" | "tarjetas" }>) {
+  function setFilter(patch: InventarioSearch) {
     navigate({ search: (prev) => ({ ...prev, ...patch, pagina: "pagina" in patch ? patch.pagina : undefined }), replace: true });
   }
 

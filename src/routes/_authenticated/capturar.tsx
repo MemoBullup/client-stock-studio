@@ -70,18 +70,18 @@ import { useMe } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 interface CaptureSearch {
-  editar?: string;
-  producto?: string;
-  plantilla?: string;
-  incluir?: string;
+  editar?: string | undefined;
+  producto?: string | undefined;
+  plantilla?: string | undefined;
+  incluir?: string | undefined;
 }
 
 export const Route = createFileRoute("/_authenticated/capturar")({
   validateSearch: (s: Record<string, unknown>): CaptureSearch => ({
-    editar: typeof s.editar === "string" ? s.editar : undefined,
-    producto: typeof s.producto === "string" ? s.producto : undefined,
-    plantilla: typeof s.plantilla === "string" ? s.plantilla : undefined,
-    incluir: typeof s.incluir === "string" ? s.incluir : undefined,
+    editar: typeof s["editar"] === "string" ? s["editar"] : undefined,
+    producto: typeof s["producto"] === "string" ? s["producto"] : undefined,
+    plantilla: typeof s["plantilla"] === "string" ? s["plantilla"] : undefined,
+    incluir: typeof s["incluir"] === "string" ? s["incluir"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -99,7 +99,7 @@ const RECENT_KEY = "aly-capture-recents";
 
 interface Row {
   key: string;
-  id?: string;
+  id?: string | undefined;
   label: string;
   labelTouched: boolean;
   supplierCode: string;
@@ -274,7 +274,7 @@ function CapturarPage() {
   function applyType(t: ProductTypeFull | undefined, keepValues = false) {
     const nextShared: Record<string, AttrValue> = {};
     for (const d of t?.attributes.filter((a) => !a.is_variant_defining) ?? [])
-      nextShared[d.id] = keepValues && shared[d.id] ? shared[d.id] : emptyAttr(d);
+      nextShared[d.id] = (keepValues ? shared[d.id] : undefined) ?? emptyAttr(d);
     setShared(nextShared);
     setRows([newRow(t?.attributes.filter((a) => a.is_variant_defining) ?? [])]);
     if (!keepValues || !baseUnitId) setBaseUnitId(t?.default_unit_id ?? inventoryUnits[0]?.id ?? null);
@@ -358,7 +358,7 @@ function CapturarPage() {
         setShared(nextShared);
         setLegacyCode(variant.legacy_code ?? "");
         setVariantNotes(variant.notes ?? "");
-        if (dc && typeof dc.location_id === "string") setLocationId(dc.location_id);
+        if (dc && typeof dc["location_id"] === "string") setLocationId(dc["location_id"]);
         setRows([
           {
             key: newKey(),
@@ -368,10 +368,10 @@ function CapturarPage() {
             supplierCode: variant.supplier_code ?? "",
             attrs: rowAttrs,
             count: {
-              pending: !!dc?.pending,
-              quantity: typeof dc?.quantity_raw === "string" ? dc.quantity_raw : "",
-              full: typeof dc?.full_raw === "string" ? dc.full_raw : "",
-              loose: typeof dc?.loose_raw === "string" ? dc.loose_raw : "",
+              pending: !!dc?.["pending"],
+              quantity: typeof dc?.["quantity_raw"] === "string" ? dc["quantity_raw"] : "",
+              full: typeof dc?.["full_raw"] === "string" ? dc["full_raw"] : "",
+              loose: typeof dc?.["loose_raw"] === "string" ? dc["loose_raw"] : "",
             },
           },
         ]);
@@ -507,7 +507,7 @@ function CapturarPage() {
       const keepFirst = prev.length > 1 || (template && Object.values(template.attrs).some((a) => a.state !== "empty"));
       const created = picks.map((p) => {
         const r = newRow(rowDefs);
-        if (template) for (const d of rowDefs) r.attrs[d.id] = { ...template.attrs[d.id] };
+        if (template) for (const d of rowDefs) r.attrs[d.id] = { ...(template.attrs[d.id] ?? emptyAttr(d)) };
         const setVal = (def: AttrDef, value: string, unit: string | null) => {
           r.attrs[def.id] =
             def.data_type === "number"
@@ -1049,7 +1049,7 @@ function CapturarPage() {
                         Unidad base <span className="text-destructive">*</span>
                       </Label>
                       <Select value={baseUnitId ?? NONE} onValueChange={(v) => setBaseUnitId(v === NONE ? null : v)}>
-                        <SelectTrigger id="u-base" aria-invalid={!!errors.unit}>
+                        <SelectTrigger id="u-base" aria-invalid={!!errors["unit"]}>
                           <SelectValue placeholder="Elige" />
                         </SelectTrigger>
                         <SelectContent>
@@ -1060,7 +1060,7 @@ function CapturarPage() {
                           ))}
                         </SelectContent>
                       </Select>
-                      {errors.unit && <FieldError>{errors.unit}</FieldError>}
+                      {errors["unit"] && <FieldError>{errors["unit"]}</FieldError>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="u-pres">Presentación (opcional)</Label>
@@ -1091,15 +1091,15 @@ function CapturarPage() {
                         disabled={!presentationUnit}
                         onChange={(e) => setFactor(e.target.value)}
                         placeholder={presentationUnit ? "Vacío = se desconoce" : "—"}
-                        aria-invalid={!!errors.factor}
+                        aria-invalid={!!errors["factor"]}
                       />
-                      {errors.factor && <FieldError>{errors.factor}</FieldError>}
+                      {errors["factor"] && <FieldError>{errors["factor"]}</FieldError>}
                     </div>
                     {!editingRegistered && (
                       <div className="space-y-1.5">
                         <Label htmlFor="loc">Ubicación del conteo</Label>
-                        <TreeSelect id="loc" items={locations} value={locationId} onChange={setLocationId} placeholder="Elige la ubicación" ariaInvalid={!!errors.location} />
-                        {errors.location && <FieldError>{errors.location}</FieldError>}
+                        <TreeSelect id="loc" items={locations} value={locationId} onChange={setLocationId} placeholder="Elige la ubicación" ariaInvalid={!!errors["location"]} />
+                        {errors["location"] && <FieldError>{errors["location"]}</FieldError>}
                         {recents.locations.length > 0 && (
                           <RecentChips label="Recientes" ids={recents.locations} items={locations} active={locationId} onPick={setLocationId} />
                         )}
@@ -1152,7 +1152,7 @@ function CapturarPage() {
                                         label: "",
                                         labelTouched: false,
                                         count: emptyCount(),
-                                        attrs: Object.fromEntries(Object.entries(r.attrs).map(([k, v]) => [k, { ...v }])),
+                                        attrs: Object.fromEntries(Object.entries(r.attrs).map(([k, v]) => [k, { ...v }])) as Record<string, AttrValue>,
                                       };
                                       const next = [...prev];
                                       next.splice(i + 1, 0, copy);

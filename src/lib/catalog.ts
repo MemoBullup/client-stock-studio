@@ -10,6 +10,7 @@ import type { TreeItem } from "@/lib/tree";
 export type RecordStatus = Database["public"]["Enums"]["record_status"];
 export type ReviewStatus = Database["public"]["Enums"]["review_status"];
 export type PhotoStatus = Database["public"]["Enums"]["photo_status"];
+type SearchArgs = Database["public"]["Functions"]["search_catalog"]["Args"];
 export type CatalogRow = Database["public"]["Functions"]["search_catalog"]["Returns"][number];
 
 export const RECORD_LABEL: Record<RecordStatus, string> = {
@@ -137,24 +138,24 @@ export const openSessionQuery = queryOptions({
 });
 
 export interface CatalogFilters {
-  q?: string;
-  categoria?: string;
-  porClasificar?: boolean;
-  tipo?: string;
-  ubicacion?: string;
-  existencia?: "with" | "zero" | "pending";
-  foto?: "with" | "without";
-  revision?: "pending" | "validated";
-  registro?: RecordStatus;
-  capturista?: string;
-  desde?: string;
-  hasta?: string;
-  color?: string;
-  medida?: string;
-  medidaValor?: string;
-  costoPendiente?: boolean;
-  orden?: "recent" | "sku" | "name" | "quantity";
-  pagina?: number;
+  q?: string | undefined;
+  categoria?: string | undefined;
+  porClasificar?: boolean | undefined;
+  tipo?: string | undefined;
+  ubicacion?: string | undefined;
+  existencia?: "with" | "zero" | "pending" | undefined;
+  foto?: "with" | "without" | undefined;
+  revision?: "pending" | "validated" | undefined;
+  registro?: RecordStatus | undefined;
+  capturista?: string | undefined;
+  desde?: string | undefined;
+  hasta?: string | undefined;
+  color?: string | undefined;
+  medida?: string | undefined;
+  medidaValor?: string | undefined;
+  costoPendiente?: boolean | undefined;
+  orden?: "recent" | "sku" | "name" | "quantity" | undefined;
+  pagina?: number | undefined;
 }
 
 export function catalogQuery(filters: CatalogFilters, pageSize: number) {
@@ -163,7 +164,7 @@ export function catalogQuery(filters: CatalogFilters, pageSize: number) {
     queryFn: async () => {
       const page = Math.max(1, filters.pagina ?? 1);
       const measureValue = filters.medidaValor ? Number(filters.medidaValor.replace(",", ".")) : undefined;
-      const { data, error } = await supabase.rpc("search_catalog", {
+      const raw = {
         _q: filters.q || undefined,
         _category_id: filters.categoria || undefined,
         _unclassified: filters.porClasificar || undefined,
@@ -183,7 +184,9 @@ export function catalogQuery(filters: CatalogFilters, pageSize: number) {
         _sort: filters.orden || "recent",
         _limit: pageSize,
         _offset: (page - 1) * pageSize,
-      });
+      };
+      const args = Object.fromEntries(Object.entries(raw).filter(([, v]) => v !== undefined)) as SearchArgs;
+      const { data, error } = await supabase.rpc("search_catalog", args);
       if (error) throw error;
       const rows = data ?? [];
       return { rows, total: Number(rows[0]?.total_count ?? 0) };

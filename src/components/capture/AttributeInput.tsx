@@ -20,9 +20,9 @@ export function AttributeInput({
   value: AttrValue;
   onChange: (next: AttrValue) => void;
   measureUnits: UnitLite[];
-  error?: string | null;
-  hideLabel?: boolean;
-  disabled?: boolean;
+  error?: string | null | undefined;
+  hideLabel?: boolean | undefined;
+  disabled?: boolean | undefined;
 }) {
   const id = useId();
   const state = effectiveState(def, value);
@@ -62,7 +62,7 @@ export function AttributeInput({
           <Select
             value={value.unitId ?? NONE}
             onValueChange={(v) => onChange({ ...value, unitId: v === NONE ? null : v })}
-            disabled={disabled}
+            disabled={disabled ?? false}
           >
             <SelectTrigger className="w-[88px] shrink-0" aria-label={`Unidad de ${def.name}`}>
               <SelectValue />
@@ -78,7 +78,7 @@ export function AttributeInput({
           </Select>
         </div>
       ) : def.data_type === "select" ? (
-        <Select value={value.text || NONE} onValueChange={(v) => set({ text: v === NONE ? "" : v })} disabled={disabled}>
+        <Select value={value.text || NONE} onValueChange={(v) => set({ text: v === NONE ? "" : v })} disabled={disabled ?? false}>
           <SelectTrigger id={id} aria-invalid={!!error}>
             <SelectValue placeholder="Elige…" />
           </SelectTrigger>

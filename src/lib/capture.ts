@@ -46,10 +46,10 @@ export interface CountInput {
 export interface AttrPayload {
   attribute_id: string;
   state: AttrState;
-  text?: string;
-  number?: number;
-  options?: string[];
-  unit_id?: string | null;
+  text?: string | undefined;
+  number?: number | undefined;
+  options?: string[] | undefined;
+  unit_id?: string | null | undefined;
 }
 
 export function emptyAttr(def: Pick<AttrDef, "default_unit_id">): AttrValue {
