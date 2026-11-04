@@ -359,7 +359,7 @@ export function parseImport(
       };
       groups.set(key, group);
     } else if (catRaw && group.product.category_id !== categoryId) {
-      errors.push("Tiene otra categoría que la primera fila de este producto; se usará la de la primera fila.");
+      errors.push("Tiene otra categoría que la primera fila de este mismo producto.");
     }
     group.variants.push({
       line,

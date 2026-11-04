@@ -59,7 +59,14 @@ export function parseCsv(text: string): string[][] {
     row.push(cell);
     rows.push(row);
   }
-  return rows.filter((r) => r.some((c) => c.trim() !== ""));
+  return trimTrailingBlank(rows);
+}
+
+/** Quita filas vacías al final, pero conserva las intermedias para que el número de fila coincida con el archivo. */
+function trimTrailingBlank(rows: string[][]): string[][] {
+  let end = rows.length;
+  while (end > 0 && rows[end - 1]!.every((c) => c.trim() === "")) end--;
+  return rows.slice(0, end);
 }
 
 export function downloadBlob(blob: Blob, fileName: string) {
@@ -116,15 +123,14 @@ export async function readSpreadsheet(file: File): Promise<string[][]> {
   const sheets = await readXlsxFile(file);
   const first = sheets[0];
   if (!first) return [];
-  return first.data
-    .map((r) =>
+  const matrix = first.data.map((r) =>
       r.map((c) => {
         if (c === null || c === undefined) return "";
         if (c instanceof Date) return c.toISOString().slice(0, 10);
         return String(c);
       }),
-    )
-    .filter((r) => r.some((c) => c.trim() !== ""));
+    );
+  return trimTrailingBlank(matrix);
 }
 
 /** Fecha corta para nombres de archivo: 2026-11-04 */
