@@ -145,6 +145,13 @@ Ejemplos:
 - Dijes: forma, color, acabado y dimensiones.
 - Productos impresos: formato, dimensiones, material y diseño.
 
+Especificaciones de cada SKU (todos los tipos, solicitadas por el cliente el 2026-11-03):
+- Tipo de empaque: Unitario, En conjunto o Por caja (obligatorio al confirmar; admite «Dato pendiente»).
+- Peso del producto, en gramos o kilogramos.
+- Medidas del producto en centímetros: largo, ancho y alto.
+- Ubicación: rack o lugar del almacén donde se encuentra (usa el árbol de ubicaciones).
+- Cantidad en existencia: lo que hay en almacén, en la unidad base del SKU (piezas, metros, etc.).
+
 Permitir atributos de texto, número, selección y selección múltiple. Configurar cuáles son obligatorios y cuáles distinguen variantes.
 
 Mostrar únicamente los campos relevantes para el tipo seleccionado.
@@ -153,8 +160,8 @@ Distinguir entre “No aplica”, “Dato pendiente” y un valor real. No inven
 
 Datos de inventario:
 - Unidad base.
-- Cantidad contada o estado “Pendiente de conteo”.
-- Ubicación física.
+- Cantidad en existencia (contada) o estado “Pendiente de conteo”.
+- Ubicación física (rack del almacén).
 - Fecha y responsable del conteo.
 
 Datos privados del Administrador:
