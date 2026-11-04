@@ -16,10 +16,14 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
 import { Route as AuthenticatedAlertasRouteImport } from './routes/_authenticated/alertas'
 import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
+import { Route as AuthenticatedCapturarRouteImport } from './routes/_authenticated/capturar'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
+import { Route as AuthenticatedRevisionesRouteImport } from './routes/_authenticated/revisiones'
 import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
 import { Route as AuthenticatedAdminCatalogosRouteImport } from './routes/_authenticated/_admin/catalogos'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/_admin/usuarios'
+import { Route as AuthenticatedInventarioIndexRouteImport } from './routes/_authenticated/inventario.index'
+import { Route as AuthenticatedInventarioVariantIdRouteImport } from './routes/_authenticated/inventario.$variantId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -54,9 +58,19 @@ const AuthenticatedAsistenteRoute = AuthenticatedAsistenteRouteImport.update({
   path: '/asistente',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCapturarRoute = AuthenticatedCapturarRouteImport.update({
+  id: '/capturar',
+  path: '/capturar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRevisionesRoute = AuthenticatedRevisionesRouteImport.update({
+  id: '/revisiones',
+  path: '/revisiones',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiAssistantRoute = ApiAssistantRouteImport.update({
@@ -76,6 +90,18 @@ const AuthenticatedAdminUsuariosRoute =
     path: '/usuarios',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedInventarioIndexRoute =
+  AuthenticatedInventarioIndexRouteImport.update({
+    id: '/inventario/',
+    path: '/inventario/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInventarioVariantIdRoute =
+  AuthenticatedInventarioVariantIdRouteImport.update({
+    id: '/inventario/$variantId',
+    path: '/inventario/$variantId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -83,10 +109,14 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/alertas': typeof AuthenticatedAlertasRoute
   '/asistente': typeof AuthenticatedAsistenteRoute
+  '/capturar': typeof AuthenticatedCapturarRoute
   '/inicio': typeof AuthenticatedInicioRoute
+  '/revisiones': typeof AuthenticatedRevisionesRoute
   '/api/assistant': typeof ApiAssistantRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
+  '/inventario/': typeof AuthenticatedInventarioIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,10 +124,14 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/alertas': typeof AuthenticatedAlertasRoute
   '/asistente': typeof AuthenticatedAsistenteRoute
+  '/capturar': typeof AuthenticatedCapturarRoute
   '/inicio': typeof AuthenticatedInicioRoute
+  '/revisiones': typeof AuthenticatedRevisionesRoute
   '/api/assistant': typeof ApiAssistantRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
+  '/inventario': typeof AuthenticatedInventarioIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -108,10 +142,14 @@ export interface FileRoutesById {
   '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/alertas': typeof AuthenticatedAlertasRoute
   '/_authenticated/asistente': typeof AuthenticatedAsistenteRoute
+  '/_authenticated/capturar': typeof AuthenticatedCapturarRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
+  '/_authenticated/revisiones': typeof AuthenticatedRevisionesRoute
   '/api/assistant': typeof ApiAssistantRoute
   '/_authenticated/_admin/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/_authenticated/_admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
+  '/_authenticated/inventario/': typeof AuthenticatedInventarioIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,10 +159,14 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/alertas'
     | '/asistente'
+    | '/capturar'
     | '/inicio'
+    | '/revisiones'
     | '/api/assistant'
     | '/catalogos'
     | '/usuarios'
+    | '/inventario/$variantId'
+    | '/inventario/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -132,10 +174,14 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/alertas'
     | '/asistente'
+    | '/capturar'
     | '/inicio'
+    | '/revisiones'
     | '/api/assistant'
     | '/catalogos'
     | '/usuarios'
+    | '/inventario/$variantId'
+    | '/inventario'
   id:
     | '__root__'
     | '/'
@@ -145,10 +191,14 @@ export interface FileRouteTypes {
     | '/_authenticated/_admin'
     | '/_authenticated/alertas'
     | '/_authenticated/asistente'
+    | '/_authenticated/capturar'
     | '/_authenticated/inicio'
+    | '/_authenticated/revisiones'
     | '/api/assistant'
     | '/_authenticated/_admin/catalogos'
     | '/_authenticated/_admin/usuarios'
+    | '/_authenticated/inventario/$variantId'
+    | '/_authenticated/inventario/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,11 +260,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAsistenteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/capturar': {
+      id: '/_authenticated/capturar'
+      path: '/capturar'
+      fullPath: '/capturar'
+      preLoaderRoute: typeof AuthenticatedCapturarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inicio': {
       id: '/_authenticated/inicio'
       path: '/inicio'
       fullPath: '/inicio'
       preLoaderRoute: typeof AuthenticatedInicioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/revisiones': {
+      id: '/_authenticated/revisiones'
+      path: '/revisiones'
+      fullPath: '/revisiones'
+      preLoaderRoute: typeof AuthenticatedRevisionesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/assistant': {
@@ -237,6 +301,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/usuarios'
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/inventario/': {
+      id: '/_authenticated/inventario/'
+      path: '/inventario'
+      fullPath: '/inventario/'
+      preLoaderRoute: typeof AuthenticatedInventarioIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inventario/$variantId': {
+      id: '/_authenticated/inventario/$variantId'
+      path: '/inventario/$variantId'
+      fullPath: '/inventario/$variantId'
+      preLoaderRoute: typeof AuthenticatedInventarioVariantIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
@@ -261,14 +339,22 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedAlertasRoute: typeof AuthenticatedAlertasRoute
   AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRoute
+  AuthenticatedCapturarRoute: typeof AuthenticatedCapturarRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
+  AuthenticatedRevisionesRoute: typeof AuthenticatedRevisionesRoute
+  AuthenticatedInventarioVariantIdRoute: typeof AuthenticatedInventarioVariantIdRoute
+  AuthenticatedInventarioIndexRoute: typeof AuthenticatedInventarioIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedAlertasRoute: AuthenticatedAlertasRoute,
   AuthenticatedAsistenteRoute: AuthenticatedAsistenteRoute,
+  AuthenticatedCapturarRoute: AuthenticatedCapturarRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
+  AuthenticatedRevisionesRoute: AuthenticatedRevisionesRoute,
+  AuthenticatedInventarioVariantIdRoute: AuthenticatedInventarioVariantIdRoute,
+  AuthenticatedInventarioIndexRoute: AuthenticatedInventarioIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

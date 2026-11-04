@@ -200,7 +200,7 @@ function InicioPage() {
         <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { b: "A", t: "Base, accesos y categorías", d: "Inicio de sesión, roles, categorías, ubicaciones y configuración.", done: true, icon: ClipboardCheck },
-            { b: "B", t: "Captura e inventario", d: "Capturar SKU, variantes, conteos y consulta del catálogo.", done: false, icon: Tags },
+            { b: "B", t: "Captura e inventario", d: "Capturar SKU, variantes, conteos y consulta del catálogo.", done: true, icon: Tags },
             { b: "C", t: "QR, etiquetas e informes", d: "Etiquetas imprimibles, descargas y tablero completo.", done: false, icon: FileClock },
             { b: "D", t: "Fotografías y ecommerce", d: "Carga de imágenes, cola de fotografía y datos comerciales.", done: false, icon: MapPin },
           ].map((s) => (
