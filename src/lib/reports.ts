@@ -117,9 +117,13 @@ export function buildReportTable(rows: ExportRow[], opts: BuildOptions): TableDa
   }
 
   const depth = Math.max(1, ...rows.map((r) => r.categories?.length ?? 0));
-  const used = new Set(rows.flatMap((r) => Object.keys(r.attributes ?? {})));
+  // Presentación y contenido ya tienen columnas propias (con unidades), no se repiten como atributos.
+  const fixed = new Set(["presentación", "contenido por presentación"]);
+  const used = new Set(
+    rows.flatMap((r) => Object.keys(r.attributes ?? {})).filter((n) => !fixed.has(n.toLowerCase())),
+  );
   const attrCols = [
-    ...opts.attributeNames.filter((n) => used.has(n)),
+    ...opts.attributeNames.filter((n, i, all) => used.has(n) && all.indexOf(n) === i),
     ...[...used].filter((n) => !opts.attributeNames.includes(n)).sort(),
   ];
   const headers = [
