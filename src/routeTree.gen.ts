@@ -17,6 +17,7 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAlertasRouteImport } from './routes/_authenticated/alertas'
 import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
 import { Route as AuthenticatedCapturarRouteImport } from './routes/_authenticated/capturar'
+import { Route as AuthenticatedEscanearRouteImport } from './routes/_authenticated/escanear'
 import { Route as AuthenticatedEtiquetasRouteImport } from './routes/_authenticated/etiquetas'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedRevisionesRouteImport } from './routes/_authenticated/revisiones'
@@ -63,6 +64,11 @@ const AuthenticatedAsistenteRoute = AuthenticatedAsistenteRouteImport.update({
 const AuthenticatedCapturarRoute = AuthenticatedCapturarRouteImport.update({
   id: '/capturar',
   path: '/capturar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEscanearRoute = AuthenticatedEscanearRouteImport.update({
+  id: '/escanear',
+  path: '/escanear',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEtiquetasRoute = AuthenticatedEtiquetasRouteImport.update({
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/alertas': typeof AuthenticatedAlertasRoute
   '/asistente': typeof AuthenticatedAsistenteRoute
   '/capturar': typeof AuthenticatedCapturarRoute
+  '/escanear': typeof AuthenticatedEscanearRoute
   '/etiquetas': typeof AuthenticatedEtiquetasRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/revisiones': typeof AuthenticatedRevisionesRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/alertas': typeof AuthenticatedAlertasRoute
   '/asistente': typeof AuthenticatedAsistenteRoute
   '/capturar': typeof AuthenticatedCapturarRoute
+  '/escanear': typeof AuthenticatedEscanearRoute
   '/etiquetas': typeof AuthenticatedEtiquetasRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/revisiones': typeof AuthenticatedRevisionesRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/_authenticated/alertas': typeof AuthenticatedAlertasRoute
   '/_authenticated/asistente': typeof AuthenticatedAsistenteRoute
   '/_authenticated/capturar': typeof AuthenticatedCapturarRoute
+  '/_authenticated/escanear': typeof AuthenticatedEscanearRoute
   '/_authenticated/etiquetas': typeof AuthenticatedEtiquetasRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/revisiones': typeof AuthenticatedRevisionesRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/alertas'
     | '/asistente'
     | '/capturar'
+    | '/escanear'
     | '/etiquetas'
     | '/inicio'
     | '/revisiones'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/alertas'
     | '/asistente'
     | '/capturar'
+    | '/escanear'
     | '/etiquetas'
     | '/inicio'
     | '/revisiones'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/_authenticated/alertas'
     | '/_authenticated/asistente'
     | '/_authenticated/capturar'
+    | '/_authenticated/escanear'
     | '/_authenticated/etiquetas'
     | '/_authenticated/inicio'
     | '/_authenticated/revisiones'
@@ -290,6 +302,13 @@ declare module '@tanstack/react-router' {
       path: '/capturar'
       fullPath: '/capturar'
       preLoaderRoute: typeof AuthenticatedCapturarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/escanear': {
+      id: '/_authenticated/escanear'
+      path: '/escanear'
+      fullPath: '/escanear'
+      preLoaderRoute: typeof AuthenticatedEscanearRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/etiquetas': {
@@ -379,6 +398,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAlertasRoute: typeof AuthenticatedAlertasRoute
   AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRoute
   AuthenticatedCapturarRoute: typeof AuthenticatedCapturarRoute
+  AuthenticatedEscanearRoute: typeof AuthenticatedEscanearRoute
   AuthenticatedEtiquetasRoute: typeof AuthenticatedEtiquetasRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedRevisionesRoute: typeof AuthenticatedRevisionesRoute
@@ -391,6 +411,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAlertasRoute: AuthenticatedAlertasRoute,
   AuthenticatedAsistenteRoute: AuthenticatedAsistenteRoute,
   AuthenticatedCapturarRoute: AuthenticatedCapturarRoute,
+  AuthenticatedEscanearRoute: AuthenticatedEscanearRoute,
   AuthenticatedEtiquetasRoute: AuthenticatedEtiquetasRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedRevisionesRoute: AuthenticatedRevisionesRoute,
