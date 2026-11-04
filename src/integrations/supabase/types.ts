@@ -489,6 +489,7 @@ export type Database = {
           description: string | null
           ecommerce_status: Database["public"]["Enums"]["ecommerce_status"]
           id: string
+          idempotency_key: string | null
           is_archived: boolean
           is_demo: boolean
           is_published: boolean
@@ -509,6 +510,7 @@ export type Database = {
           description?: string | null
           ecommerce_status?: Database["public"]["Enums"]["ecommerce_status"]
           id?: string
+          idempotency_key?: string | null
           is_archived?: boolean
           is_demo?: boolean
           is_published?: boolean
@@ -529,6 +531,7 @@ export type Database = {
           description?: string | null
           ecommerce_status?: Database["public"]["Enums"]["ecommerce_status"]
           id?: string
+          idempotency_key?: string | null
           is_archived?: boolean
           is_demo?: boolean
           is_published?: boolean
@@ -1108,6 +1111,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           defining_signature: string | null
+          draft_count: Json | null
           id: string
           idempotency_key: string | null
           is_demo: boolean
@@ -1135,6 +1139,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           defining_signature?: string | null
+          draft_count?: Json | null
           id?: string
           idempotency_key?: string | null
           is_demo?: boolean
@@ -1162,6 +1167,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           defining_signature?: string | null
+          draft_count?: Json | null
           id?: string
           idempotency_key?: string | null
           is_demo?: boolean
@@ -1209,6 +1215,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _record_initial_count: {
+        Args: {
+          _full: number
+          _idem: string
+          _location_id: string
+          _loose: number
+          _notes: string
+          _quantity: number
+          _ref: string
+          _variant_id: string
+        }
+        Returns: Json
+      }
       apply_stock_adjustment: {
         Args: {
           _location_id: string
@@ -1227,11 +1246,22 @@ export type Database = {
           product_count: number
         }[]
       }
+      check_variant_duplicates: {
+        Args: { _product_id: string; _product_type_id: string; _rows: Json }
+        Returns: {
+          existing_id: string
+          existing_label: string
+          existing_sku: string
+          idx: number
+          signature: string
+        }[]
+      }
       delete_category: {
         Args: { _id: string; _reassign?: boolean; _reassign_to?: string }
         Returns: undefined
       }
       delete_location: { Args: { _id: string }; Returns: undefined }
+      discard_draft: { Args: { _variant_id: string }; Returns: undefined }
       generate_sku: { Args: never; Returns: string }
       get_public_branding: {
         Args: never
@@ -1309,9 +1339,63 @@ export type Database = {
           variant_label: string
         }[]
       }
+      record_count: { Args: { _payload: Json }; Returns: Json }
       review_adjustment_request: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: string
+      }
+      review_count: {
+        Args: { _accept: boolean; _id: string; _note?: string }
+        Returns: undefined
+      }
+      save_capture: { Args: { _payload: Json }; Returns: Json }
+      search_catalog: {
+        Args: {
+          _category_id?: string
+          _color?: string
+          _cost_pending?: boolean
+          _created_by?: string
+          _from?: string
+          _limit?: number
+          _location_id?: string
+          _measure_attr?: string
+          _measure_value?: number
+          _offset?: number
+          _photo?: string
+          _product_type_id?: string
+          _q?: string
+          _record?: string
+          _review?: string
+          _sort?: string
+          _stock?: string
+          _to?: string
+          _unclassified?: boolean
+        }
+        Returns: {
+          allows_decimal: boolean
+          category_id: string
+          counted_locations: number
+          created_at: string
+          created_by: string
+          created_by_name: string
+          id: string
+          in_review_count: number
+          location_names: string
+          photo_status: Database["public"]["Enums"]["photo_status"]
+          primary_image: string
+          product_id: string
+          product_name: string
+          product_type_name: string
+          record_status: Database["public"]["Enums"]["record_status"]
+          review_status: Database["public"]["Enums"]["review_status"]
+          sku: string
+          supplier_code: string
+          total_count: number
+          total_quantity: number
+          unit_plural: string
+          unit_singular: string
+          variant_label: string
+        }[]
       }
       search_variants: {
         Args: { _limit?: number; _q: string }
@@ -1360,6 +1444,11 @@ export type Database = {
           unit_singular: string
           variant_label: string
         }[]
+      }
+      variant_attrs_json: { Args: { _variant_id: string }; Returns: Json }
+      variant_signature_from: {
+        Args: { _attrs: Json; _product_type_id: string }
+        Returns: string
       }
     }
     Enums: {

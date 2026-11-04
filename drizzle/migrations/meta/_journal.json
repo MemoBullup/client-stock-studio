@@ -43,6 +43,13 @@
       "when": 1793560724853,
       "tag": "0005_assistant_inventory_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793753215301,
+      "tag": "0006_block_b_capture_inventory",
+      "breakpoints": true
     }
   ]
 }
