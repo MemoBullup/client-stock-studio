@@ -376,8 +376,7 @@ export function parseImport(
       if (r && "error" in r) {
         errors.push(r.error);
         badAttrs.add(def.id);
-      }
-      else if (r) {
+      } else if (r) {
         attributes.push(r.payload);
         if (def.is_variant_defining && r.display) definingText.push(r.display);
       }
