@@ -1318,6 +1318,7 @@ export type Database = {
           zero_stock_skus: number
         }[]
       }
+      is_current_logo: { Args: { _name: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       label_data: {
         Args: { _ids: string[] }
