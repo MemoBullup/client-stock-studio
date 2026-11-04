@@ -9,9 +9,15 @@ export const Route = createFileRoute("/_authenticated/_admin/usuarios")({
   head: () => ({
     meta: [
       { title: "Usuarios y configuración · Aly Inventario" },
-      { name: "description", content: "Gestiona el personal autorizado, sus roles y la configuración del negocio." },
+      {
+        name: "description",
+        content: "Gestiona el personal autorizado, sus roles y la configuración del negocio.",
+      },
       { property: "og:title", content: "Usuarios y configuración · Aly Inventario" },
-      { property: "og:description", content: "Gestiona el personal autorizado, sus roles y la configuración del negocio." },
+      {
+        property: "og:description",
+        content: "Gestiona el personal autorizado, sus roles y la configuración del negocio.",
+      },
     ],
   }),
   component: UsuariosPage,

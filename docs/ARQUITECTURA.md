@@ -49,8 +49,16 @@ Los QR usarán la URL base configurada (`app_settings.qr_base_url`) + el ID inte
 ## Datos demostrativos
 Categorías y ubicaciones de ejemplo llevan `is_demo = true` y se muestran con la etiqueta DEMO. Los 30 SKU ficticios (prefijo DEMO-) ya están cargados. Todas las tablas operativas tienen `is_demo` para poder retirar solo lo demostrativo.
 
+## Bloque B · Captura, variantes, conteos e inventario
+- **Capturar SKU** (`/capturar`): búsqueda previa, producto existente o nuevo, campos según el tipo, categoría con selectores por nivel («Por clasificar» permitido), características comunes y una fila por variante (o tabla de combinaciones donde solo se crean las marcadas), unidad base, presentación con contenido conocido o desconocido, ubicación, resumen y guardado. Todo se guarda en una sola operación del servidor (`save_capture`) con claves de guardado: un doble clic o reintento no duplica nada. El SKU se asigna al confirmar.
+- **Duplicados**: si todos los atributos que distinguen variantes están respondidos y coinciden con otra variante del mismo producto, el servidor lo bloquea. Si solo coinciden los datos capturados, la pantalla avisa con enlace al registro.
+- **Conteos**: rollos completos + sueltos solo con factor conocido; «Pendiente de conteo» ≠ 0. Un segundo conteo del mismo SKU en la misma ubicación queda «en revisión» y el Administrador decide en «Revisiones» cuál conservar (nunca se suman). Contar en otra ubicación no crea SKU.
+- **Inventario** (`/inventario`): tabla o tarjetas, búsqueda sin acentos y filtros combinables en el servidor, paginación de 25. Costos solo para Administrador.
+- **Ficha** (`/inventario/:id`): existencias por ubicación y total, características con «Dato pendiente»/«No aplica», otras variantes, historial de conteos/ajustes/correcciones; acciones según rol (registrar conteo, variante del mismo modelo, duplicar como plantilla, solicitar corrección; el Administrador valida, archiva, ajusta con motivo y captura el costo).
+- El QR y las etiquetas corresponden al bloque C.
+
 ## Ajustes asistidos con IA
-El usuario describe el ajuste en texto libre. El servidor busca SKU confirmados que coincidan (sin costos), arma la lista de ubicaciones y pide al modelo elegir SKU, ubicación, tipo (fijar total / sumar / restar) y cantidad. La propuesta se valida en el servidor y una persona siempre la revisa: el Editor la envía como solicitud y el Administrador la aplica.
+Retirados de la interfaz a petición del cliente (2026-11-03). Las funciones de ajuste del Administrador se conservan y se usan desde la ficha del SKU.
 
 ## Asistente de inventario
 Chat en lenguaje natural para Administradores y Editores. Una conversación por persona, guardada en la base de datos. El modelo consulta datos actuales mediante herramientas de solo lectura (resumen, búsqueda de SKU, existencias por SKU y por ubicación, alertas y mínimos, ubicaciones, pendientes de conteo) que usan los permisos de quien pregunta. No ve costos ni puede modificar el inventario.

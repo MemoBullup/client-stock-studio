@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   buildVariantLabel,
   combinationKeys,
+  comparableValue,
+  isPossibleDuplicate,
   computeCount,
   duplicateIndexes,
   emptyCount,
@@ -114,5 +116,26 @@ describe("variantes en lote", () => {
 
   it("las etiquetas de uso no se repiten", () => {
     expect(parseTags("escolar, Moños , escolar")).toEqual(["escolar", "Moños"]);
+  });
+});
+
+describe("posibles duplicados", () => {
+  it("avisa cuando los atributos capturados coinciden aunque falten otros", () => {
+    expect(
+      isPossibleDuplicate(
+        { ancho: "25|mm", color: "rojo", material: null },
+        { ancho: "25|mm", color: "rojo", material: "satin" },
+      ),
+    ).toBe(true);
+  });
+  it("no avisa si alguna medida o color es distinto", () => {
+    expect(
+      isPossibleDuplicate({ ancho: "38|mm", color: "rojo" }, { ancho: "25|mm", color: "rojo" }),
+    ).toBe(false);
+  });
+  it("compara sin mayúsculas ni acentos", () => {
+    expect(comparableValue("select", { state: "value", text: "Arcoíris" })).toBe(
+      comparableValue("select", { state: "value", text: "arcoiris" }),
+    );
   });
 });

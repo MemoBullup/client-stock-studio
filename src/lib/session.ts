@@ -27,7 +27,11 @@ export const meQuery = queryOptions({
     const user = userData.user;
     if (!user) return null;
     const [profileRes, roleRes] = await Promise.all([
-      supabase.from("profiles").select("full_name, email, is_active").eq("id", user.id).maybeSingle(),
+      supabase
+        .from("profiles")
+        .select("full_name, email, is_active")
+        .eq("id", user.id)
+        .maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
     ]);
     return {
@@ -48,7 +52,11 @@ export function useMe() {
 export const settingsQuery = queryOptions({
   queryKey: ["settings"],
   queryFn: async (): Promise<AppSettings | null> => {
-    const { data, error } = await supabase.from("app_settings").select("*").eq("id", 1).maybeSingle();
+    const { data, error } = await supabase
+      .from("app_settings")
+      .select("*")
+      .eq("id", 1)
+      .maybeSingle();
     if (error) throw error;
     return data;
   },
@@ -76,7 +84,9 @@ export const brandingQuery = queryOptions({
     let logoUrl = DEFAULT_LOGO_URL;
     let isCustomLogo = false;
     if (row?.logo_path) {
-      const signed = await supabase.storage.from("branding").createSignedUrl(row.logo_path, 60 * 60 * 12);
+      const signed = await supabase.storage
+        .from("branding")
+        .createSignedUrl(row.logo_path, 60 * 60 * 12);
       if (signed.data?.signedUrl) {
         logoUrl = signed.data.signedUrl;
         isCustomLogo = true;

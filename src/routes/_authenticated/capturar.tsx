@@ -48,15 +48,19 @@ import type { Json } from "@/integrations/supabase/types";
 import {
   attrToPayload,
   buildVariantLabel,
+  comparableValue,
   computeCount,
   duplicateIndexes,
+  effectiveState,
   emptyAttr,
   emptyCount,
+  isPossibleDuplicate,
   newKey,
   parseNumber,
   parseTags,
   validateAttr,
   type AttrDef,
+  type AttrPayload,
   type AttrValue,
   type CountInput,
 } from "@/lib/capture";
@@ -104,6 +108,7 @@ export const Route = createFileRoute("/_authenticated/capturar")({
 });
 
 const NONE = "__none";
+const UNIT_ATTR_CODES = new Set(["presentacion", "contenido_presentacion"]);
 const RECENT_KEY = "aly-capture-recents";
 
 interface Row {
@@ -264,6 +269,7 @@ function CapturarPage() {
   const [combosOpen, setCombosOpen] = useState(false);
   const [summary, setSummary] = useState<{
     dupExisting: Map<number, { id: string; sku: string | null; label: string | null }>;
+    possible: Map<number, Array<{ id: string; sku: string | null; label: string | null }>>;
     dupBatch: Set<number>;
   } | null>(null);
   const [checking, setChecking] = useState(false);
@@ -275,6 +281,8 @@ function CapturarPage() {
     sku: string | null;
   } | null>(null);
   const [countTarget, setCountTarget] = useState<CountTarget | null>(null);
+  // Atributos que esta pantalla no muestra: al editar se conservan tal como estaban.
+  const [passthrough, setPassthrough] = useState<AttrPayload[]>([]);
   const appliedSource = useRef<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -282,7 +290,9 @@ function CapturarPage() {
 
   const typeId = existing ? existing.typeId : product.typeId;
   const type: ProductTypeFull | undefined = types.find((t) => t.id === typeId);
-  const defs = type?.attributes ?? [];
+  // La presentación y su contenido se capturan en la sección de unidades (con conversión validada),
+  // así que no se piden dos veces como atributos.
+  const defs = (type?.attributes ?? []).filter((d) => !UNIT_ATTR_CODES.has(d.code));
   const sharedDefs = defs.filter((d) => !d.is_variant_defining);
   const rowDefs = defs.filter((d) => d.is_variant_defining);
   const baseUnit = units.find((u) => u.id === baseUnitId);
@@ -297,8 +307,9 @@ function CapturarPage() {
       nextShared[d.id] = (keepValues ? shared[d.id] : undefined) ?? emptyAttr(d);
     setShared(nextShared);
     setRows([newRow(t?.attributes.filter((a) => a.is_variant_defining) ?? [])]);
-    if (!keepValues || !baseUnitId)
-      setBaseUnitId(t?.default_unit_id ?? inventoryUnits[0]?.id ?? null);
+    setBaseUnitId(
+      t?.default_unit_id ?? (keepValues ? baseUnitId : null) ?? inventoryUnits[0]?.id ?? null,
+    );
   }
 
   // ---------- Carga inicial: editar, nueva variante o plantilla ----------
@@ -365,7 +376,14 @@ function CapturarPage() {
       setFormError(null);
       setSaveKey(newKey());
 
+      setPassthrough([]);
       if (search.editar) {
+        setPassthrough(
+          tDefs
+            .filter((d) => UNIT_ATTR_CODES.has(d.code))
+            .map((d) => attrToPayload(d, byId.get(d.id)))
+            .filter((x): x is AttrPayload => !!x),
+        );
         const dc = (variant.draft_count ?? null) as Record<string, unknown> | null;
         setEditing({
           id: variant.id,
@@ -629,6 +647,7 @@ function CapturarPage() {
     return [
       ...sharedDefs.map((d) => attrToPayload(d, shared[d.id])),
       ...rowDefs.map((d) => attrToPayload(d, r.attrs[d.id])),
+      ...(editing ? passthrough : []),
     ].filter(Boolean);
   }
 
@@ -830,7 +849,59 @@ function CapturarPage() {
             label: d.existing_label,
           });
       }
-      setSummary({ dupExisting, dupBatch: duplicateIndexes(sigs) });
+      // Aviso (no bloqueo) de posibles duplicados con los atributos que sí se capturaron.
+      const possible = new Map<
+        number,
+        Array<{ id: string; sku: string | null; label: string | null }>
+      >();
+      if (existing) {
+        const { data: sibs } = await supabase
+          .from("variants")
+          .select(
+            "id, sku, variant_label, variant_attribute_values(attribute_id, value_state, value_text, value_number, value_options, unit_id)",
+          )
+          .eq("product_id", existing.id)
+          .neq("record_status", "archived");
+        const rowValues = (r: Row) =>
+          Object.fromEntries(
+            rowDefs.map((d) => [
+              d.id,
+              comparableValue(d.data_type, {
+                ...(r.attrs[d.id] ?? emptyAttr(d)),
+                state: effectiveState(d, r.attrs[d.id]),
+              }),
+            ]),
+          );
+        rows.forEach((r, i) => {
+          if (dupExisting.has(i)) return;
+          const mine = rowValues(r);
+          const hits = (sibs ?? [])
+            .filter((sv) => sv.id !== r.id)
+            .filter((sv) => {
+              const theirs = Object.fromEntries(
+                rowDefs.map((d) => {
+                  const a = sv.variant_attribute_values.find((x) => x.attribute_id === d.id);
+                  return [
+                    d.id,
+                    a
+                      ? comparableValue(d.data_type, {
+                          state: a.value_state,
+                          text: a.value_text,
+                          number: a.value_number,
+                          options: a.value_options,
+                          unitId: a.unit_id,
+                        })
+                      : null,
+                  ];
+                }),
+              );
+              return isPossibleDuplicate(mine, theirs);
+            })
+            .map((sv) => ({ id: sv.id, sku: sv.sku, label: sv.variant_label }));
+          if (hits.length) possible.set(i, hits);
+        });
+      }
+      setSummary({ dupExisting, possible, dupBatch: duplicateIndexes(sigs) });
     } catch (e) {
       setFormError(friendlyError(e));
     } finally {
@@ -1706,6 +1777,25 @@ function CapturarPage() {
                             {dupE.sku ?? "borrador"} {dupE.label ?? ""}
                           </Link>
                           . Ábrelo en lugar de duplicarlo.
+                        </p>
+                      )}
+                      {!dupE && summary.possible.get(i) && (
+                        <p className="mt-1 text-warning-foreground">
+                          Posible duplicado (coinciden los datos capturados):{" "}
+                          {summary.possible.get(i)!.map((h, k) => (
+                            <span key={h.id}>
+                              {k > 0 && ", "}
+                              <Link
+                                to="/inventario/$variantId"
+                                params={{ variantId: h.id }}
+                                className="font-semibold underline"
+                              >
+                                {h.sku ?? "borrador"} {h.label ?? ""}
+                              </Link>
+                            </span>
+                          ))}
+                          . Revísalo antes de guardar; si es otra variante, completa lo que la
+                          distingue.
                         </p>
                       )}
                       {dupB && (

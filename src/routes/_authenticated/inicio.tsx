@@ -1,6 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, ArrowUpRight, ClipboardCheck, FileClock, FolderTree, MapPin, Tags, Users } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  ClipboardCheck,
+  FileClock,
+  FolderTree,
+  MapPin,
+  Tags,
+  Users,
+} from "lucide-react";
 
 import { PageHeader } from "@/components/layout/AppShell";
 import { Badge } from "@/components/ui/badge";
@@ -38,32 +47,49 @@ function useDashboardStats(userId: string | undefined) {
         if (res.error) throw res.error;
         return res.count ?? 0;
       };
-      const [registered, pendingReview, myDrafts, today, categories, locations] = await Promise.all([
-        count(supabase.from("variants").select("id", { count: "exact", head: true }).eq("record_status", "registered")),
-        count(
-          supabase
-            .from("variants")
-            .select("id", { count: "exact", head: true })
-            .eq("record_status", "registered")
-            .eq("review_status", "pending"),
-        ),
-        count(
-          supabase
-            .from("variants")
-            .select("id", { count: "exact", head: true })
-            .eq("record_status", "draft")
-            .eq("created_by", userId!),
-        ),
-        count(
-          supabase
-            .from("variants")
-            .select("id", { count: "exact", head: true })
-            .eq("record_status", "registered")
-            .gte("confirmed_at", startOfToday()),
-        ),
-        count(supabase.from("categories").select("id", { count: "exact", head: true }).eq("is_active", true)),
-        count(supabase.from("locations").select("id", { count: "exact", head: true }).eq("is_active", true)),
-      ]);
+      const [registered, pendingReview, myDrafts, today, categories, locations] = await Promise.all(
+        [
+          count(
+            supabase
+              .from("variants")
+              .select("id", { count: "exact", head: true })
+              .eq("record_status", "registered"),
+          ),
+          count(
+            supabase
+              .from("variants")
+              .select("id", { count: "exact", head: true })
+              .eq("record_status", "registered")
+              .eq("review_status", "pending"),
+          ),
+          count(
+            supabase
+              .from("variants")
+              .select("id", { count: "exact", head: true })
+              .eq("record_status", "draft")
+              .eq("created_by", userId!),
+          ),
+          count(
+            supabase
+              .from("variants")
+              .select("id", { count: "exact", head: true })
+              .eq("record_status", "registered")
+              .gte("confirmed_at", startOfToday()),
+          ),
+          count(
+            supabase
+              .from("categories")
+              .select("id", { count: "exact", head: true })
+              .eq("is_active", true),
+          ),
+          count(
+            supabase
+              .from("locations")
+              .select("id", { count: "exact", head: true })
+              .eq("is_active", true),
+          ),
+        ],
+      );
       return { registered, pendingReview, myDrafts, today, categories, locations };
     },
   });
@@ -78,9 +104,11 @@ function InicioPage() {
   const pct = Math.min(100, (registered / goal) * 100);
   const isAdmin = me?.role === "admin";
   const { data: alerts, isLoading: alertsLoading } = useLowStockSummary();
-  const today = new Intl.DateTimeFormat("es-MX", { weekday: "long", day: "numeric", month: "long" }).format(
-    new Date(),
-  );
+  const today = new Intl.DateTimeFormat("es-MX", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(new Date());
 
   return (
     <>
@@ -106,12 +134,17 @@ function InicioPage() {
                 {isLoading ? <Skeleton className="h-12 w-32" /> : formatNumber(registered, 0)}
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
-                de una meta de <strong className="text-foreground">{formatNumber(goal, 0)}</strong> SKU
+                de una meta de <strong className="text-foreground">{formatNumber(goal, 0)}</strong>{" "}
+                SKU
               </p>
             </div>
             <div className="grid grid-cols-2 gap-6 text-right sm:grid-cols-3">
               <Stat label="Capturas de hoy" value={stats?.today} loading={isLoading} />
-              <Stat label="Pendientes de revisión" value={stats?.pendingReview} loading={isLoading} />
+              <Stat
+                label="Pendientes de revisión"
+                value={stats?.pendingReview}
+                loading={isLoading}
+              />
               <Stat label="Mis borradores" value={stats?.myDrafts} loading={isLoading} />
             </div>
           </div>
@@ -124,7 +157,10 @@ function InicioPage() {
               aria-valuenow={registered}
               aria-label="Avance hacia la meta de SKU"
             >
-              <div className="progress-stripes h-full rounded-full transition-all" style={{ width: `${Math.max(pct, 1.5)}%` }} />
+              <div
+                className="progress-stripes h-full rounded-full transition-all"
+                style={{ width: `${Math.max(pct, 1.5)}%` }}
+              />
             </div>
             <div className="mt-2 flex justify-between text-xs text-muted-foreground">
               <span>{formatNumber(pct, 1)}% de la meta</span>
@@ -138,8 +174,18 @@ function InicioPage() {
             Estructura del catálogo
           </h2>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <MiniTile icon={FolderTree} label="Categorías activas" value={stats?.categories} loading={isLoading} />
-            <MiniTile icon={MapPin} label="Ubicaciones activas" value={stats?.locations} loading={isLoading} />
+            <MiniTile
+              icon={FolderTree}
+              label="Categorías activas"
+              value={stats?.categories}
+              loading={isLoading}
+            />
+            <MiniTile
+              icon={MapPin}
+              label="Ubicaciones activas"
+              value={stats?.locations}
+              loading={isLoading}
+            />
           </div>
           {isAdmin && (
             <div className="mt-5 flex flex-wrap gap-2">
@@ -199,15 +245,46 @@ function InicioPage() {
         </div>
         <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { b: "A", t: "Base, accesos y categorías", d: "Inicio de sesión, roles, categorías, ubicaciones y configuración.", done: true, icon: ClipboardCheck },
-            { b: "B", t: "Captura e inventario", d: "Capturar SKU, variantes, conteos y consulta del catálogo.", done: true, icon: Tags },
-            { b: "C", t: "QR, etiquetas e informes", d: "Etiquetas imprimibles, descargas y tablero completo.", done: false, icon: FileClock },
-            { b: "D", t: "Fotografías y ecommerce", d: "Carga de imágenes, cola de fotografía y datos comerciales.", done: false, icon: MapPin },
+            {
+              b: "A",
+              t: "Base, accesos y categorías",
+              d: "Inicio de sesión, roles, categorías, ubicaciones y configuración.",
+              done: true,
+              icon: ClipboardCheck,
+            },
+            {
+              b: "B",
+              t: "Captura e inventario",
+              d: "Capturar SKU, variantes, conteos y consulta del catálogo.",
+              done: true,
+              icon: Tags,
+            },
+            {
+              b: "C",
+              t: "QR, etiquetas e informes",
+              d: "Etiquetas imprimibles, descargas y tablero completo.",
+              done: false,
+              icon: FileClock,
+            },
+            {
+              b: "D",
+              t: "Fotografías y ecommerce",
+              d: "Carga de imágenes, cola de fotografía y datos comerciales.",
+              done: false,
+              icon: MapPin,
+            },
           ].map((s) => (
-            <li key={s.b} className={s.done ? "rounded-2xl bg-success-soft p-4" : "rounded-2xl bg-muted p-4"}>
+            <li
+              key={s.b}
+              className={s.done ? "rounded-2xl bg-success-soft p-4" : "rounded-2xl bg-muted p-4"}
+            >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Bloque {s.b}</span>
-                <Badge variant={s.done ? "success" : "muted"}>{s.done ? "Disponible" : "Próximamente"}</Badge>
+                <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  Bloque {s.b}
+                </span>
+                <Badge variant={s.done ? "success" : "muted"}>
+                  {s.done ? "Disponible" : "Próximamente"}
+                </Badge>
               </div>
               <p className="mt-2 font-semibold">{s.t}</p>
               <p className="mt-1 text-xs text-muted-foreground">{s.d}</p>
@@ -219,7 +296,15 @@ function InicioPage() {
   );
 }
 
-function Stat({ label, value, loading }: { label: string; value?: number | undefined; loading: boolean }) {
+function Stat({
+  label,
+  value,
+  loading,
+}: {
+  label: string;
+  value?: number | undefined;
+  loading: boolean;
+}) {
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -242,7 +327,9 @@ function MiniTile({
   return (
     <div className="rounded-2xl bg-graphite-soft p-4">
       <Icon className="size-4 text-primary" aria-hidden />
-      <p className="mt-3 text-3xl font-bold tabular">{loading ? "…" : formatNumber(value ?? 0, 0)}</p>
+      <p className="mt-3 text-3xl font-bold tabular">
+        {loading ? "…" : formatNumber(value ?? 0, 0)}
+      </p>
       <p className="text-xs text-graphite-muted">{label}</p>
     </div>
   );
