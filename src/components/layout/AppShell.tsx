@@ -37,7 +37,7 @@ interface NavItem {
   label: string;
   short: string;
   icon: LucideIcon;
-  to?: "/inicio" | "/asistente" | "/catalogos" | "/usuarios";
+  to?: "/inicio" | "/capturar" | "/inventario" | "/asistente" | "/catalogos" | "/usuarios";
   adminOnly?: boolean;
   /** Bloque en el que se habilita; si existe, aún no está disponible. */
   upcoming?: string;
@@ -45,8 +45,8 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { label: "Inicio", short: "Inicio", icon: Home, to: "/inicio" },
-  { label: "Capturar SKU", short: "Capturar", icon: PackagePlus, upcoming: "B" },
-  { label: "Inventario", short: "Inventario", icon: Boxes, upcoming: "B" },
+  { label: "Capturar SKU", short: "Capturar", icon: PackagePlus, to: "/capturar" },
+  { label: "Inventario", short: "Inventario", icon: Boxes, to: "/inventario" },
   { label: "Asistente de inventario", short: "Asistente", icon: MessageCircleQuestion, to: "/asistente" },
   { label: "Pendientes de fotografía", short: "Fotografía", icon: Camera, upcoming: "D" },
   { label: "Categorías y ubicaciones", short: "Catálogos", icon: FolderTree, to: "/catalogos", adminOnly: true },

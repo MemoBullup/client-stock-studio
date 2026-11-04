@@ -1175,7 +1175,6 @@ function CapturarPage() {
                               )}
                             </div>
                           </div>
-                          {summary && (summary.dupBatch.has(i) || summary.dupExisting.has(i)) && null}
                           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             {rowDefs.map((d) => (
                               <AttributeInput

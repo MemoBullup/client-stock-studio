@@ -113,7 +113,7 @@ function RevisionesPage() {
         description={
           isAdmin
             ? "Atiende las solicitudes de corrección de los Editores y decide qué conteo repetido es el correcto. Nada se suma automáticamente."
-            : "Tus solicitudes de corrección y los conteos que quedaron en revisión."
+            : "Tus solicitudes de corrección y los conteos repetidos que esperan la decisión del Administrador."
         }
       />
       <Tabs defaultValue="correcciones">
