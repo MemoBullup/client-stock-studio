@@ -62,7 +62,11 @@ export async function uploadVariantPhoto(variantId: string, file: File, altText:
   }
 }
 
-export async function deleteVariantPhoto(img: { id: string; storage_path: string; thumbnail_path: string | null }) {
+export async function deleteVariantPhoto(img: {
+  id: string;
+  storage_path: string;
+  thumbnail_path: string | null;
+}) {
   const { error } = await supabase.from("variant_images").delete().eq("id", img.id);
   if (error) throw error;
   await supabase.storage
@@ -76,7 +80,9 @@ export function variantImagesQuery(variantId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("variant_images")
-        .select("id, storage_path, thumbnail_path, alt_text, is_primary, sort_order, uploaded_by, uploaded_at")
+        .select(
+          "id, storage_path, thumbnail_path, alt_text, is_primary, sort_order, uploaded_by, uploaded_at",
+        )
         .eq("variant_id", variantId)
         .order("is_primary", { ascending: false })
         .order("sort_order");
@@ -94,7 +100,9 @@ export function useSignedUrls(paths: Array<string | null | undefined>) {
     enabled: list.length > 0,
     staleTime: 50 * 60_000,
     queryFn: async () => {
-      const { data, error } = await supabase.storage.from(PHOTO_BUCKET).createSignedUrls(list, 3600);
+      const { data, error } = await supabase.storage
+        .from(PHOTO_BUCKET)
+        .createSignedUrls(list, 3600);
       if (error) throw error;
       const out = new Map<string, string>();
       for (const d of data ?? []) if (d.signedUrl && d.path) out.set(d.path, d.signedUrl);

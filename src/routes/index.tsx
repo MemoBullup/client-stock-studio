@@ -7,7 +7,10 @@ export const Route = createFileRoute("/")({
       { title: "Aly · Inventario" },
       { name: "description", content: "Plataforma de inventario de Aly — Creaciones con estilo." },
       { property: "og:title", content: "Aly · Inventario" },
-      { property: "og:description", content: "Plataforma de inventario de Aly — Creaciones con estilo." },
+      {
+        property: "og:description",
+        content: "Plataforma de inventario de Aly — Creaciones con estilo.",
+      },
     ],
   }),
   beforeLoad: () => {

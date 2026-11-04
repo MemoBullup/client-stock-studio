@@ -38,7 +38,14 @@ interface NavItem {
   label: string;
   short: string;
   icon: LucideIcon;
-  to?: "/inicio" | "/capturar" | "/inventario" | "/asistente" | "/catalogos" | "/informes" | "/usuarios";
+  to?:
+    | "/inicio"
+    | "/capturar"
+    | "/inventario"
+    | "/asistente"
+    | "/catalogos"
+    | "/informes"
+    | "/usuarios";
   adminOnly?: boolean;
   /** Bloque en el que se habilita; si existe, aún no está disponible. */
   upcoming?: string;

@@ -778,7 +778,9 @@ function CapturarPage() {
       setPhotos([]);
       if (jobs.length) void uploadQueued(jobs, result.product_name);
 
-      const printable = result.variants.filter((v) => v.record_status === "registered").map((v) => v.id);
+      const printable = result.variants
+        .filter((v) => v.record_status === "registered")
+        .map((v) => v.id);
       const wantsLabels = printAfter.current;
       printAfter.current = false;
       if (wantsLabels && printable.length > 0) {
@@ -787,7 +789,9 @@ function CapturarPage() {
           navigate({ to: "/etiquetas", search: { ids: printable.join(",") } });
           return;
         }
-        toast.info("Imprime cada etiqueta desde la lista de guardados; los lotes los genera un Administrador.");
+        toast.info(
+          "Imprime cada etiqueta desde la lista de guardados; los lotes los genera un Administrador.",
+        );
       }
 
       if (editing) {
@@ -804,12 +808,19 @@ function CapturarPage() {
     },
   });
 
-  async function uploadQueued(jobs: Array<{ p: QueuedPhoto; v: SavedVariant }>, productName: string) {
+  async function uploadQueued(
+    jobs: Array<{ p: QueuedPhoto; v: SavedVariant }>,
+    productName: string,
+  ) {
     setUploading({ done: 0, total: jobs.length });
     let failed = 0;
     for (const [i, { p, v }] of jobs.entries()) {
       try {
-        await uploadVariantPhoto(v.id, p.file, [productName, v.variant_label].filter(Boolean).join(" · "));
+        await uploadVariantPhoto(
+          v.id,
+          p.file,
+          [productName, v.variant_label].filter(Boolean).join(" · "),
+        );
       } catch {
         failed++;
       } finally {
@@ -821,7 +832,8 @@ function CapturarPage() {
     qc.invalidateQueries({ queryKey: ["variant-images"] });
     qc.invalidateQueries({ queryKey: ["catalog", "search"] });
     qc.invalidateQueries({ queryKey: ["variant"] });
-    if (failed) toast.error(`${failed} foto(s) no se subieron. Puedes subirlas desde la ficha del SKU.`);
+    if (failed)
+      toast.error(`${failed} foto(s) no se subieron. Puedes subirlas desde la ficha del SKU.`);
     else toast.success(jobs.length === 1 ? "Foto subida" : `${jobs.length} fotos subidas`);
   }
 
@@ -996,7 +1008,11 @@ function CapturarPage() {
   }
 
   const modeTabs = !editing && (
-    <div className="mb-6 inline-flex rounded-full bg-card p-1 shadow-card" role="tablist" aria-label="Forma de capturar">
+    <div
+      className="mb-6 inline-flex rounded-full bg-card p-1 shadow-card"
+      role="tablist"
+      aria-label="Forma de capturar"
+    >
       <Link
         to="/capturar"
         search={{}}
@@ -1004,7 +1020,9 @@ function CapturarPage() {
         aria-selected={search.modo !== "archivo"}
         className={cn(
           "inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition",
-          search.modo !== "archivo" ? "bg-graphite text-graphite-foreground" : "text-muted-foreground hover:text-foreground",
+          search.modo !== "archivo"
+            ? "bg-graphite text-graphite-foreground"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         <PackagePlus className="size-4" /> Uno por uno
@@ -1016,7 +1034,9 @@ function CapturarPage() {
         aria-selected={search.modo === "archivo"}
         className={cn(
           "inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition",
-          search.modo === "archivo" ? "bg-graphite text-graphite-foreground" : "text-muted-foreground hover:text-foreground",
+          search.modo === "archivo"
+            ? "bg-graphite text-graphite-foreground"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         <FileSpreadsheet className="size-4" /> Desde Excel o CSV
@@ -1107,7 +1127,9 @@ function CapturarPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               {(() => {
-                const ids = lastSaved.variants.filter((v) => v.record_status === "registered").map((v) => v.id);
+                const ids = lastSaved.variants
+                  .filter((v) => v.record_status === "registered")
+                  .map((v) => v.id);
                 if (!ids.length) return null;
                 const visible = isAdmin ? [ids] : ids.map((id) => [id]);
                 return visible.slice(0, isAdmin ? 1 : 3).map((group) => (
@@ -1765,15 +1787,22 @@ function CapturarPage() {
                       <Camera className="size-5 text-primary" aria-hidden /> Fotografías
                     </h2>
                     {uploading && (
-                      <span className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
-                        <Loader2 className="size-4 animate-spin" /> Subiendo fotos {uploading.done} de {uploading.total}…
+                      <span
+                        className="flex items-center gap-2 text-sm text-muted-foreground"
+                        role="status"
+                      >
+                        <Loader2 className="size-4 animate-spin" /> Subiendo fotos {uploading.done}{" "}
+                        de {uploading.total}…
                       </span>
                     )}
                   </div>
                   <PhotoQueue
                     photos={photos}
                     onChange={setPhotos}
-                    rows={rows.map((r, i) => ({ key: r.key, label: rowLabel(r) || `Variante ${i + 1}` }))}
+                    rows={rows.map((r, i) => ({
+                      key: r.key,
+                      label: rowLabel(r) || `Variante ${i + 1}`,
+                    }))}
                     disabled={save.isPending || rows.length === 0}
                   />
                 </section>

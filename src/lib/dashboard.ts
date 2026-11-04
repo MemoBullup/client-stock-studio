@@ -10,7 +10,13 @@ export interface DashboardOverview {
   today: number;
   my_drafts: number;
   unclassified: { skus: number; counted: number };
-  categories: Array<{ id: string; name: string; skus: number; counted: number; photographed: number }>;
+  categories: Array<{
+    id: string;
+    name: string;
+    skus: number;
+    counted: number;
+    photographed: number;
+  }>;
 }
 
 export interface AdminDashboard {
@@ -41,7 +47,9 @@ export function useDashboard() {
   return useQuery({
     queryKey: ["dashboard", "overview"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("dashboard_overview", { _today_start: startOfTodayIso() });
+      const { data, error } = await supabase.rpc("dashboard_overview", {
+        _today_start: startOfTodayIso(),
+      });
       if (error) throw error;
       return data as unknown as DashboardOverview;
     },
@@ -54,7 +62,9 @@ export function useAdminDashboard(enabled: boolean) {
     queryKey: ["dashboard", "admin"],
     enabled,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("admin_dashboard", { _today_start: startOfTodayIso() });
+      const { data, error } = await supabase.rpc("admin_dashboard", {
+        _today_start: startOfTodayIso(),
+      });
       if (error) throw error;
       return data as unknown as AdminDashboard;
     },

@@ -26,11 +26,12 @@ export function LabelCard({
 }) {
   const pad = Math.max(1.5, Math.min(widthMm, heightMm) * 0.06);
   const horizontal = widthMm >= heightMm * 1.25;
-  const qrSide = horizontal
-    ? heightMm - pad * 2
-    : Math.min(widthMm - pad * 2, heightMm * 0.58);
+  const qrSide = horizontal ? heightMm - pad * 2 : Math.min(widthMm - pad * 2, heightMm * 0.58);
   const textH = horizontal ? heightMm - pad * 2 : heightMm - qrSide - pad * 3;
-  const sku = Math.max(2.2, Math.min(textH * 0.2, horizontal ? (widthMm - qrSide) * 0.11 : widthMm * 0.09));
+  const sku = Math.max(
+    2.2,
+    Math.min(textH * 0.2, horizontal ? (widthMm - qrSide) * 0.11 : widthMm * 0.09),
+  );
   const small = Math.max(1.7, sku * 0.62);
   const line2 = info.variant_label ?? info.defining_text;
 
@@ -54,7 +55,10 @@ export function LabelCard({
         // El tamaño en mm hace que el QR se imprima a escala real.
         style={{ width: `${qrSide}mm`, height: `${qrSide}mm` }}
       />
-      <div className="flex min-w-0 flex-1 flex-col justify-center" style={{ gap: `${small * 0.25}mm` }}>
+      <div
+        className="flex min-w-0 flex-1 flex-col justify-center"
+        style={{ gap: `${small * 0.25}mm` }}
+      >
         <p className="font-mono font-bold leading-none" style={{ fontSize: `${sku}mm` }}>
           {info.sku ?? "SIN SKU"}
         </p>
@@ -67,7 +71,10 @@ export function LabelCard({
           </p>
         )}
         {info.details && (
-          <p className="line-clamp-1 leading-tight opacity-80" style={{ fontSize: `${small * 0.9}mm` }}>
+          <p
+            className="line-clamp-1 leading-tight opacity-80"
+            style={{ fontSize: `${small * 0.9}mm` }}
+          >
             {info.details}
           </p>
         )}

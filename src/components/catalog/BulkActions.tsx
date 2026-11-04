@@ -48,12 +48,17 @@ export function BulkActions({ filters, total }: { filters: CatalogFilters; total
 
   async function labels() {
     if (total > MAX_BATCH_LABELS) {
-      toast.error(`Son ${formatNumber(total, 0)} SKU. Filtra hasta ${MAX_BATCH_LABELS} para imprimir sus etiquetas en un lote.`);
+      toast.error(
+        `Son ${formatNumber(total, 0)} SKU. Filtra hasta ${MAX_BATCH_LABELS} para imprimir sus etiquetas en un lote.`,
+      );
       return;
     }
     setBusy("labels");
     try {
-      const ids = await fetchFilteredIds({ ...filters, registro: filters.registro ?? "registered" });
+      const ids = await fetchFilteredIds({
+        ...filters,
+        registro: filters.registro ?? "registered",
+      });
       if (!ids.length) {
         toast.error("No hay SKU confirmados en estos resultados.");
         return;
@@ -78,10 +83,16 @@ export function BulkActions({ filters, total }: { filters: CatalogFilters; total
           <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
             {formatNumber(total, 0)} SKU con los filtros actuales
           </DropdownMenuLabel>
-          <DropdownMenuItem onSelect={() => doExport("xlsx", false)}>Excel sin costos</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => doExport("csv", false)}>CSV sin costos</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => doExport("xlsx", false)}>
+            Excel sin costos
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => doExport("csv", false)}>
+            CSV sin costos
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => doExport("xlsx", true)}>Excel con costos</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => doExport("xlsx", true)}>
+            Excel con costos
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => doExport("csv", true)}>CSV con costos</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

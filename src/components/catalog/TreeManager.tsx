@@ -36,7 +36,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
@@ -105,10 +111,14 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
     queryFn: async (): Promise<Row[]> => {
       const res =
         kind === "categories"
-          ? await supabase.from("categories").select("id, parent_id, name, sort_order, depth, is_active, description, is_demo")
+          ? await supabase
+              .from("categories")
+              .select("id, parent_id, name, sort_order, depth, is_active, description, is_demo")
           : await supabase
               .from("locations")
-              .select("id, parent_id, name, code, sort_order, depth, is_active, description, is_demo");
+              .select(
+                "id, parent_id, name, code, sort_order, depth, is_active, description, is_demo",
+              );
       if (res.error) throw res.error;
       return (res.data ?? []) as Row[];
     },
@@ -121,7 +131,8 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
       if (kind === "categories") {
         const { data, error } = await supabase.rpc("category_product_counts");
         if (error) throw error;
-        for (const r of data ?? []) if (r.category_id) map.set(r.category_id, Number(r.product_count));
+        for (const r of data ?? [])
+          if (r.category_id) map.set(r.category_id, Number(r.product_count));
       } else {
         const { data, error } = await supabase.rpc("location_stock_counts");
         if (error) throw error;
@@ -152,7 +163,10 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
     return set;
   }, [items, query, showInactive]);
 
-  const tree = useMemo(() => buildTree(items.filter((i) => visibleIds.has(i.id))), [items, visibleIds]);
+  const tree = useMemo(
+    () => buildTree(items.filter((i) => visibleIds.has(i.id))),
+    [items, visibleIds],
+  );
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["tree", kind] });
@@ -214,7 +228,12 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
         const pos = siblings.findIndex((s) => s.id === item.id);
         const count = counts.get(item.id) ?? 0;
         return (
-          <li key={item.id} role="treeitem" aria-expanded={hasChildren ? isOpen : undefined} aria-level={item.depth}>
+          <li
+            key={item.id}
+            role="treeitem"
+            aria-expanded={hasChildren ? isOpen : undefined}
+            aria-level={item.depth}
+          >
             <div
               className={cn(
                 "group flex flex-wrap items-center gap-2 rounded-2xl border border-transparent px-2 py-2 transition-colors hover:border-border hover:bg-muted/60",
@@ -229,17 +248,27 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
                   "flex size-7 shrink-0 items-center justify-center rounded-full",
                   hasChildren ? "hover:bg-accent" : "cursor-default",
                 )}
-                aria-label={hasChildren ? (isOpen ? `Contraer ${item.name}` : `Expandir ${item.name}`) : undefined}
+                aria-label={
+                  hasChildren
+                    ? isOpen
+                      ? `Contraer ${item.name}`
+                      : `Expandir ${item.name}`
+                    : undefined
+                }
                 tabIndex={hasChildren ? 0 : -1}
               >
                 {hasChildren ? (
-                  <ChevronRight className={cn("size-4 transition-transform", isOpen && "rotate-90")} />
+                  <ChevronRight
+                    className={cn("size-4 transition-transform", isOpen && "rotate-90")}
+                  />
                 ) : (
                   <CornerDownRight className="size-3.5 text-muted-foreground" aria-hidden />
                 )}
               </button>
               <span className="font-semibold">{item.name}</span>
-              {item.code && <span className="text-xs font-mono text-muted-foreground">{item.code}</span>}
+              {item.code && (
+                <span className="text-xs font-mono text-muted-foreground">{item.code}</span>
+              )}
               <Badge variant="muted">Nivel {item.depth}</Badge>
               {!item.is_active && <Badge variant="warning">Inactiva</Badge>}
               {item.is_demo && <Badge variant="demo">DEMO</Badge>}
@@ -258,7 +287,11 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
                 )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon-sm" aria-label={`Acciones para ${item.name}`}>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Acciones para ${item.name}`}
+                    >
                       <MoreHorizontal />
                     </Button>
                   </DropdownMenuTrigger>
@@ -269,7 +302,10 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
                     <DropdownMenuItem onSelect={() => setDialog({ type: "move", item })}>
                       <MoveRight /> Mover a…
                     </DropdownMenuItem>
-                    <DropdownMenuItem disabled={pos <= 0} onSelect={() => reorder.mutate({ item, dir: -1 })}>
+                    <DropdownMenuItem
+                      disabled={pos <= 0}
+                      onSelect={() => reorder.mutate({ item, dir: -1 })}
+                    >
                       <ArrowUp /> Subir
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -279,7 +315,8 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
                       <ArrowDown /> Bajar
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => toggleActive.mutate(item)}>
-                      {item.is_active ? <EyeOff /> : <Eye />} {item.is_active ? "Desactivar" : "Activar"}
+                      {item.is_active ? <EyeOff /> : <Eye />}{" "}
+                      {item.is_active ? "Desactivar" : "Activar"}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -323,7 +360,13 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCollapsed(new Set(items.filter((i) => items.some((c) => c.parent_id === i.id)).map((i) => i.id)))}
+            onClick={() =>
+              setCollapsed(
+                new Set(
+                  items.filter((i) => items.some((c) => c.parent_id === i.id)).map((i) => i.id),
+                ),
+              )
+            }
           >
             Contraer
           </Button>
@@ -335,9 +378,9 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
 
       {kind === "categories" && (
         <p className="mt-4 rounded-2xl bg-info-soft px-4 py-3 text-sm text-info-foreground">
-          Hasta {maxDepth} niveles. No es obligatorio completarlos todos. Los productos sin categoría
-          quedan como <strong>«Por clasificar»</strong> y pendientes de revisión. Colores, medidas y
-          acabados se registran como atributos, no como categorías.
+          Hasta {maxDepth} niveles. No es obligatorio completarlos todos. Los productos sin
+          categoría quedan como <strong>«Por clasificar»</strong> y pendientes de revisión. Colores,
+          medidas y acabados se registran como atributos, no como categorías.
         </p>
       )}
 
@@ -349,7 +392,12 @@ export function TreeManager({ kind, maxDepth }: { kind: Kind; maxDepth: number }
         ) : itemsQuery.isError ? (
           <div role="alert" className="rounded-2xl bg-destructive/10 p-5 text-sm text-destructive">
             No se pudieron cargar las {L.plural}. {friendlyError(itemsQuery.error)}
-            <Button variant="outline" size="sm" className="ml-3" onClick={() => itemsQuery.refetch()}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-3"
+              onClick={() => itemsQuery.refetch()}
+            >
               Reintentar
             </Button>
           </div>
@@ -488,12 +536,24 @@ function EditDialog({
           {kind === "locations" && (
             <div className="grid gap-2">
               <Label htmlFor="tree-code">Código corto (opcional)</Label>
-              <Input id="tree-code" value={code} onChange={(e) => setCode(e.target.value)} maxLength={30} placeholder="Ej. E03" />
+              <Input
+                id="tree-code"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                maxLength={30}
+                placeholder="Ej. E03"
+              />
             </div>
           )}
           <div className="grid gap-2">
             <Label htmlFor="tree-desc">Descripción (opcional)</Label>
-            <Textarea id="tree-desc" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={300} rows={2} />
+            <Textarea
+              id="tree-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={300}
+              rows={2}
+            />
           </div>
           {error && (
             <p id="tree-error" role="alert" className="text-sm text-destructive">
@@ -534,7 +594,9 @@ function MoveDialog({
     const flat = flattenTree(buildTree(items));
     const valid = new Set(validMoveTargets(items, item.id, maxDepth).map((t) => (t ? t.id : ROOT)));
     return [
-      ...(valid.has(ROOT) && item.parent_id !== null ? [{ value: ROOT, label: "Nivel principal (raíz)" }] : []),
+      ...(valid.has(ROOT) && item.parent_id !== null
+        ? [{ value: ROOT, label: "Nivel principal (raíz)" }]
+        : []),
       ...flat
         .filter((t) => valid.has(t.id) && t.id !== item.parent_id)
         .map((t) => ({ value: t.id, label: pathOf(items, t.id) })),
@@ -548,7 +610,10 @@ function MoveDialog({
       const parent_id = target === ROOT ? null : target;
       const siblings = items.filter((i) => i.parent_id === parent_id);
       const sort_order = (Math.max(0, ...siblings.map((s) => s.sort_order)) || 0) + 10;
-      const { error } = await supabase.from(kind as "locations").update({ parent_id, sort_order }).eq("id", item.id);
+      const { error } = await supabase
+        .from(kind as "locations")
+        .update({ parent_id, sort_order })
+        .eq("id", item.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -565,12 +630,15 @@ function MoveDialog({
         <DialogHeader>
           <DialogTitle>Mover «{item.name}»</DialogTitle>
           <DialogDescription>
-            Ubicación actual: <strong>{pathOf(items, item.id)}</strong>. Se mueve junto con todo su contenido.
-            Solo se muestran destinos que no generan ciclos ni superan {maxDepth} niveles.
+            Ubicación actual: <strong>{pathOf(items, item.id)}</strong>. Se mueve junto con todo su
+            contenido. Solo se muestran destinos que no generan ciclos ni superan {maxDepth}{" "}
+            niveles.
           </DialogDescription>
         </DialogHeader>
         {targets.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No hay destinos válidos para esta {L.singular}.</p>
+          <p className="text-sm text-muted-foreground">
+            No hay destinos válidos para esta {L.singular}.
+          </p>
         ) : (
           <div className="grid gap-2">
             <Label htmlFor="move-target">Nuevo destino</Label>
@@ -666,8 +734,8 @@ function DeleteDialog({
         </DialogHeader>
         {childCount > 0 ? (
           <p className="rounded-2xl bg-warning-soft p-4 text-sm text-warning-foreground">
-            Contiene {childCount} {childCount === 1 ? L.singular : L.plural} dentro. Muévelas o elimínalas
-            primero.
+            Contiene {childCount} {childCount === 1 ? L.singular : L.plural} dentro. Muévelas o
+            elimínalas primero.
           </p>
         ) : needsReassign ? (
           <div className="grid gap-3">

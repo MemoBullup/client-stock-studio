@@ -15,14 +15,42 @@ interface TreeLike {
 }
 
 export const FIXED_COLUMNS = [
-  { key: "producto", header: "Producto", help: "Obligatorio. Las filas con el mismo producto se guardan como variantes del mismo modelo." },
-  { key: "variante", header: "Variante", help: "Opcional. Si se deja vacío se arma con las características que distinguen la variante." },
-  { key: "categoria", header: "Categoría", help: "Ruta separada por «>», p. ej. Listones > Textiles. Vacío = Por clasificar." },
-  { key: "unidad", header: "Unidad base", help: "Obligatoria si el tipo no tiene unidad predeterminada (pieza, metro, rollo…)." },
-  { key: "cantidad", header: "Cantidad", help: "Cantidad contada en la unidad base. 0 = se contó y no hay. Vacío o «pendiente» = pendiente de conteo." },
-  { key: "ubicacion", header: "Ubicación", help: "Ruta separada por «>». Obligatoria cuando hay cantidad." },
+  {
+    key: "producto",
+    header: "Producto",
+    help: "Obligatorio. Las filas con el mismo producto se guardan como variantes del mismo modelo.",
+  },
+  {
+    key: "variante",
+    header: "Variante",
+    help: "Opcional. Si se deja vacío se arma con las características que distinguen la variante.",
+  },
+  {
+    key: "categoria",
+    header: "Categoría",
+    help: "Ruta separada por «>», p. ej. Listones > Textiles. Vacío = Por clasificar.",
+  },
+  {
+    key: "unidad",
+    header: "Unidad base",
+    help: "Obligatoria si el tipo no tiene unidad predeterminada (pieza, metro, rollo…).",
+  },
+  {
+    key: "cantidad",
+    header: "Cantidad",
+    help: "Cantidad contada en la unidad base. 0 = se contó y no hay. Vacío o «pendiente» = pendiente de conteo.",
+  },
+  {
+    key: "ubicacion",
+    header: "Ubicación",
+    help: "Ruta separada por «>». Obligatoria cuando hay cantidad.",
+  },
   { key: "presentacion", header: "Presentación", help: "Opcional (p. ej. rollo, paquete)." },
-  { key: "contenido", header: "Contenido por presentación", help: "Cuántas unidades base trae cada presentación. Vacío = pendiente." },
+  {
+    key: "contenido",
+    header: "Contenido por presentación",
+    help: "Cuántas unidades base trae cada presentación. Vacío = pendiente.",
+  },
   { key: "proveedor", header: "Código de proveedor", help: "Opcional." },
   { key: "anterior", header: "Código anterior", help: "Opcional." },
   { key: "descripcion", header: "Descripción", help: "Opcional." },
@@ -33,19 +61,32 @@ export const FIXED_COLUMNS = [
 type FixedKey = (typeof FIXED_COLUMNS)[number]["key"];
 
 const ALIASES: Record<string, FixedKey> = {
-  producto: "producto", nombre: "producto", "nombre del producto": "producto", modelo: "producto",
-  variante: "variante", "nombre de variante": "variante",
-  categoria: "categoria", "ruta de categoria": "categoria",
-  "unidad base": "unidad", unidad: "unidad",
-  cantidad: "cantidad", "cantidad contada": "cantidad", existencia: "cantidad",
+  producto: "producto",
+  nombre: "producto",
+  "nombre del producto": "producto",
+  modelo: "producto",
+  variante: "variante",
+  "nombre de variante": "variante",
+  categoria: "categoria",
+  "ruta de categoria": "categoria",
+  "unidad base": "unidad",
+  unidad: "unidad",
+  cantidad: "cantidad",
+  "cantidad contada": "cantidad",
+  existencia: "cantidad",
   ubicacion: "ubicacion",
   presentacion: "presentacion",
-  "contenido por presentacion": "contenido", contenido: "contenido",
-  "codigo de proveedor": "proveedor", proveedor: "proveedor",
+  "contenido por presentacion": "contenido",
+  contenido: "contenido",
+  "codigo de proveedor": "proveedor",
+  proveedor: "proveedor",
   "codigo anterior": "anterior",
-  descripcion: "descripcion", "descripcion breve": "descripcion",
-  usos: "usos", "etiquetas de uso": "usos",
-  notas: "notas", observaciones: "notas",
+  descripcion: "descripcion",
+  "descripcion breve": "descripcion",
+  usos: "usos",
+  "etiquetas de uso": "usos",
+  notas: "notas",
+  observaciones: "notas",
 };
 
 function headerKey(raw: string): { base: string; unitHint: string | null } {
@@ -55,7 +96,8 @@ function headerKey(raw: string): { base: string; unitHint: string | null } {
 }
 
 export function attributeHeader(def: AttrDef, units: UnitLite[]): string {
-  const u = def.data_type === "number" ? units.find((x) => x.id === def.default_unit_id) : undefined;
+  const u =
+    def.data_type === "number" ? units.find((x) => x.id === def.default_unit_id) : undefined;
   return `${def.name}${u ? ` (${u.symbol ?? u.name_plural})` : ""}${def.is_required ? " *" : ""}`;
 }
 
@@ -68,19 +110,31 @@ export function templateHeaders(defs: AttrDef[], units: UnitLite[]): string[] {
   ];
 }
 
-export function findUnit(raw: string, units: UnitLite[], kind?: UnitLite["kind"]): UnitLite | undefined {
+export function findUnit(
+  raw: string,
+  units: UnitLite[],
+  kind?: UnitLite["kind"],
+): UnitLite | undefined {
   const t = normalizeText(raw);
   if (!t) return undefined;
   return units.find(
     (u) =>
       (!kind || u.kind === kind) &&
-      [u.code, u.name_singular, u.name_plural, u.symbol ?? ""].some((x) => x && normalizeText(x) === t),
+      [u.code, u.name_singular, u.name_plural, u.symbol ?? ""].some(
+        (x) => x && normalizeText(x) === t,
+      ),
   );
 }
 
 /** Busca una categoría o ubicación por su ruta («A > B > C») o por un nombre único. */
-export function findTreePath(raw: string, items: TreeLike[]): { id: string } | { error: string } | null {
-  const parts = raw.split(/\s*(?:>|›|\/|\\)\s*/).map(normalizeText).filter(Boolean);
+export function findTreePath(
+  raw: string,
+  items: TreeLike[],
+): { id: string } | { error: string } | null {
+  const parts = raw
+    .split(/\s*(?:>|›|\/|\\)\s*/)
+    .map(normalizeText)
+    .filter(Boolean);
   if (!parts.length) return null;
   const active = items.filter((i) => i.is_active !== false);
   let parent: string | null = null;
@@ -88,7 +142,8 @@ export function findTreePath(raw: string, items: TreeLike[]): { id: string } | {
   if (parts.length === 1) {
     const hits = active.filter((i) => normalizeText(i.name) === parts[0]);
     if (hits.length === 1) return { id: hits[0]!.id };
-    if (hits.length > 1) return { error: `«${raw}» existe en varias ramas; escribe la ruta completa con «>».` };
+    if (hits.length > 1)
+      return { error: `«${raw}» existe en varias ramas; escribe la ruta completa con «>».` };
     return { error: `No existe «${raw}».` };
   }
   for (const part of parts) {
@@ -99,7 +154,9 @@ export function findTreePath(raw: string, items: TreeLike[]): { id: string } | {
   return found ? { id: found.id } : null;
 }
 
-export function parseQuantity(raw: string): { pending: true } | { value: number } | { error: string } {
+export function parseQuantity(
+  raw: string,
+): { pending: true } | { value: number } | { error: string } {
   const t = normalizeText(raw);
   if (t === "" || t === "pendiente" || t === "pendiente de conteo") return { pending: true };
   const n = Number(t.replace(/\s/g, "").replace(",", "."));
@@ -145,20 +202,29 @@ export function parseAttrCell(
   }
   const match = (v: string) => def.options.find((o) => normalizeText(o) === normalizeText(v));
   if (def.data_type === "select") {
-    if (def.options.length === 0) return { payload: { attribute_id: def.id, state: "value", text }, display: text };
+    if (def.options.length === 0)
+      return { payload: { attribute_id: def.id, state: "value", text }, display: text };
     const o = match(text);
-    if (!o) return { error: `«${def.name}»: «${text}» no está en la lista (${def.options.join(", ")}).` };
+    if (!o)
+      return { error: `«${def.name}»: «${text}» no está en la lista (${def.options.join(", ")}).` };
     return { payload: { attribute_id: def.id, state: "value", text: o }, display: o };
   }
   if (def.data_type === "multiselect") {
-    const parts = text.split(/[,;|]/).map((p) => p.trim()).filter(Boolean);
+    const parts = text
+      .split(/[,;|]/)
+      .map((p) => p.trim())
+      .filter(Boolean);
     const out: string[] = [];
     for (const p of parts) {
       const o = def.options.length ? match(p) : p;
-      if (!o) return { error: `«${def.name}»: «${p}» no está en la lista (${def.options.join(", ")}).` };
+      if (!o)
+        return { error: `«${def.name}»: «${p}» no está en la lista (${def.options.join(", ")}).` };
       if (!out.includes(o)) out.push(o);
     }
-    return { payload: { attribute_id: def.id, state: "value", options: out }, display: out.join(", ") };
+    return {
+      payload: { attribute_id: def.id, state: "value", options: out },
+      display: out.join(", "),
+    };
   }
   if (text.length > 300) return { error: `«${def.name}»: máximo 300 caracteres.` };
   return { payload: { attribute_id: def.id, state: "value", text }, display: text };
@@ -224,8 +290,12 @@ export function parseImport(
 ): ParsedImport {
   const fileErrors: string[] = [];
   const [header, ...body] = matrix;
-  if (!header) return { groups: [], unknownColumns: [], fileErrors: ["El archivo está vacío."], rowCount: 0 };
-  if (body.length > MAX_IMPORT_ROWS) fileErrors.push(`El archivo tiene ${body.length} filas; el máximo es ${MAX_IMPORT_ROWS}. Divídelo en varios archivos.`);
+  if (!header)
+    return { groups: [], unknownColumns: [], fileErrors: ["El archivo está vacío."], rowCount: 0 };
+  if (body.length > MAX_IMPORT_ROWS)
+    fileErrors.push(
+      `El archivo tiene ${body.length} filas; el máximo es ${MAX_IMPORT_ROWS}. Divídelo en varios archivos.`,
+    );
 
   const defs = ctx.defs.filter((d) => !PRESENTATION_CODES.has(d.code));
   const fixedIdx = new Map<FixedKey, number>();
@@ -239,7 +309,9 @@ export function parseImport(
       fixedIdx.set(fixed, col);
       return;
     }
-    const def = defs.find((d) => normalizeText(d.name) === base || d.code === base.replace(/\s+/g, "_"));
+    const def = defs.find(
+      (d) => normalizeText(d.name) === base || d.code === base.replace(/\s+/g, "_"),
+    );
     if (def && !attrIdx.some((a) => a.def.id === def.id)) attrIdx.push({ def, col, unitHint });
     else unknownColumns.push(raw.trim());
   });
@@ -291,7 +363,8 @@ export function parseImport(
     const factorRaw = cell(row, "contenido");
     if (factorRaw && normalizeText(factorRaw) !== "pendiente") {
       const n = Number(factorRaw.replace(",", "."));
-      if (!Number.isFinite(n) || n <= 0) errors.push("El contenido por presentación debe ser mayor que cero.");
+      if (!Number.isFinite(n) || n <= 0)
+        errors.push("El contenido por presentación debe ser mayor que cero.");
       else factor = n;
     }
 
@@ -321,7 +394,10 @@ export function parseImport(
             definingVals.map((a) =>
               a!.state === "not_applicable"
                 ? "-"
-                : normalizeText(String(a!.text ?? a!.number ?? "")) + "|" + (a!.unit_id ?? "") + "|" +
+                : normalizeText(String(a!.text ?? a!.number ?? "")) +
+                  "|" +
+                  (a!.unit_id ?? "") +
+                  "|" +
                   (a!.options ?? []).map(normalizeText).sort().join(","),
             ),
           )
@@ -379,7 +455,9 @@ export function parseImport(
 
   for (const g of groups.values()) {
     if (g.variants.length > MAX_VARIANTS_PER_PRODUCT) {
-      g.errors.push(`«${g.product.name}» tiene ${g.variants.length} filas; el máximo por producto es ${MAX_VARIANTS_PER_PRODUCT}.`);
+      g.errors.push(
+        `«${g.product.name}» tiene ${g.variants.length} filas; el máximo por producto es ${MAX_VARIANTS_PER_PRODUCT}.`,
+      );
     }
     const seen = new Map<string, number>();
     for (const v of g.variants) {

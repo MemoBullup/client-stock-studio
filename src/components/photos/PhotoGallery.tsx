@@ -39,7 +39,9 @@ export function PhotoGallery({
   const qc = useQueryClient();
   const images = useQuery(variantImagesQuery(variantId));
   const list = images.data ?? [];
-  const urls = useSignedUrls(list.flatMap((i) => [i.thumbnail_path ?? i.storage_path, i.storage_path]));
+  const urls = useSignedUrls(
+    list.flatMap((i) => [i.thumbnail_path ?? i.storage_path, i.storage_path]),
+  );
   const pickRef = useRef<HTMLInputElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
@@ -91,11 +93,16 @@ export function PhotoGallery({
 
   const review = useMutation({
     mutationFn: async (status: PhotoStatus) => {
-      const { error } = await supabase.from("variants").update({ photo_status: status }).eq("id", variantId);
+      const { error } = await supabase
+        .from("variants")
+        .update({ photo_status: status })
+        .eq("id", variantId);
       if (error) throw error;
     },
     onSuccess: (_, status) => {
-      toast.success(status === "approved" ? "Fotografías aprobadas" : "Fotografías marcadas por revisar");
+      toast.success(
+        status === "approved" ? "Fotografías aprobadas" : "Fotografías marcadas por revisar",
+      );
       refresh();
     },
     onError: (e) => toast.error(friendlyError(e)),
@@ -118,7 +125,11 @@ export function PhotoGallery({
         <h2 id="fotos-titulo" className="text-lg font-bold">
           Fotografías
         </h2>
-        <Badge variant={photoStatus === "approved" ? "success" : photoStatus === "uploaded" ? "info" : "muted"}>
+        <Badge
+          variant={
+            photoStatus === "approved" ? "success" : photoStatus === "uploaded" ? "info" : "muted"
+          }
+        >
           {PHOTO_LABEL[photoStatus]}
         </Badge>
         <div className="ml-auto flex flex-wrap gap-2">
@@ -130,18 +141,33 @@ export function PhotoGallery({
                 {progress ? <Loader2 className="animate-spin" /> : <ImagePlus />}
                 {progress ? `Subiendo ${progress.done + 1} de ${progress.total}` : "Subir fotos"}
               </Button>
-              <Button size="sm" variant="outline" onClick={() => camRef.current?.click()} disabled={!!progress}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => camRef.current?.click()}
+                disabled={!!progress}
+              >
                 <Camera /> Tomar foto
               </Button>
             </>
           )}
           {isAdmin && list.length > 0 && photoStatus !== "approved" && (
-            <Button size="sm" variant="graphite" onClick={() => review.mutate("approved")} disabled={review.isPending}>
+            <Button
+              size="sm"
+              variant="graphite"
+              onClick={() => review.mutate("approved")}
+              disabled={review.isPending}
+            >
               <BadgeCheck /> Aprobar fotografías
             </Button>
           )}
           {isAdmin && photoStatus === "approved" && (
-            <Button size="sm" variant="ghost" onClick={() => review.mutate("uploaded")} disabled={review.isPending}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => review.mutate("uploaded")}
+              disabled={review.isPending}
+            >
               <Undo2 /> Marcar por revisar
             </Button>
           )}
@@ -169,9 +195,19 @@ export function PhotoGallery({
             const mine = img.uploaded_by === meId;
             return (
               <li key={img.id} className="overflow-hidden rounded-2xl border bg-muted/40">
-                <a href={full} target="_blank" rel="noreferrer" className="block aspect-square bg-muted">
+                <a
+                  href={full}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block aspect-square bg-muted"
+                >
                   {src ? (
-                    <img src={src} alt={img.alt_text ?? altDefault} className="size-full object-cover" loading="lazy" />
+                    <img
+                      src={src}
+                      alt={img.alt_text ?? altDefault}
+                      className="size-full object-cover"
+                      loading="lazy"
+                    />
                   ) : (
                     <span className="flex size-full items-center justify-center">
                       <Loader2 className="size-4 animate-spin text-muted-foreground" />
@@ -184,7 +220,12 @@ export function PhotoGallery({
                       <Star className="fill-current" /> Principal
                     </Badge>
                   ) : canManage ? (
-                    <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setPrimary.mutate(img.id)}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2"
+                      onClick={() => setPrimary.mutate(img.id)}
+                    >
                       <Star /> Principal
                     </Button>
                   ) : null}

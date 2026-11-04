@@ -4,7 +4,11 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 // La ficha está protegida: sin sesión pide acceso y luego regresa al producto.
 export const Route = createFileRoute("/q/$variantId")({
   beforeLoad: ({ params }) => {
-    throw redirect({ to: "/inventario/$variantId", params: { variantId: params.variantId }, replace: true });
+    throw redirect({
+      to: "/inventario/$variantId",
+      params: { variantId: params.variantId },
+      replace: true,
+    });
   },
   head: () => ({
     meta: [

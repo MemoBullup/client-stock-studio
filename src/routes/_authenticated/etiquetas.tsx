@@ -30,7 +30,10 @@ export const Route = createFileRoute("/_authenticated/etiquetas")({
       { title: "Etiquetas · Aly Inventario" },
       { name: "description", content: "Vista previa e impresión de etiquetas con QR por SKU." },
       { property: "og:title", content: "Etiquetas · Aly Inventario" },
-      { property: "og:description", content: "Vista previa e impresión de etiquetas con QR por SKU." },
+      {
+        property: "og:description",
+        content: "Vista previa e impresión de etiquetas con QR por SKU.",
+      },
     ],
   }),
   component: EtiquetasPage,
@@ -46,7 +49,12 @@ function EtiquetasPage() {
   const isAdmin = me?.role === "admin";
   const formato = search.formato ?? "rollo";
   const ids = Array.from(
-    new Set((search.ids ?? "").split(",").map((s) => s.trim()).filter((s) => UUID.test(s))),
+    new Set(
+      (search.ids ?? "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => UUID.test(s)),
+    ),
   ).slice(0, MAX_BATCH_LABELS);
   const batchBlocked = !isAdmin && ids.length > 1;
 
@@ -74,7 +82,12 @@ function EtiquetasPage() {
     <div className="space-y-5">
       <style>{pageCss}</style>
       <div className="print:hidden">
-        <Button variant="ghost" size="sm" className="-ml-2 mb-2" onClick={() => router.history.back()}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="-ml-2 mb-2"
+          onClick={() => router.history.back()}
+        >
           <ArrowLeft /> Volver
         </Button>
         <PageHeader
@@ -86,7 +99,11 @@ function EtiquetasPage() {
             </Button>
           }
         />
-        <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="Formato de impresión">
+        <div
+          className="flex flex-wrap items-center gap-2"
+          role="radiogroup"
+          aria-label="Formato de impresión"
+        >
           {(
             [
               ["rollo", "Impresora de etiquetas (una por hoja)"],
@@ -100,20 +117,28 @@ function EtiquetasPage() {
               onClick={() => navigate({ search: { ...search, formato: value }, replace: true })}
               className={cn(
                 "rounded-full border px-4 py-2 text-sm font-semibold transition",
-                formato === value ? "border-transparent bg-graphite text-graphite-foreground" : "bg-card hover:bg-accent",
+                formato === value
+                  ? "border-transparent bg-graphite text-graphite-foreground"
+                  : "bg-card hover:bg-accent",
               )}
             >
               {label}
             </button>
           ))}
           {isAdmin && (
-            <Link to="/usuarios" className="ml-auto text-sm font-semibold underline underline-offset-2">
+            <Link
+              to="/usuarios"
+              className="ml-auto text-sm font-semibold underline underline-offset-2"
+            >
               Cambiar tamaño de etiqueta
             </Link>
           )}
         </div>
         {qr.temporary && (
-          <p className="mt-3 flex gap-2 rounded-2xl bg-warning-soft p-3 text-sm text-warning-foreground" role="alert">
+          <p
+            className="mt-3 flex gap-2 rounded-2xl bg-warning-soft p-3 text-sm text-warning-foreground"
+            role="alert"
+          >
             <TriangleAlert className="size-4 shrink-0" />
             {qr.configured
               ? "La URL base de los QR parece temporal o de vista previa."
@@ -131,7 +156,10 @@ function EtiquetasPage() {
           etiqueta individual.
         </Empty>
       ) : labels.isLoading ? (
-        <div className="surface-card flex items-center gap-2 p-6 text-sm text-muted-foreground" role="status">
+        <div
+          className="surface-card flex items-center gap-2 p-6 text-sm text-muted-foreground"
+          role="status"
+        >
           <Loader2 className="size-4 animate-spin" /> Preparando etiquetas…
         </div>
       ) : labels.isError ? (
@@ -147,7 +175,10 @@ function EtiquetasPage() {
           )}
           <div className="surface-card overflow-auto p-4 sm:p-6 print:overflow-visible print:rounded-none print:border-none print:p-0 print:shadow-none">
             <div
-              className={cn("print-area flex flex-wrap", formato === "rollo" ? "gap-4 print:gap-0" : "gap-[2mm]")}
+              className={cn(
+                "print-area flex flex-wrap",
+                formato === "rollo" ? "gap-4 print:gap-0" : "gap-[2mm]",
+              )}
             >
               {printable.map((l) => (
                 <LabelCard key={l.id} info={l} url={qr.urlFor(l.id)} widthMm={w} heightMm={h} />
@@ -161,5 +192,7 @@ function EtiquetasPage() {
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <div className="surface-card p-8 text-center text-sm text-muted-foreground">{children}</div>;
+  return (
+    <div className="surface-card p-8 text-center text-sm text-muted-foreground">{children}</div>
+  );
 }

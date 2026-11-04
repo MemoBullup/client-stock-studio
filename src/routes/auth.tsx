@@ -18,9 +18,15 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Iniciar sesión · Aly Inventario" },
-      { name: "description", content: "Acceso para el personal autorizado de Aly — Creaciones con estilo." },
+      {
+        name: "description",
+        content: "Acceso para el personal autorizado de Aly — Creaciones con estilo.",
+      },
       { property: "og:title", content: "Iniciar sesión · Aly Inventario" },
-      { property: "og:description", content: "Acceso para el personal autorizado de Aly — Creaciones con estilo." },
+      {
+        property: "og:description",
+        content: "Acceso para el personal autorizado de Aly — Creaciones con estilo.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -168,7 +174,10 @@ function AuthPage() {
                     />
                   </Field>
                   {errors.form && (
-                    <p role="alert" className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                    <p
+                      role="alert"
+                      className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                    >
                       {errors.form}
                     </p>
                   )}
@@ -193,15 +202,20 @@ function AuthPage() {
                 {sent ? (
                   <div className="mt-6 rounded-2xl bg-success-soft p-5 text-sm">
                     <CheckCircle2 className="mb-2 size-5 text-success" aria-hidden />
-                    Si el correo pertenece a una cuenta autorizada, recibirás un enlace para crear una
-                    nueva contraseña. Revisa también la carpeta de spam.
+                    Si el correo pertenece a una cuenta autorizada, recibirás un enlace para crear
+                    una nueva contraseña. Revisa también la carpeta de spam.
                   </div>
                 ) : (
                   <form onSubmit={onForgot} className="mt-8 grid gap-5" noValidate>
                     <p className="text-sm text-muted-foreground">
                       Escribe tu correo y te enviaremos un enlace para restablecer la contraseña.
                     </p>
-                    <Field id="email-f" label="Correo electrónico" icon={<Mail className="size-4" />} error={errors.email}>
+                    <Field
+                      id="email-f"
+                      label="Correo electrónico"
+                      icon={<Mail className="size-4" />}
+                      error={errors.email}
+                    >
                       <Input
                         id="email-f"
                         type="email"
@@ -214,7 +228,10 @@ function AuthPage() {
                       />
                     </Field>
                     {errors.form && (
-                      <p role="alert" className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                      <p
+                        role="alert"
+                        className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                      >
                         {errors.form}
                       </p>
                     )}

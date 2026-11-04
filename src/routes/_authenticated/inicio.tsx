@@ -43,7 +43,11 @@ function InicioPage() {
   const goal = settings?.sku_goal ?? 5000;
   const registered = stats?.registered ?? 0;
   const progress = Math.min(100, (registered / goal) * 100);
-  const today = new Intl.DateTimeFormat("es-MX", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
+  const today = new Intl.DateTimeFormat("es-MX", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(new Date());
 
   return (
     <>
@@ -77,7 +81,8 @@ function InicioPage() {
                 {isLoading ? <Skeleton className="h-12 w-32" /> : formatNumber(registered, 0)}
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
-                de una meta de <strong className="text-foreground">{formatNumber(goal, 0)}</strong> SKU
+                de una meta de <strong className="text-foreground">{formatNumber(goal, 0)}</strong>{" "}
+                SKU
                 {isAdmin && (
                   <>
                     {" · "}
@@ -90,7 +95,11 @@ function InicioPage() {
             </div>
             <div className="grid grid-cols-2 gap-6 text-right sm:grid-cols-3">
               <Stat label="Capturas de hoy" value={stats?.today} loading={isLoading} />
-              <Stat label="Pendientes de revisión" value={stats?.pending_review} loading={isLoading} />
+              <Stat
+                label="Pendientes de revisión"
+                value={stats?.pending_review}
+                loading={isLoading}
+              />
               <Stat label="Mis borradores" value={stats?.my_drafts} loading={isLoading} />
             </div>
           </div>
@@ -103,7 +112,10 @@ function InicioPage() {
               aria-valuenow={registered}
               aria-label="Avance hacia la meta de SKU"
             >
-              <div className="progress-stripes h-full rounded-full transition-all" style={{ width: `${Math.max(progress, 1.5)}%` }} />
+              <div
+                className="progress-stripes h-full rounded-full transition-all"
+                style={{ width: `${Math.max(progress, 1.5)}%` }}
+              />
             </div>
             <div className="mt-2 flex justify-between text-xs text-muted-foreground">
               <span>{formatNumber(progress, 1)}% de la meta</span>
@@ -112,7 +124,10 @@ function InicioPage() {
           </div>
         </section>
 
-        <section className="surface-graphite grid content-start gap-3 p-6 sm:p-8" aria-labelledby="pend-title">
+        <section
+          className="surface-graphite grid content-start gap-3 p-6 sm:p-8"
+          aria-labelledby="pend-title"
+        >
           <h2 id="pend-title" className="text-sm font-medium text-graphite-muted">
             Pendientes del levantamiento
           </h2>
@@ -151,7 +166,8 @@ function InicioPage() {
             />
           </div>
           <p className="text-xs text-graphite-muted">
-            Se cuentan SKU, no piezas ni metros: las cantidades físicas no se suman entre unidades distintas.
+            Se cuentan SKU, no piezas ni metros: las cantidades físicas no se suman entre unidades
+            distintas.
           </p>
         </section>
       </div>
@@ -204,7 +220,15 @@ function InicioPage() {
             {[
               ...(stats?.categories ?? []),
               ...((stats?.unclassified.skus ?? 0) > 0
-                ? [{ id: "none", name: "Por clasificar", skus: stats!.unclassified.skus, counted: stats!.unclassified.counted, photographed: 0 }]
+                ? [
+                    {
+                      id: "none",
+                      name: "Por clasificar",
+                      skus: stats!.unclassified.skus,
+                      counted: stats!.unclassified.counted,
+                      photographed: 0,
+                    },
+                  ]
                 : []),
             ].map((c) => {
               const share = pct(c.skus, registered);
@@ -214,11 +238,15 @@ function InicioPage() {
                   <div className="flex items-baseline justify-between gap-2 text-sm">
                     <span className="truncate font-semibold">{c.name}</span>
                     <span className="shrink-0 tabular text-muted-foreground">
-                      <strong className="text-foreground">{formatNumber(c.skus, 0)}</strong> SKU · {formatNumber(counted, 1)}% contados
+                      <strong className="text-foreground">{formatNumber(c.skus, 0)}</strong> SKU ·{" "}
+                      {formatNumber(counted, 1)}% contados
                     </span>
                   </div>
                   <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-muted" aria-hidden>
-                    <div className="flex h-full" style={{ width: `${Math.max(share, c.skus ? 2 : 0)}%` }}>
+                    <div
+                      className="flex h-full"
+                      style={{ width: `${Math.max(share, c.skus ? 2 : 0)}%` }}
+                    >
                       <div className="h-full bg-primary" style={{ width: `${counted}%` }} />
                       <div className="h-full flex-1 bg-gold" />
                     </div>
@@ -227,7 +255,9 @@ function InicioPage() {
               );
             })}
             {(stats?.categories.length ?? 0) === 0 && (stats?.unclassified.skus ?? 0) === 0 && (
-              <li className="text-sm text-muted-foreground">Aún no hay categorías con SKU registrados.</li>
+              <li className="text-sm text-muted-foreground">
+                Aún no hay categorías con SKU registrados.
+              </li>
             )}
           </ul>
         )}
@@ -242,7 +272,14 @@ function InicioPage() {
         </p>
       </section>
 
-      {isAdmin && <AdminPanels data={admin.data} loading={admin.isLoading} error={admin.isError} currencyFallback={settings?.currency ?? "MXN"} />}
+      {isAdmin && (
+        <AdminPanels
+          data={admin.data}
+          loading={admin.isLoading}
+          error={admin.isError}
+          currencyFallback={settings?.currency ?? "MXN"}
+        />
+      )}
 
       <section className="surface-card mt-4 p-6 sm:p-8" aria-labelledby="avance-title">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -253,15 +290,44 @@ function InicioPage() {
         </div>
         <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { b: "A", t: "Base, accesos y categorías", d: "Inicio de sesión, roles, categorías, ubicaciones y configuración.", s: "done" },
-            { b: "B", t: "Captura e inventario", d: "Capturar SKU, variantes, conteos y consulta del catálogo.", s: "done" },
-            { b: "C", t: "QR, etiquetas e informes", d: "Etiquetas con QR, lectura con cámara, descargas y tablero.", s: "done" },
-            { b: "D", t: "Fotografías y ecommerce", d: "Ya se suben fotos. Falta la cola por ubicación y los datos comerciales.", s: "partial" },
+            {
+              b: "A",
+              t: "Base, accesos y categorías",
+              d: "Inicio de sesión, roles, categorías, ubicaciones y configuración.",
+              s: "done",
+            },
+            {
+              b: "B",
+              t: "Captura e inventario",
+              d: "Capturar SKU, variantes, conteos y consulta del catálogo.",
+              s: "done",
+            },
+            {
+              b: "C",
+              t: "QR, etiquetas e informes",
+              d: "Etiquetas con QR, lectura con cámara, descargas y tablero.",
+              s: "done",
+            },
+            {
+              b: "D",
+              t: "Fotografías y ecommerce",
+              d: "Ya se suben fotos. Falta la cola por ubicación y los datos comerciales.",
+              s: "partial",
+            },
           ].map((x) => (
-            <li key={x.b} className={x.s === "done" ? "rounded-2xl bg-success-soft p-4" : "rounded-2xl bg-gold-soft p-4"}>
+            <li
+              key={x.b}
+              className={
+                x.s === "done" ? "rounded-2xl bg-success-soft p-4" : "rounded-2xl bg-gold-soft p-4"
+              }
+            >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Bloque {x.b}</span>
-                <Badge variant={x.s === "done" ? "success" : "warning"}>{x.s === "done" ? "Disponible" : "En parte"}</Badge>
+                <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  Bloque {x.b}
+                </span>
+                <Badge variant={x.s === "done" ? "success" : "warning"}>
+                  {x.s === "done" ? "Disponible" : "En parte"}
+                </Badge>
               </div>
               <p className="mt-2 font-semibold">{x.t}</p>
               <p className="mt-1 text-xs text-muted-foreground">{x.d}</p>
@@ -331,11 +397,15 @@ function AdminPanels({
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-graphite-soft p-4">
-            <p className="text-3xl font-bold tabular">{data ? formatNumber(data.cost_pending, 0) : "…"}</p>
+            <p className="text-3xl font-bold tabular">
+              {data ? formatNumber(data.cost_pending, 0) : "…"}
+            </p>
             <p className="text-xs text-graphite-muted">SKU con costo pendiente</p>
           </div>
           <div className="rounded-2xl bg-graphite-soft p-4">
-            <p className="text-3xl font-bold tabular">{data ? formatNumber(data.counted_without_cost, 0) : "…"}</p>
+            <p className="text-3xl font-bold tabular">
+              {data ? formatNumber(data.counted_without_cost, 0) : "…"}
+            </p>
             <p className="text-xs text-graphite-muted">Contados sin costo</p>
           </div>
         </div>
@@ -384,11 +454,15 @@ function AdminPanels({
                 {data.activity.map((a) => (
                   <tr key={a.user_id}>
                     <td className="py-2.5 font-medium">{a.name}</td>
-                    <td className="py-2.5 text-right tabular font-semibold">{formatNumber(a.today, 0)}</td>
+                    <td className="py-2.5 text-right tabular font-semibold">
+                      {formatNumber(a.today, 0)}
+                    </td>
                     <td className="py-2.5 text-right tabular">{formatNumber(a.week, 0)}</td>
                     <td className="py-2.5 text-right tabular">{formatNumber(a.total, 0)}</td>
                     <td className="py-2.5 text-right tabular">{formatNumber(a.counts_today, 0)}</td>
-                    <td className="py-2.5 text-right tabular text-muted-foreground">{formatNumber(a.drafts, 0)}</td>
+                    <td className="py-2.5 text-right tabular text-muted-foreground">
+                      {formatNumber(a.drafts, 0)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -396,14 +470,23 @@ function AdminPanels({
           </div>
         )}
         <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Tags className="size-3.5" /> SKU confirmados por quien los capturó; los conteos incluyen otras ubicaciones.
+          <Tags className="size-3.5" /> SKU confirmados por quien los capturó; los conteos incluyen
+          otras ubicaciones.
         </p>
       </section>
     </div>
   );
 }
 
-function Stat({ label, value, loading }: { label: string; value?: number | undefined; loading: boolean }) {
+function Stat({
+  label,
+  value,
+  loading,
+}: {
+  label: string;
+  value?: number | undefined;
+  loading: boolean;
+}) {
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -425,12 +508,23 @@ function MiniTile({
   value?: number | undefined;
   loading: boolean;
   to: "/inventario";
-  search: { existencia?: "pending"; foto?: "without"; porClasificar?: boolean; revision?: "pending" };
+  search: {
+    existencia?: "pending";
+    foto?: "without";
+    porClasificar?: boolean;
+    revision?: "pending";
+  };
 }) {
   return (
-    <Link to={to} search={search} className="rounded-2xl bg-graphite-soft p-4 transition hover:brightness-110">
+    <Link
+      to={to}
+      search={search}
+      className="rounded-2xl bg-graphite-soft p-4 transition hover:brightness-110"
+    >
       <Icon className="size-4 text-primary" aria-hidden />
-      <p className="mt-3 text-3xl font-bold tabular">{loading ? "…" : formatNumber(value ?? 0, 0)}</p>
+      <p className="mt-3 text-3xl font-bold tabular">
+        {loading ? "…" : formatNumber(value ?? 0, 0)}
+      </p>
       <p className="text-xs text-graphite-muted">{label}</p>
     </Link>
   );

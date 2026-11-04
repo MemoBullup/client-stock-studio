@@ -71,7 +71,12 @@ export async function exportReport(opts: {
   ids?: string[];
   onProgress?: (done: number, total: number) => void;
 }): Promise<number> {
-  const { rows, attributeNames } = await fetchReport(opts.kind, opts.includeCosts, opts.ids, opts.onProgress);
+  const { rows, attributeNames } = await fetchReport(
+    opts.kind,
+    opts.includeCosts,
+    opts.ids,
+    opts.onProgress,
+  );
   const table = buildReportTable(rows, {
     kind: opts.kind,
     includeCosts: opts.includeCosts,

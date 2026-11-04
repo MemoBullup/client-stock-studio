@@ -1,6 +1,14 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { CheckCircle2, Download, FileSpreadsheet, FileUp, Loader2, TriangleAlert, X } from "lucide-react";
+import {
+  CheckCircle2,
+  Download,
+  FileSpreadsheet,
+  FileUp,
+  Loader2,
+  TriangleAlert,
+  X,
+} from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -8,7 +16,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import {
@@ -74,20 +88,28 @@ export function ImportPanel() {
     });
   }, [matrix, type, units, categories, locations, mode]);
 
-  const groupOk = (g: ImportGroup) => g.errors.length === 0 && g.variants.every((v) => v.errors.length === 0);
+  const groupOk = (g: ImportGroup) =>
+    g.errors.length === 0 && g.variants.every((v) => v.errors.length === 0);
   const ready = parsed?.groups.filter(groupOk) ?? [];
   const blocked = parsed?.groups.filter((g) => !groupOk(g)) ?? [];
   const readyRows = ready.reduce((n, g) => n + g.variants.length, 0);
-  const needsSession = mode === "registered" && ready.some((g) => g.variants.some((v) => "location_id" in v.count));
+  const needsSession =
+    mode === "registered" && ready.some((g) => g.variants.some((v) => "location_id" in v.count));
   const sessionMissing = needsSession && !session;
 
   async function downloadTemplate() {
     if (!type) return;
     const headers = templateHeaders(type.attributes, units);
     const listRows: Array<[string, string]> = [
-      ...categories.filter((c) => c.is_active !== false).map((c) => ["Categoría", treePath(categories, c.id) ?? c.name] as [string, string]),
-      ...locations.filter((l) => l.is_active !== false).map((l) => ["Ubicación", treePath(locations, l.id) ?? l.name] as [string, string]),
-      ...units.filter((u) => u.kind === "inventory").map((u) => ["Unidad", `${u.name_singular} (${u.symbol ?? u.code})`] as [string, string]),
+      ...categories
+        .filter((c) => c.is_active !== false)
+        .map((c) => ["Categoría", treePath(categories, c.id) ?? c.name] as [string, string]),
+      ...locations
+        .filter((l) => l.is_active !== false)
+        .map((l) => ["Ubicación", treePath(locations, l.id) ?? l.name] as [string, string]),
+      ...units
+        .filter((u) => u.kind === "inventory")
+        .map((u) => ["Unidad", `${u.name_singular} (${u.symbol ?? u.code})`] as [string, string]),
       ...type.attributes
         .filter((d) => d.options.length > 0)
         .flatMap((d) => d.options.map((o) => [d.name, o] as [string, string])),
@@ -95,7 +117,12 @@ export function ImportPanel() {
     try {
       await downloadXlsx(
         [
-          { name: "Productos", headers, rows: [], widths: headers.map((h) => Math.max(14, h.length + 4)) },
+          {
+            name: "Productos",
+            headers,
+            rows: [],
+            widths: headers.map((h) => Math.max(14, h.length + 4)),
+          },
           {
             name: "Instrucciones",
             headers: ["Columna", "Cómo llenarla"],
@@ -115,8 +142,14 @@ export function ImportPanel() {
                   } Escribe «pendiente» o «no aplica» cuando corresponda.`,
                 ]),
               ["", ""],
-              ["Importante", "Escribe los datos a partir de la fila 2 de la hoja «Productos». No cambies los encabezados."],
-              ["Importante", "El SKU lo genera el sistema: no lo escribas. Si el archivo se sube dos veces, no se duplica."],
+              [
+                "Importante",
+                "Escribe los datos a partir de la fila 2 de la hoja «Productos». No cambies los encabezados.",
+              ],
+              [
+                "Importante",
+                "El SKU lo genera el sistema: no lo escribas. Si el archivo se sube dos veces, no se duplica.",
+              ],
             ],
           },
           { name: "Listas", headers: ["Lista", "Valor válido"], widths: [24, 60], rows: listRows },
@@ -133,12 +166,21 @@ export function ImportPanel() {
     setOutcomes(null);
     try {
       const m = await readSpreadsheet(f);
-      if (m.length < 2) throw new Error("El archivo no tiene filas de datos debajo de los encabezados.");
-      if (m.length - 1 > MAX_IMPORT_ROWS) throw new Error(`El máximo por archivo es ${MAX_IMPORT_ROWS} filas.`);
+      if (m.length < 2)
+        throw new Error("El archivo no tiene filas de datos debajo de los encabezados.");
+      if (m.length - 1 > MAX_IMPORT_ROWS)
+        throw new Error(`El máximo por archivo es ${MAX_IMPORT_ROWS} filas.`);
       setFile(f);
       setMatrix(m);
       const col = m[0]!.findIndex((h) => /^producto/i.test(normalizeText(h)));
-      const names = Array.from(new Set(m.slice(1).map((r) => (r[col] ?? "").trim()).filter(Boolean)));
+      const names = Array.from(
+        new Set(
+          m
+            .slice(1)
+            .map((r) => (r[col] ?? "").trim())
+            .filter(Boolean),
+        ),
+      );
       const found = new Map<string, string>();
       for (let i = 0; i < names.length; i += 100) {
         const { data, error } = await supabase
@@ -181,7 +223,11 @@ export function ImportPanel() {
               count:
                 mode === "draft"
                   ? "location_id" in count
-                    ? { pending: false, location_id: count.location_id, quantity_raw: String(count.quantity) }
+                    ? {
+                        pending: false,
+                        location_id: count.location_id,
+                        quantity_raw: String(count.quantity),
+                      }
                     : { pending: true }
                   : "location_id" in count
                     ? {
@@ -194,15 +240,24 @@ export function ImportPanel() {
           }),
         );
         const payload = {
-          idempotency_key: await stableUuid(`p:${JSON.stringify([type.id, mode, g.product, variantsPayload.map((v) => v.idempotency_key)])}`),
+          idempotency_key: await stableUuid(
+            `p:${JSON.stringify([type.id, mode, g.product, variantsPayload.map((v) => v.idempotency_key)])}`,
+          ),
           status: mode,
           product: existingId ? { ...g.product, id: existingId, update: false } : g.product,
           variants: variantsPayload,
         };
-        const { data, error } = await supabase.rpc("save_capture", { _payload: payload as unknown as Json });
+        const { data, error } = await supabase.rpc("save_capture", {
+          _payload: payload as unknown as Json,
+        });
         if (error) throw error;
         const res = data as unknown as {
-          variants: Array<{ id: string; sku: string | null; variant_label: string | null; count: { status: string } | null }>;
+          variants: Array<{
+            id: string;
+            sku: string | null;
+            variant_label: string | null;
+            count: { status: string } | null;
+          }>;
         };
         results.push({
           key: g.key,
@@ -216,7 +271,13 @@ export function ImportPanel() {
           })),
         });
       } catch (e) {
-        results.push({ key: g.key, name: g.product.name, ok: false, message: friendlyError(e), variants: [] });
+        results.push({
+          key: g.key,
+          name: g.product.name,
+          ok: false,
+          message: friendlyError(e),
+          variants: [],
+        });
       }
       setRunning({ done: results.length, total: ready.length });
     }
@@ -263,18 +324,24 @@ export function ImportPanel() {
         </div>
         <fieldset className="mt-5">
           <legend className="text-sm font-medium">¿Cómo se guardan?</legend>
-          <RadioGroup value={mode} onValueChange={(v) => setMode(v as Mode)} className="mt-2 grid gap-2 sm:grid-cols-2" disabled={!!running}>
+          <RadioGroup
+            value={mode}
+            onValueChange={(v) => setMode(v as Mode)}
+            className="mt-2 grid gap-2 sm:grid-cols-2"
+            disabled={!!running}
+          >
             <label className="flex cursor-pointer items-start gap-3 rounded-2xl border p-3 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent">
               <RadioGroupItem value="registered" className="mt-0.5" />
               <span className="text-sm">
-                <strong>Confirmar y generar SKU.</strong> Se exigen las características obligatorias; las cantidades se
-                registran en la sesión de levantamiento abierta.
+                <strong>Confirmar y generar SKU.</strong> Se exigen las características
+                obligatorias; las cantidades se registran en la sesión de levantamiento abierta.
               </span>
             </label>
             <label className="flex cursor-pointer items-start gap-3 rounded-2xl border p-3 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent">
               <RadioGroupItem value="draft" className="mt-0.5" />
               <span className="text-sm">
-                <strong>Guardar como borradores.</strong> Sin SKU; se completan y confirman después desde Inventario.
+                <strong>Guardar como borradores.</strong> Sin SKU; se completan y confirman después
+                desde Inventario.
               </span>
             </label>
           </RadioGroup>
@@ -303,15 +370,26 @@ export function ImportPanel() {
             disabled={!type || reading}
             className="mt-4 flex w-full flex-col items-center gap-2 rounded-3xl border-2 border-dashed border-input bg-muted/40 px-6 py-10 text-center transition hover:border-primary hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {reading ? <Loader2 className="size-8 animate-spin text-muted-foreground" /> : <FileUp className="size-8 text-primary" />}
-            <span className="font-semibold">{type ? "Elegir archivo Excel (.xlsx) o CSV" : "Primero elige el tipo de producto"}</span>
-            <span className="text-xs text-muted-foreground">Hasta {formatNumber(MAX_IMPORT_ROWS, 0)} filas por archivo. Nada se guarda hasta que lo confirmes.</span>
+            {reading ? (
+              <Loader2 className="size-8 animate-spin text-muted-foreground" />
+            ) : (
+              <FileUp className="size-8 text-primary" />
+            )}
+            <span className="font-semibold">
+              {type ? "Elegir archivo Excel (.xlsx) o CSV" : "Primero elige el tipo de producto"}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              Hasta {formatNumber(MAX_IMPORT_ROWS, 0)} filas por archivo. Nada se guarda hasta que
+              lo confirmes.
+            </span>
           </button>
         ) : (
           <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl bg-muted p-3">
             <FileSpreadsheet className="size-5 text-success" aria-hidden />
             <span className="flex-1 truncate text-sm font-medium">{file.name}</span>
-            <span className="text-xs text-muted-foreground">{formatNumber(parsed?.rowCount ?? 0, 0)} filas</span>
+            <span className="text-xs text-muted-foreground">
+              {formatNumber(parsed?.rowCount ?? 0, 0)} filas
+            </span>
             <Button size="sm" variant="ghost" onClick={reset} disabled={!!running}>
               <X /> Quitar
             </Button>
@@ -325,7 +403,10 @@ export function ImportPanel() {
             3. Revisa antes de guardar
           </h2>
           {parsed.fileErrors.length > 0 ? (
-            <ul className="mt-3 space-y-1 rounded-2xl bg-destructive/10 p-4 text-sm text-destructive" role="alert">
+            <ul
+              className="mt-3 space-y-1 rounded-2xl bg-destructive/10 p-4 text-sm text-destructive"
+              role="alert"
+            >
               {parsed.fileErrors.map((e) => (
                 <li key={e}>{e}</li>
               ))}
@@ -333,8 +414,16 @@ export function ImportPanel() {
           ) : (
             <>
               <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                <SummaryTile label="Listos para guardar" value={`${ready.length} productos · ${readyRows} SKU`} tone="ok" />
-                <SummaryTile label="Con errores (no se guardan)" value={`${blocked.length} productos`} tone={blocked.length ? "bad" : "muted"} />
+                <SummaryTile
+                  label="Listos para guardar"
+                  value={`${ready.length} productos · ${readyRows} SKU`}
+                  tone="ok"
+                />
+                <SummaryTile
+                  label="Con errores (no se guardan)"
+                  value={`${blocked.length} productos`}
+                  tone={blocked.length ? "bad" : "muted"}
+                />
                 <SummaryTile
                   label="Con cantidad contada"
                   value={`${ready.reduce((n, g) => n + g.variants.filter((v) => "location_id" in v.count).length, 0)} SKU`}
@@ -343,14 +432,17 @@ export function ImportPanel() {
               </div>
               {parsed.unknownColumns.length > 0 && (
                 <p className="mt-3 flex gap-2 rounded-2xl bg-warning-soft p-3 text-sm text-warning-foreground">
-                  <TriangleAlert className="size-4 shrink-0" /> Columnas que no se reconocen y se ignorarán:{" "}
-                  {parsed.unknownColumns.join(", ")}
+                  <TriangleAlert className="size-4 shrink-0" /> Columnas que no se reconocen y se
+                  ignorarán: {parsed.unknownColumns.join(", ")}
                 </p>
               )}
               {sessionMissing && (
-                <p className="mt-3 flex gap-2 rounded-2xl bg-warning-soft p-3 text-sm text-warning-foreground" role="alert">
-                  <TriangleAlert className="size-4 shrink-0" /> No hay una sesión de levantamiento abierta. Pide a un
-                  Administrador que la abra, o guarda como borradores.
+                <p
+                  className="mt-3 flex gap-2 rounded-2xl bg-warning-soft p-3 text-sm text-warning-foreground"
+                  role="alert"
+                >
+                  <TriangleAlert className="size-4 shrink-0" /> No hay una sesión de levantamiento
+                  abierta. Pide a un Administrador que la abra, o guarda como borradores.
                 </p>
               )}
               <div className="mt-4 max-h-[28rem] overflow-auto rounded-2xl border">
@@ -370,7 +462,10 @@ export function ImportPanel() {
                         const errs = [...(i === 0 ? g.errors : []), ...v.errors];
                         const unit = units.find((u) => u.id === v.base_unit_id);
                         return (
-                          <tr key={`${g.key}-${v.line}`} className={errs.length ? "bg-destructive/5" : undefined}>
+                          <tr
+                            key={`${g.key}-${v.line}`}
+                            className={errs.length ? "bg-destructive/5" : undefined}
+                          >
                             <td className="px-3 py-2 tabular text-muted-foreground">{v.line}</td>
                             <td className="px-3 py-2 font-medium">
                               {g.product.name || "—"}
@@ -384,8 +479,11 @@ export function ImportPanel() {
                             <td className="px-3 py-2 tabular">
                               {"location_id" in v.count ? (
                                 <>
-                                  {formatNumber(v.count.quantity, 3)} {unit?.symbol ?? unit?.name_plural ?? ""}
-                                  <span className="block text-xs text-muted-foreground">{treePath(locations, v.count.location_id)}</span>
+                                  {formatNumber(v.count.quantity, 3)}{" "}
+                                  {unit?.symbol ?? unit?.name_plural ?? ""}
+                                  <span className="block text-xs text-muted-foreground">
+                                    {treePath(locations, v.count.location_id)}
+                                  </span>
                                 </>
                               ) : (
                                 <span className="text-muted-foreground">Pendiente</span>
@@ -412,7 +510,8 @@ export function ImportPanel() {
               <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
                 {blocked.length > 0 && (
                   <p className="mr-auto text-sm text-muted-foreground">
-                    Corrige las filas marcadas en tu archivo y vuelve a subirlo; lo ya guardado no se duplica.
+                    Corrige las filas marcadas en tu archivo y vuelve a subirlo; lo ya guardado no
+                    se duplica.
                   </p>
                 )}
                 {running && (
@@ -420,9 +519,14 @@ export function ImportPanel() {
                     Guardando {running.done} de {running.total}…
                   </span>
                 )}
-                <Button onClick={() => void runImport()} disabled={!!running || ready.length === 0 || sessionMissing}>
+                <Button
+                  onClick={() => void runImport()}
+                  disabled={!!running || ready.length === 0 || sessionMissing}
+                >
                   {running ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
-                  {mode === "registered" ? `Guardar ${readyRows} SKU` : `Guardar ${readyRows} borradores`}
+                  {mode === "registered"
+                    ? `Guardar ${readyRows} SKU`
+                    : `Guardar ${readyRows} borradores`}
                 </Button>
               </div>
             </>
@@ -441,7 +545,11 @@ export function ImportPanel() {
           <ul className="mt-4 divide-y rounded-2xl border">
             {outcomes.map((o) => (
               <li key={o.key} className="flex flex-wrap items-start gap-3 p-3 text-sm">
-                {o.ok ? <CheckCircle2 className="size-5 shrink-0 text-success" /> : <TriangleAlert className="size-5 shrink-0 text-destructive" />}
+                {o.ok ? (
+                  <CheckCircle2 className="size-5 shrink-0 text-success" />
+                ) : (
+                  <TriangleAlert className="size-5 shrink-0 text-destructive" />
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{o.name}</p>
                   {o.ok ? (
@@ -468,7 +576,8 @@ export function ImportPanel() {
           </ul>
           {blocked.length > 0 && (
             <p className="mt-3 text-sm text-muted-foreground">
-              {blocked.length} producto(s) con errores no se enviaron. Corrígelos en el archivo y súbelo de nuevo.
+              {blocked.length} producto(s) con errores no se enviaron. Corrígelos en el archivo y
+              súbelo de nuevo.
             </p>
           )}
         </section>
@@ -477,7 +586,15 @@ export function ImportPanel() {
   );
 }
 
-function SummaryTile({ label, value, tone }: { label: string; value: string; tone: "ok" | "bad" | "muted" }) {
+function SummaryTile({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "ok" | "bad" | "muted";
+}) {
   return (
     <div
       className={

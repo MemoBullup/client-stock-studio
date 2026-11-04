@@ -37,12 +37,15 @@ export function QrCard({ variantId, sku }: { variantId: string; sku: string | nu
         <div className="min-w-0 text-xs">
           <p className="font-semibold">QR del SKU</p>
           <p className="mt-1 break-all text-muted-foreground">{url}</p>
-          <p className="mt-1 text-muted-foreground">Abre esta ficha y pide iniciar sesión si hace falta.</p>
+          <p className="mt-1 text-muted-foreground">
+            Abre esta ficha y pide iniciar sesión si hace falta.
+          </p>
         </div>
       </div>
       {qr.temporary && (
         <p className="mt-2 flex gap-1.5 rounded-xl bg-warning-soft p-2 text-xs text-warning-foreground">
-          <TriangleAlert className="size-3.5 shrink-0" /> Dirección temporal: no imprimas etiquetas definitivas todavía.
+          <TriangleAlert className="size-3.5 shrink-0" /> Dirección temporal: no imprimas etiquetas
+          definitivas todavía.
         </p>
       )}
       <div className="mt-3 flex flex-wrap gap-2">

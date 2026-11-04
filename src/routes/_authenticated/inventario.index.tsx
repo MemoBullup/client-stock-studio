@@ -131,7 +131,15 @@ function QuantityCell({ row }: { row: CatalogRow }) {
   );
 }
 
-function Thumb({ className, src, alt }: { className?: string; src?: string | undefined; alt: string }) {
+function Thumb({
+  className,
+  src,
+  alt,
+}: {
+  className?: string;
+  src?: string | undefined;
+  alt: string;
+}) {
   return <PhotoThumb src={src} alt={alt} className={cn("rounded-xl", className)} />;
 }
 
@@ -155,7 +163,8 @@ function InventarioPage() {
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const thumbs = useSignedUrls(rows.map((r) => r.primary_image));
-  const thumbOf = (r: CatalogRow) => (r.primary_image ? thumbs.data?.get(r.primary_image) : undefined);
+  const thumbOf = (r: CatalogRow) =>
+    r.primary_image ? thumbs.data?.get(r.primary_image) : undefined;
 
   // Costos: solo Administrador y solo de los SKU visibles (la base de datos lo impide a otros).
   const ids = rows.map((r) => r.id);

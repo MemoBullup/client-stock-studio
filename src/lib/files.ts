@@ -102,7 +102,9 @@ export async function downloadXlsx(sheets: XlsxSheet[], fileName: string) {
   const built = sheets.map((s) => ({
     sheet: s.name.slice(0, 31),
     stickyRowsCount: 1,
-    columns: s.headers.map((h, i) => ({ width: s.widths?.[i] ?? Math.min(48, Math.max(10, h.length + 2)) })),
+    columns: s.headers.map((h, i) => ({
+      width: s.widths?.[i] ?? Math.min(48, Math.max(10, h.length + 2)),
+    })),
     data: [
       s.headers.map((h) => ({ value: h, type: String, fontWeight: "bold" as const })),
       ...s.rows.map((r) => r.map(toCell)),
@@ -124,12 +126,12 @@ export async function readSpreadsheet(file: File): Promise<string[][]> {
   const first = sheets[0];
   if (!first) return [];
   const matrix = first.data.map((r) =>
-      r.map((c) => {
-        if (c === null || c === undefined) return "";
-        if (c instanceof Date) return c.toISOString().slice(0, 10);
-        return String(c);
-      }),
-    );
+    r.map((c) => {
+      if (c === null || c === undefined) return "";
+      if (c instanceof Date) return c.toISOString().slice(0, 10);
+      return String(c);
+    }),
+  );
   return trimTrailingBlank(matrix);
 }
 

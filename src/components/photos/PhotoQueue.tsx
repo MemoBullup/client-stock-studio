@@ -42,7 +42,12 @@ export function PhotoQueue({
         toast.error(problem);
         continue;
       }
-      next.push({ key: crypto.randomUUID(), file: f, preview: URL.createObjectURL(f), rowKey: rows[0]?.key ?? null });
+      next.push({
+        key: crypto.randomUUID(),
+        file: f,
+        preview: URL.createObjectURL(f),
+        rowKey: rows[0]?.key ?? null,
+      });
     }
     if (next.length) onChange([...photos, ...next].slice(0, 20));
   }
@@ -63,23 +68,38 @@ export function PhotoQueue({
       <div className="flex flex-wrap gap-2">
         <input ref={pickRef} multiple {...inputProps} />
         <input ref={camRef} capture="environment" {...inputProps} />
-        <Button type="button" variant="outline" onClick={() => pickRef.current?.click()} disabled={disabled}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => pickRef.current?.click()}
+          disabled={disabled}
+        >
           <ImagePlus /> Elegir fotos
         </Button>
-        <Button type="button" variant="outline" onClick={() => camRef.current?.click()} disabled={disabled}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => camRef.current?.click()}
+          disabled={disabled}
+        >
           <Camera /> Tomar foto
         </Button>
       </div>
       {photos.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Opcional. Las fotos se suben al confirmar el guardado; la primera de cada SKU queda como principal.
+          Opcional. Las fotos se suben al confirmar el guardado; la primera de cada SKU queda como
+          principal.
         </p>
       ) : (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {photos.map((p) => (
             <li key={p.key} className="overflow-hidden rounded-2xl border bg-muted/40">
               <div className="relative aspect-square">
-                <img src={p.preview} alt={`Foto por subir: ${p.file.name}`} className="size-full object-cover" />
+                <img
+                  src={p.preview}
+                  alt={`Foto por subir: ${p.file.name}`}
+                  className="size-full object-cover"
+                />
                 <Button
                   type="button"
                   size="icon-sm"
@@ -102,7 +122,9 @@ export function PhotoQueue({
                     className="h-8 w-full rounded-lg border bg-card px-2 text-xs"
                     value={p.rowKey ?? ""}
                     onChange={(e) =>
-                      onChange(photos.map((x) => (x.key === p.key ? { ...x, rowKey: e.target.value } : x)))
+                      onChange(
+                        photos.map((x) => (x.key === p.key ? { ...x, rowKey: e.target.value } : x)),
+                      )
                     }
                     disabled={disabled}
                   >

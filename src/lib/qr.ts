@@ -7,7 +7,11 @@ export const MAX_BATCH_LABELS = 500;
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
 /** URL que se codifica en el QR: <base>/q/<id>. Sin base configurada, usa la dirección actual. */
-export function qrUrl(baseUrl: string | null | undefined, variantId: string, fallbackOrigin = ""): string {
+export function qrUrl(
+  baseUrl: string | null | undefined,
+  variantId: string,
+  fallbackOrigin = "",
+): string {
   const base = (baseUrl?.trim() || fallbackOrigin).replace(/\/+$/, "");
   return `${base}/q/${variantId}`;
 }

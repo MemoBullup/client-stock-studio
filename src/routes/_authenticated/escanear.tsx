@@ -17,7 +17,10 @@ export const Route = createFileRoute("/_authenticated/escanear")({
       { title: "Escanear QR · Aly Inventario" },
       { name: "description", content: "Lee el QR de una etiqueta con la cámara o busca por SKU." },
       { property: "og:title", content: "Escanear QR · Aly Inventario" },
-      { property: "og:description", content: "Lee el QR de una etiqueta con la cámara o busca por SKU." },
+      {
+        property: "og:description",
+        content: "Lee el QR de una etiqueta con la cámara o busca por SKU.",
+      },
     ],
   }),
   component: EscanearPage,
@@ -126,7 +129,10 @@ function EscanearPage() {
             playsInline
           />
           {cam === "on" && (
-            <div className="pointer-events-none absolute inset-[18%] rounded-3xl border-4 border-primary/90" aria-hidden />
+            <div
+              className="pointer-events-none absolute inset-[18%] rounded-3xl border-4 border-primary/90"
+              aria-hidden
+            />
           )}
           {cam !== "on" && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
@@ -159,7 +165,11 @@ function EscanearPage() {
               <Camera /> {cam === "idle" ? "Encender cámara" : "Intentar de nuevo"}
             </Button>
           )}
-          {notice && <p className="text-sm text-graphite-muted" role="status">{notice}</p>}
+          {notice && (
+            <p className="text-sm text-graphite-muted" role="status">
+              {notice}
+            </p>
+          )}
         </div>
       </section>
 
@@ -168,7 +178,10 @@ function EscanearPage() {
           Buscar por SKU
         </h2>
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+          <Search
+            className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
