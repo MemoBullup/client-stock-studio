@@ -1,5 +1,5 @@
 import { useChat } from "@ai-sdk/react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DefaultChatTransport, isToolUIPart, type UIMessage } from "ai";
 import {
@@ -56,6 +56,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/asistente")({
+  // Asistente oculto temporalmente a petición del cliente.
+  beforeLoad: () => {
+    throw redirect({ to: "/inicio" });
+  },
   head: () => ({
     meta: [
       { title: "Asistente de inventario · Aly Inventario" },
