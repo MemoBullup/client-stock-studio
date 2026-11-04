@@ -63,6 +63,7 @@ import {
   newKey,
   parseNumber,
   parseTags,
+  SPEC_ATTR_CODES,
   validateAttr,
   type AttrDef,
   type AttrPayload,
@@ -305,6 +306,13 @@ function CapturarPage() {
   // así que no se piden dos veces como atributos.
   const defs = (type?.attributes ?? []).filter((d) => !UNIT_ATTR_CODES.has(d.code));
   const sharedDefs = defs.filter((d) => !d.is_variant_defining);
+  const specCodes: readonly string[] = SPEC_ATTR_CODES;
+  const commonDefs = sharedDefs.filter((d) => !specCodes.includes(d.code));
+  const specDefs = sharedDefs
+    .filter((d) => specCodes.includes(d.code))
+    .sort((a, b) => specCodes.indexOf(a.code) - specCodes.indexOf(b.code));
+  const specStep = commonDefs.length > 0 ? 4 : 3;
+  const variantsStep = specStep + (specDefs.length > 0 ? 1 : 0);
   const rowDefs = defs.filter((d) => d.is_variant_defining);
   const baseUnit = units.find((u) => u.id === baseUnitId);
   const presentationUnit = units.find((u) => u.id === presentationUnitId);
@@ -1357,7 +1365,7 @@ function CapturarPage() {
 
             {type && (
               <>
-                {sharedDefs.length > 0 && (
+                {commonDefs.length > 0 && (
                   <section className="surface-card p-5" aria-labelledby="carac-titulo">
                     <h2 id="carac-titulo" className="text-lg font-bold">
                       {editing ? "Características" : "3. Características comunes"}
@@ -1367,7 +1375,34 @@ function CapturarPage() {
                       como pendiente: no lo inventes.
                     </p>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {sharedDefs.map((d) => (
+                      {commonDefs.map((d) => (
+                        <AttributeInput
+                          key={d.id}
+                          def={d}
+                          value={shared[d.id] ?? emptyAttr(d)}
+                          onChange={(v) => setShared((prev) => ({ ...prev, [d.id]: v }))}
+                          measureUnits={measureUnits}
+                          error={errors[`shared.${d.id}`]}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {specDefs.length > 0 && (
+                  <section className="surface-card p-5" aria-labelledby="spec-titulo">
+                    <h2 id="spec-titulo" className="text-lg font-bold">
+                      {editing
+                        ? "Especificaciones del SKU"
+                        : `${specStep}. Especificaciones del SKU`}
+                    </h2>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      Tipo de empaque, peso y medidas en centímetros. Si las variantes de este
+                      guardado pesan o miden distinto, guárdalas por separado. La ubicación y la
+                      cantidad en existencia se capturan en el siguiente paso.
+                    </p>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                      {specDefs.map((d) => (
                         <AttributeInput
                           key={d.id}
                           def={d}
@@ -1385,7 +1420,9 @@ function CapturarPage() {
                   <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                     <div>
                       <h2 id="var-titulo" className="text-lg font-bold">
-                        {editing ? "Variante y unidad" : "4. Variantes, cantidad y ubicación"}
+                        {editing
+                          ? "Variante y unidad"
+                          : `${variantsStep}. Variantes, ubicación y cantidad en existencia`}
                       </h2>
                       <p className="text-sm text-muted-foreground">
                         Cada variante recibe su propio SKU. La ubicación no crea variantes nuevas.
@@ -1460,7 +1497,7 @@ function CapturarPage() {
                     </div>
                     {!editingRegistered && (
                       <div className="space-y-1.5">
-                        <Label htmlFor="loc">Ubicación del conteo</Label>
+                        <Label htmlFor="loc">Ubicación en almacén (rack)</Label>
                         <TreeSelect
                           id="loc"
                           items={locations}
@@ -1641,7 +1678,8 @@ function CapturarPage() {
                                 ) : null}
                                 <div className="w-40 space-y-1">
                                   <Label htmlFor={`qty-${r.key}`} className="text-xs">
-                                    Cantidad ({baseUnit?.name_plural ?? "unidad base"})
+                                    Cantidad en existencia ({baseUnit?.name_plural ?? "unidad base"}
+                                    )
                                   </Label>
                                   <Input
                                     id={`qty-${r.key}`}

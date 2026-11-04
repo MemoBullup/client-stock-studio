@@ -8,7 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { effectiveState, type AttrDef, type AttrValue, type UnitLite } from "@/lib/capture";
+import {
+  compatibleUnits,
+  effectiveState,
+  type AttrDef,
+  type AttrValue,
+  type UnitLite,
+} from "@/lib/capture";
 import { cn } from "@/lib/utils";
 
 const NONE = "__none";
@@ -79,7 +85,7 @@ export function AttributeInput({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={NONE}>—</SelectItem>
-              {measureUnits.map((u) => (
+              {compatibleUnits(def, measureUnits).map((u) => (
                 <SelectItem key={u.id} value={u.id}>
                   {u.symbol ?? u.name_plural}
                 </SelectItem>
