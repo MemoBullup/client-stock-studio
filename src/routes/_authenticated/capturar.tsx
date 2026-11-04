@@ -1959,7 +1959,10 @@ function CapturarPage() {
               </Button>
             )}
             <Button
-              onClick={() => save.mutate("registered")}
+              onClick={() => {
+                printAfter.current = false;
+                save.mutate("registered");
+              }}
               disabled={
                 save.isPending ||
                 !!(summary && (summary.dupBatch.size > 0 || summary.dupExisting.size > 0))
