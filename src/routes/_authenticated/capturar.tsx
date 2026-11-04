@@ -35,7 +35,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
@@ -88,7 +94,10 @@ export const Route = createFileRoute("/_authenticated/capturar")({
       { title: "Capturar SKU · Aly Inventario" },
       { name: "description", content: "Captura rápida de productos, variantes y conteo inicial." },
       { property: "og:title", content: "Capturar SKU · Aly Inventario" },
-      { property: "og:description", content: "Captura rápida de productos, variantes y conteo inicial." },
+      {
+        property: "og:description",
+        content: "Captura rápida de productos, variantes y conteo inicial.",
+      },
     ],
   }),
   component: CapturarPage,
@@ -163,7 +172,14 @@ function emptyProduct(): ProductFields {
 function newRow(defs: AttrDef[]): Row {
   const attrs: Record<string, AttrValue> = {};
   for (const d of defs) attrs[d.id] = emptyAttr(d);
-  return { key: newKey(), label: "", labelTouched: false, supplierCode: "", attrs, count: emptyCount() };
+  return {
+    key: newKey(),
+    label: "",
+    labelTouched: false,
+    supplierCode: "",
+    attrs,
+    count: emptyCount(),
+  };
 }
 
 type DbAttr = {
@@ -253,7 +269,11 @@ function CapturarPage() {
   const [checking, setChecking] = useState(false);
   const [lastSaved, setLastSaved] = useState<SaveResult | null>(null);
   const [recents, setRecents] = useState<Recents>({ categories: [], locations: [] });
-  const [editing, setEditing] = useState<{ id: string; status: "draft" | "registered"; sku: string | null } | null>(null);
+  const [editing, setEditing] = useState<{
+    id: string;
+    status: "draft" | "registered";
+    sku: string | null;
+  } | null>(null);
   const [countTarget, setCountTarget] = useState<CountTarget | null>(null);
   const appliedSource = useRef<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -277,7 +297,8 @@ function CapturarPage() {
       nextShared[d.id] = (keepValues ? shared[d.id] : undefined) ?? emptyAttr(d);
     setShared(nextShared);
     setRows([newRow(t?.attributes.filter((a) => a.is_variant_defining) ?? [])]);
-    if (!keepValues || !baseUnitId) setBaseUnitId(t?.default_unit_id ?? inventoryUnits[0]?.id ?? null);
+    if (!keepValues || !baseUnitId)
+      setBaseUnitId(t?.default_unit_id ?? inventoryUnits[0]?.id ?? null);
   }
 
   // ---------- Carga inicial: editar, nueva variante o plantilla ----------
@@ -329,12 +350,16 @@ function CapturarPage() {
       const tDefs = t?.attributes ?? [];
       const byId = new Map(attrs.map((a) => [a.attribute_id, fromDb(a)]));
       const nextShared: Record<string, AttrValue> = {};
-      for (const d of tDefs.filter((a) => !a.is_variant_defining)) nextShared[d.id] = byId.get(d.id) ?? emptyAttr(d);
+      for (const d of tDefs.filter((a) => !a.is_variant_defining))
+        nextShared[d.id] = byId.get(d.id) ?? emptyAttr(d);
       const rowAttrs: Record<string, AttrValue> = {};
-      for (const d of tDefs.filter((a) => a.is_variant_defining)) rowAttrs[d.id] = byId.get(d.id) ?? emptyAttr(d);
+      for (const d of tDefs.filter((a) => a.is_variant_defining))
+        rowAttrs[d.id] = byId.get(d.id) ?? emptyAttr(d);
       setBaseUnitId(variant.base_unit_id);
       setPresentationUnitId(variant.presentation_unit_id);
-      setFactor(variant.units_per_presentation !== null ? String(variant.units_per_presentation) : "");
+      setFactor(
+        variant.units_per_presentation !== null ? String(variant.units_per_presentation) : "",
+      );
       setLastSaved(null);
       setErrors({});
       setFormError(null);
@@ -342,8 +367,17 @@ function CapturarPage() {
 
       if (search.editar) {
         const dc = (variant.draft_count ?? null) as Record<string, unknown> | null;
-        setEditing({ id: variant.id, status: variant.record_status === "registered" ? "registered" : "draft", sku: variant.sku });
-        setExisting({ id: p.id, name: p.name, typeId: p.product_type_id, categoryId: p.category_id });
+        setEditing({
+          id: variant.id,
+          status: variant.record_status === "registered" ? "registered" : "draft",
+          sku: variant.sku,
+        });
+        setExisting({
+          id: p.id,
+          name: p.name,
+          typeId: p.product_type_id,
+          categoryId: p.category_id,
+        });
         const canUpdateProduct =
           isAdmin || (p.created_by === me?.id && variant.record_status === "draft");
         setUpdateProduct(canUpdateProduct);
@@ -419,16 +453,22 @@ function CapturarPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, types, units, typesLoading, sourceQuery.data, productSourceQuery.data]);
 
-  function startNewVariantOf(t: ProductTypeFull | undefined, src: Awaited<ReturnType<typeof loadSource>> | null) {
+  function startNewVariantOf(
+    t: ProductTypeFull | undefined,
+    src: Awaited<ReturnType<typeof loadSource>> | null,
+  ) {
     const tDefs = t?.attributes ?? [];
     const byId = new Map((src?.attrs ?? []).map((a) => [a.attribute_id, fromDb(a)]));
     const nextShared: Record<string, AttrValue> = {};
-    for (const d of tDefs.filter((a) => !a.is_variant_defining)) nextShared[d.id] = byId.get(d.id) ?? emptyAttr(d);
+    for (const d of tDefs.filter((a) => !a.is_variant_defining))
+      nextShared[d.id] = byId.get(d.id) ?? emptyAttr(d);
     setShared(nextShared);
     setRows([newRow(tDefs.filter((a) => a.is_variant_defining))]);
     setBaseUnitId(src?.variant.base_unit_id ?? t?.default_unit_id ?? null);
     setPresentationUnitId(src?.variant.presentation_unit_id ?? null);
-    setFactor(src?.variant.units_per_presentation != null ? String(src.variant.units_per_presentation) : "");
+    setFactor(
+      src?.variant.units_per_presentation != null ? String(src.variant.units_per_presentation) : "",
+    );
     setErrors({});
     setFormError(null);
     setSaveKey(newKey());
@@ -458,7 +498,10 @@ function CapturarPage() {
       setEditing(null);
       setUpdateProduct(false);
       setExisting({ id: p.id, name: p.name, typeId: p.product_type_id, categoryId: p.category_id });
-      startNewVariantOf(types.find((t) => t.id === p.product_type_id), src);
+      startNewVariantOf(
+        types.find((t) => t.id === p.product_type_id),
+        src,
+      );
       setLastSaved(null);
       setQ("");
       formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -471,12 +514,23 @@ function CapturarPage() {
   async function openCount(variantId: string) {
     const { data: v } = await supabase
       .from("variants")
-      .select("id, sku, variant_label, units_per_presentation, presentation_unit_id, base_unit_id, products(name)")
+      .select(
+        "id, sku, variant_label, units_per_presentation, presentation_unit_id, base_unit_id, products(name)",
+      )
       .eq("id", variantId)
       .maybeSingle();
-    if (!v) return toast.error("No encontramos el SKU.");
-    if (!v.sku) return toast.error("Este registro aún es borrador: confírmalo antes de contarlo.");
-    const { data: levels } = await supabase.from("stock_levels").select("location_id").eq("variant_id", variantId);
+    if (!v) {
+      toast.error("No encontramos el SKU.");
+      return;
+    }
+    if (!v.sku) {
+      toast.error("Este registro aún es borrador: confírmalo antes de contarlo.");
+      return;
+    }
+    const { data: levels } = await supabase
+      .from("stock_levels")
+      .select("location_id")
+      .eq("variant_id", variantId);
     const bu = units.find((u) => u.id === v.base_unit_id);
     const pu = units.find((u) => u.id === v.presentation_unit_id);
     setCountTarget({
@@ -494,7 +548,11 @@ function CapturarPage() {
 
   // ---------- Filas ----------
   function updateRow(key: string, patch: Partial<Row> | ((r: Row) => Partial<Row>)) {
-    setRows((prev) => prev.map((r) => (r.key === key ? { ...r, ...(typeof patch === "function" ? patch(r) : patch) } : r)));
+    setRows((prev) =>
+      prev.map((r) =>
+        r.key === key ? { ...r, ...(typeof patch === "function" ? patch(r) : patch) } : r,
+      ),
+    );
   }
 
   function rowLabel(r: Row) {
@@ -504,10 +562,13 @@ function CapturarPage() {
   function addCombos(picks: ComboPick[]) {
     setRows((prev) => {
       const template = prev[0];
-      const keepFirst = prev.length > 1 || (template && Object.values(template.attrs).some((a) => a.state !== "empty"));
+      const keepFirst =
+        prev.length > 1 ||
+        (template && Object.values(template.attrs).some((a) => a.state !== "empty"));
       const created = picks.map((p) => {
         const r = newRow(rowDefs);
-        if (template) for (const d of rowDefs) r.attrs[d.id] = { ...(template.attrs[d.id] ?? emptyAttr(d)) };
+        if (template)
+          for (const d of rowDefs) r.attrs[d.id] = { ...(template.attrs[d.id] ?? emptyAttr(d)) };
         const setVal = (def: AttrDef, value: string, unit: string | null) => {
           r.attrs[def.id] =
             def.data_type === "number"
@@ -532,14 +593,15 @@ function CapturarPage() {
       if (product.name.trim().length > 160) e["product.name"] = "Máximo 160 caracteres";
       if (!product.typeId) e["product.type"] = "Elige el tipo de producto";
     }
-    if (!baseUnitId) e.unit = "Elige la unidad base";
-    if (factor.trim() !== "" && (factorNum === null || factorNum <= 0)) e.factor = "Debe ser un número mayor que cero";
+    if (!baseUnitId) e["unit"] = "Elige la unidad base";
+    if (factor.trim() !== "" && (factorNum === null || factorNum <= 0))
+      e["factor"] = "Debe ser un número mayor que cero";
     for (const d of sharedDefs) {
       const err = validateAttr(d, shared[d.id], confirming);
       if (err) e[`shared.${d.id}`] = err;
     }
     const needsLocation = confirming && !editingRegistered && rows.some((r) => !r.count.pending);
-    if (needsLocation && !locationId) e.location = "Elige la ubicación donde contaste";
+    if (needsLocation && !locationId) e["location"] = "Elige la ubicación donde contaste";
     for (const r of rows) {
       for (const d of rowDefs) {
         const err = validateAttr(d, r.attrs[d.id], confirming);
@@ -610,7 +672,13 @@ function CapturarPage() {
             const c = computeCount(r.count, factorNum, baseUnit?.allows_decimal ?? true);
             count =
               c.ok && !c.pending
-                ? { location_id: locationId, quantity: c.quantity, full_presentations: c.full, loose_quantity: c.loose, capture_ref: captureRef }
+                ? {
+                    location_id: locationId,
+                    quantity: c.quantity,
+                    full_presentations: c.full,
+                    loose_quantity: c.loose,
+                    capture_ref: captureRef,
+                  }
                 : { pending: true };
           }
         }
@@ -633,7 +701,9 @@ function CapturarPage() {
 
   const save = useMutation({
     mutationFn: async (status: "draft" | "registered") => {
-      const { data, error } = await supabase.rpc("save_capture", { _payload: buildPayload(status) as unknown as Json });
+      const { data, error } = await supabase.rpc("save_capture", {
+        _payload: buildPayload(status) as unknown as Json,
+      });
       if (error) throw error;
       return data as unknown as SaveResult;
     },
@@ -644,7 +714,10 @@ function CapturarPage() {
       qc.invalidateQueries({ queryKey: ["variant"] });
       qc.invalidateQueries({ queryKey: ["stock-alerts"] });
       const nextRecents = {
-        categories: pushRecent(recents.categories, product.categoryId ?? existing?.categoryId ?? null),
+        categories: pushRecent(
+          recents.categories,
+          product.categoryId ?? existing?.categoryId ?? null,
+        ),
         locations: pushRecent(recents.locations, locationId),
       };
       setRecents(nextRecents);
@@ -657,9 +730,15 @@ function CapturarPage() {
       toast.success(
         status === "draft"
           ? "Borrador guardado"
-          : `Guardado: ${result.variants.map((v) => v.sku).filter(Boolean).join(", ")}`,
+          : `Guardado: ${result.variants
+              .map((v) => v.sku)
+              .filter(Boolean)
+              .join(", ")}`,
       );
-      if (inReview > 0) toast.warning(`${inReview} conteo(s) quedaron en revisión porque ya existía un conteo en esa ubicación.`);
+      if (inReview > 0)
+        toast.warning(
+          `${inReview} conteo(s) quedaron en revisión porque ya existía un conteo en esa ubicación.`,
+        );
 
       if (editing) {
         navigate({ to: "/inventario/$variantId", params: { variantId: editing.id } });
@@ -685,7 +764,11 @@ function CapturarPage() {
     if (keep) {
       const t = types.find((x) => x.id === (existing?.typeId ?? product.typeId));
       setExisting(null);
-      setProduct({ ...emptyProduct(), typeId: t?.id ?? null, categoryId: product.categoryId ?? existing?.categoryId ?? null });
+      setProduct({
+        ...emptyProduct(),
+        typeId: t?.id ?? null,
+        categoryId: product.categoryId ?? existing?.categoryId ?? null,
+      });
       applyType(t, false);
       setPresentationUnitId(null);
       setFactor("");
@@ -699,14 +782,20 @@ function CapturarPage() {
       setFactor("");
       setBaseUnitId(null);
     }
-    if (search.producto || search.plantilla) navigate({ to: "/capturar", search: {}, replace: true });
+    if (search.producto || search.plantilla)
+      navigate({ to: "/capturar", search: {}, replace: true });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function newVariantOfSaved() {
     if (!lastSaved) return;
     const t = types.find((x) => x.id === product.typeId);
-    setExisting({ id: lastSaved.product_id, name: lastSaved.product_name, typeId: product.typeId, categoryId: product.categoryId });
+    setExisting({
+      id: lastSaved.product_id,
+      name: lastSaved.product_name,
+      typeId: product.typeId,
+      categoryId: product.categoryId,
+    });
     const firstId = lastSaved.variants[0]?.id;
     setLastSaved(null);
     if (firstId) void chooseExistingFrom(firstId);
@@ -721,14 +810,25 @@ function CapturarPage() {
       const { data, error } = await supabase.rpc("check_variant_duplicates", {
         _product_id: (existing?.id ?? null) as unknown as string,
         _product_type_id: typeId,
-        _rows: rows.map((r) => ({ id: r.id ?? null, attributes: rowAttributes(r) })) as unknown as Json,
+        _rows: rows.map((r) => ({
+          id: r.id ?? null,
+          attributes: rowAttributes(r),
+        })) as unknown as Json,
       });
       if (error) throw error;
-      const dupExisting = new Map<number, { id: string; sku: string | null; label: string | null }>();
+      const dupExisting = new Map<
+        number,
+        { id: string; sku: string | null; label: string | null }
+      >();
       const sigs: Array<string | null> = rows.map(() => null);
       for (const d of data ?? []) {
         sigs[d.idx] = d.signature;
-        if (d.existing_id) dupExisting.set(d.idx, { id: d.existing_id, sku: d.existing_sku, label: d.existing_label });
+        if (d.existing_id)
+          dupExisting.set(d.idx, {
+            id: d.existing_id,
+            sku: d.existing_sku,
+            label: d.existing_label,
+          });
       }
       setSummary({ dupExisting, dupBatch: duplicateIndexes(sigs) });
     } catch (e) {
@@ -754,7 +854,8 @@ function CapturarPage() {
   const noSession = !sessionLoading && !session;
   const categoryForDisplay = existing && !updateProduct ? existing.categoryId : product.categoryId;
   const showProductForm = !existing || updateProduct;
-  const loadingSource = (!!sourceId && sourceQuery.isLoading) || (!!search.producto && productSourceQuery.isLoading);
+  const loadingSource =
+    (!!sourceId && sourceQuery.isLoading) || (!!search.producto && productSourceQuery.isLoading);
   const sourceError = sourceQuery.error ?? productSourceQuery.error;
 
   if (sourceError) {
@@ -763,7 +864,9 @@ function CapturarPage() {
         <h1 className="text-xl font-bold">No pudimos abrir ese registro</h1>
         <p className="mt-2 text-sm text-muted-foreground">{friendlyError(sourceError)}</p>
         <Button asChild className="mt-6">
-          <Link to="/capturar" search={{}}>Capturar uno nuevo</Link>
+          <Link to="/capturar" search={{}}>
+            Capturar uno nuevo
+          </Link>
         </Button>
       </div>
     );
@@ -772,7 +875,9 @@ function CapturarPage() {
   return (
     <div className="pb-28" onKeyDown={onKeyDown}>
       <PageHeader
-        title={editing ? (editing.sku ? `Editar ${editing.sku}` : "Continuar borrador") : "Capturar SKU"}
+        title={
+          editing ? (editing.sku ? `Editar ${editing.sku}` : "Continuar borrador") : "Capturar SKU"
+        }
         description={
           editing
             ? editingRegistered
@@ -792,8 +897,12 @@ function CapturarPage() {
       />
 
       {noSession && !editingRegistered && (
-        <div className="mb-4 rounded-2xl border border-warning/40 bg-warning-soft px-4 py-3 text-sm text-warning-foreground" role="status">
-          No hay una sesión de levantamiento abierta: puedes guardar borradores, pero los conteos necesitan una sesión.
+        <div
+          className="mb-4 rounded-2xl border border-warning/40 bg-warning-soft px-4 py-3 text-sm text-warning-foreground"
+          role="status"
+        >
+          No hay una sesión de levantamiento abierta: puedes guardar borradores, pero los conteos
+          necesitan una sesión.
         </div>
       )}
 
@@ -807,13 +916,23 @@ function CapturarPage() {
                 <ul className="mt-2 space-y-1 text-sm">
                   {lastSaved.variants.map((v) => (
                     <li key={v.id} className="flex flex-wrap items-center gap-2">
-                      <Link to="/inventario/$variantId" params={{ variantId: v.id }} className="font-mono font-semibold underline underline-offset-2">
+                      <Link
+                        to="/inventario/$variantId"
+                        params={{ variantId: v.id }}
+                        className="font-mono font-semibold underline underline-offset-2"
+                      >
                         {v.sku ?? "Borrador"}
                       </Link>
                       <span className="text-muted-foreground">{v.variant_label ?? ""}</span>
-                      <Badge variant={v.record_status === "draft" ? "muted" : "success"}>{RECORD_LABEL[v.record_status]}</Badge>
-                      {v.count?.status === "in_review" && <Badge variant="warning">Conteo en revisión</Badge>}
-                      {v.record_status === "registered" && !v.count && <Badge variant="info">Pendiente de conteo</Badge>}
+                      <Badge variant={v.record_status === "draft" ? "muted" : "success"}>
+                        {RECORD_LABEL[v.record_status]}
+                      </Badge>
+                      {v.count?.status === "in_review" && (
+                        <Badge variant="warning">Conteo en revisión</Badge>
+                      )}
+                      {v.record_status === "registered" && !v.count && (
+                        <Badge variant="info">Pendiente de conteo</Badge>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -823,7 +942,12 @@ function CapturarPage() {
               <Button variant="outline" size="sm" onClick={newVariantOfSaved}>
                 <Plus /> Crear variante del mismo modelo
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => setLastSaved(null)} aria-label="Cerrar aviso">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setLastSaved(null)}
+                aria-label="Cerrar aviso"
+              >
                 <X />
               </Button>
             </div>
@@ -837,7 +961,10 @@ function CapturarPage() {
             1. Buscar si ya existe
           </h2>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Search
+              className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -860,12 +987,21 @@ function CapturarPage() {
               ) : (
                 <ul className="divide-y rounded-2xl border">
                   {(matches.data ?? []).map((m) => (
-                    <li key={m.id} className="flex flex-col gap-2 px-3 py-2.5 sm:flex-row sm:items-center">
+                    <li
+                      key={m.id}
+                      className="flex flex-col gap-2 px-3 py-2.5 sm:flex-row sm:items-center"
+                    >
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-xs font-semibold">{m.sku ?? "Borrador"}</span>
+                          <span className="font-mono text-xs font-semibold">
+                            {m.sku ?? "Borrador"}
+                          </span>
                           <span className="truncate text-sm font-semibold">{m.product_name}</span>
-                          {m.variant_label && <span className="text-sm text-muted-foreground">· {m.variant_label}</span>}
+                          {m.variant_label && (
+                            <span className="text-sm text-muted-foreground">
+                              · {m.variant_label}
+                            </span>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground">
                           {m.counted_locations > 0
@@ -884,7 +1020,11 @@ function CapturarPage() {
                             Contar en otra ubicación
                           </Button>
                         )}
-                        <Button size="sm" variant="secondary" onClick={() => chooseExistingFrom(m.id)}>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => chooseExistingFrom(m.id)}
+                        >
                           <Plus /> Nueva variante
                         </Button>
                       </div>
@@ -916,7 +1056,11 @@ function CapturarPage() {
                     onClick={() => {
                       const t = types.find((x) => x.id === existing.typeId);
                       setExisting(null);
-                      setProduct({ ...emptyProduct(), typeId: t?.id ?? null, categoryId: existing.categoryId });
+                      setProduct({
+                        ...emptyProduct(),
+                        typeId: t?.id ?? null,
+                        categoryId: existing.categoryId,
+                      });
                       applyType(t);
                       if (search.producto) navigate({ to: "/capturar", search: {}, replace: true });
                     }}
@@ -928,10 +1072,13 @@ function CapturarPage() {
 
               {existing && !updateProduct ? (
                 <div className="rounded-2xl bg-sky/60 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-sky-foreground/80">Variante de un producto existente</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-sky-foreground/80">
+                    Variante de un producto existente
+                  </p>
                   <p className="mt-1 text-lg font-bold">{existing.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    {type?.name ?? "Sin tipo"} · {treePath(categories, categoryForDisplay) ?? "Por clasificar"}
+                    {type?.name ?? "Sin tipo"} ·{" "}
+                    {treePath(categories, categoryForDisplay) ?? "Por clasificar"}
                   </p>
                 </div>
               ) : null}
@@ -962,7 +1109,8 @@ function CapturarPage() {
                       onValueChange={(v) => {
                         const t = types.find((x) => x.id === v);
                         setProduct({ ...product, typeId: t?.id ?? null });
-                        if (existing && updateProduct) setExisting({ ...existing, typeId: t?.id ?? null });
+                        if (existing && updateProduct)
+                          setExisting({ ...existing, typeId: t?.id ?? null });
                         applyType(t, true);
                       }}
                     >
@@ -978,7 +1126,9 @@ function CapturarPage() {
                       </SelectContent>
                     </Select>
                     {errors["product.type"] && <FieldError>{errors["product.type"]}</FieldError>}
-                    <p className="text-xs text-muted-foreground">Define qué características se piden.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Define qué características se piden.
+                    </p>
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="cat-0">Categoría</Label>
@@ -1009,7 +1159,8 @@ function CapturarPage() {
                       {editing ? "Características" : "3. Características comunes"}
                     </h2>
                     <p className="mb-4 text-sm text-muted-foreground">
-                      Aplican a todas las variantes de este guardado. Si no conoces un dato, márcalo como pendiente: no lo inventes.
+                      Aplican a todas las variantes de este guardado. Si no conoces un dato, márcalo
+                      como pendiente: no lo inventes.
                     </p>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {sharedDefs.map((d) => (
@@ -1048,7 +1199,10 @@ function CapturarPage() {
                       <Label htmlFor="u-base">
                         Unidad base <span className="text-destructive">*</span>
                       </Label>
-                      <Select value={baseUnitId ?? NONE} onValueChange={(v) => setBaseUnitId(v === NONE ? null : v)}>
+                      <Select
+                        value={baseUnitId ?? NONE}
+                        onValueChange={(v) => setBaseUnitId(v === NONE ? null : v)}
+                      >
                         <SelectTrigger id="u-base" aria-invalid={!!errors["unit"]}>
                           <SelectValue placeholder="Elige" />
                         </SelectTrigger>
@@ -1064,7 +1218,10 @@ function CapturarPage() {
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="u-pres">Presentación (opcional)</Label>
-                      <Select value={presentationUnitId ?? NONE} onValueChange={(v) => setPresentationUnitId(v === NONE ? null : v)}>
+                      <Select
+                        value={presentationUnitId ?? NONE}
+                        onValueChange={(v) => setPresentationUnitId(v === NONE ? null : v)}
+                      >
                         <SelectTrigger id="u-pres">
                           <SelectValue />
                         </SelectTrigger>
@@ -1082,7 +1239,9 @@ function CapturarPage() {
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="u-factor">
-                        {presentationUnit ? `${baseUnit?.name_plural ?? "Unidades"} por ${presentationUnit.name_singular}` : "Contenido por presentación"}
+                        {presentationUnit
+                          ? `${baseUnit?.name_plural ?? "Unidades"} por ${presentationUnit.name_singular}`
+                          : "Contenido por presentación"}
                       </Label>
                       <Input
                         id="u-factor"
@@ -1098,16 +1257,30 @@ function CapturarPage() {
                     {!editingRegistered && (
                       <div className="space-y-1.5">
                         <Label htmlFor="loc">Ubicación del conteo</Label>
-                        <TreeSelect id="loc" items={locations} value={locationId} onChange={setLocationId} placeholder="Elige la ubicación" ariaInvalid={!!errors["location"]} />
+                        <TreeSelect
+                          id="loc"
+                          items={locations}
+                          value={locationId}
+                          onChange={setLocationId}
+                          placeholder="Elige la ubicación"
+                          ariaInvalid={!!errors["location"]}
+                        />
                         {errors["location"] && <FieldError>{errors["location"]}</FieldError>}
                         {recents.locations.length > 0 && (
-                          <RecentChips label="Recientes" ids={recents.locations} items={locations} active={locationId} onPick={setLocationId} />
+                          <RecentChips
+                            label="Recientes"
+                            ids={recents.locations}
+                            items={locations}
+                            active={locationId}
+                            onPick={setLocationId}
+                          />
                         )}
                       </div>
                     )}
                     {presentationUnit && factorNum === null && (
                       <p className="text-xs text-muted-foreground md:col-span-4">
-                        Como no se conoce cuántos {baseUnit?.name_plural} trae cada {presentationUnit.name_singular}, solo podrás capturar el total en{" "}
+                        Como no se conoce cuántos {baseUnit?.name_plural} trae cada{" "}
+                        {presentationUnit.name_singular}, solo podrás capturar el total en{" "}
                         {baseUnit?.name_plural}.
                       </p>
                     )}
@@ -1125,14 +1298,20 @@ function CapturarPage() {
                             </span>
                             <Input
                               value={r.labelTouched ? r.label : auto}
-                              onChange={(e) => updateRow(r.key, { label: e.target.value, labelTouched: true })}
+                              onChange={(e) =>
+                                updateRow(r.key, { label: e.target.value, labelTouched: true })
+                              }
                               placeholder="Nombre de la variante (se arma solo)"
                               aria-label={`Nombre de la variante ${i + 1}`}
                               className="h-9 max-w-sm flex-1"
                               maxLength={160}
                             />
                             {r.labelTouched && (
-                              <Button variant="ghost" size="sm" onClick={() => updateRow(r.key, { labelTouched: false, label: "" })}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => updateRow(r.key, { labelTouched: false, label: "" })}
+                              >
                                 Automático
                               </Button>
                             )}
@@ -1152,7 +1331,9 @@ function CapturarPage() {
                                         label: "",
                                         labelTouched: false,
                                         count: emptyCount(),
-                                        attrs: Object.fromEntries(Object.entries(r.attrs).map(([k, v]) => [k, { ...v }])) as Record<string, AttrValue>,
+                                        attrs: Object.fromEntries(
+                                          Object.entries(r.attrs).map(([k, v]) => [k, { ...v }]),
+                                        ) as Record<string, AttrValue>,
                                       };
                                       const next = [...prev];
                                       next.splice(i + 1, 0, copy);
@@ -1168,7 +1349,9 @@ function CapturarPage() {
                                   variant="ghost"
                                   size="icon-sm"
                                   aria-label={`Quitar variante ${i + 1}`}
-                                  onClick={() => setRows((prev) => prev.filter((x) => x.key !== r.key))}
+                                  onClick={() =>
+                                    setRows((prev) => prev.filter((x) => x.key !== r.key))
+                                  }
                                 >
                                   <Trash2 />
                                 </Button>
@@ -1181,7 +1364,11 @@ function CapturarPage() {
                                 key={d.id}
                                 def={d}
                                 value={r.attrs[d.id] ?? emptyAttr(d)}
-                                onChange={(v) => updateRow(r.key, (row) => ({ attrs: { ...row.attrs, [d.id]: v } }))}
+                                onChange={(v) =>
+                                  updateRow(r.key, (row) => ({
+                                    attrs: { ...row.attrs, [d.id]: v },
+                                  }))
+                                }
                                 measureUnits={measureUnits}
                                 error={errors[`row.${r.key}.${d.id}`]}
                               />
@@ -1212,7 +1399,15 @@ function CapturarPage() {
                                         inputMode="numeric"
                                         value={r.count.full}
                                         disabled={r.count.pending}
-                                        onChange={(e) => updateRow(r.key, (row) => ({ count: { ...row.count, full: e.target.value, quantity: "" } }))}
+                                        onChange={(e) =>
+                                          updateRow(r.key, (row) => ({
+                                            count: {
+                                              ...row.count,
+                                              full: e.target.value,
+                                              quantity: "",
+                                            },
+                                          }))
+                                        }
                                       />
                                     </div>
                                     <div className="w-36 space-y-1">
@@ -1224,10 +1419,20 @@ function CapturarPage() {
                                         inputMode="decimal"
                                         value={r.count.loose}
                                         disabled={r.count.pending}
-                                        onChange={(e) => updateRow(r.key, (row) => ({ count: { ...row.count, loose: e.target.value, quantity: "" } }))}
+                                        onChange={(e) =>
+                                          updateRow(r.key, (row) => ({
+                                            count: {
+                                              ...row.count,
+                                              loose: e.target.value,
+                                              quantity: "",
+                                            },
+                                          }))
+                                        }
                                       />
                                     </div>
-                                    <span className="pb-2 text-xs text-muted-foreground">o total:</span>
+                                    <span className="pb-2 text-xs text-muted-foreground">
+                                      o total:
+                                    </span>
                                   </>
                                 ) : null}
                                 <div className="w-40 space-y-1">
@@ -1240,24 +1445,42 @@ function CapturarPage() {
                                     value={r.count.quantity}
                                     disabled={r.count.pending}
                                     placeholder="0 = contado sin existencia"
-                                    onChange={(e) => updateRow(r.key, (row) => ({ count: { ...row.count, quantity: e.target.value, full: "", loose: "" } }))}
+                                    onChange={(e) =>
+                                      updateRow(r.key, (row) => ({
+                                        count: {
+                                          ...row.count,
+                                          quantity: e.target.value,
+                                          full: "",
+                                          loose: "",
+                                        },
+                                      }))
+                                    }
                                     aria-invalid={!!errors[`row.${r.key}.count`]}
                                   />
                                 </div>
                                 <label className="flex items-center gap-2 pb-2 text-sm">
                                   <Checkbox
                                     checked={r.count.pending}
-                                    onCheckedChange={(v) => updateRow(r.key, (row) => ({ count: { ...row.count, pending: v === true } }))}
+                                    onCheckedChange={(v) =>
+                                      updateRow(r.key, (row) => ({
+                                        count: { ...row.count, pending: v === true },
+                                      }))
+                                    }
                                   />
                                   Pendiente de conteo
                                 </label>
                                 {c.ok && !c.pending && (
                                   <span className="pb-2 text-sm font-semibold tabular">
-                                    = {formatNumber(c.total, 3)} {c.total === 1 ? baseUnit?.name_singular : baseUnit?.name_plural}
+                                    = {formatNumber(c.total, 3)}{" "}
+                                    {c.total === 1
+                                      ? baseUnit?.name_singular
+                                      : baseUnit?.name_plural}
                                   </span>
                                 )}
                               </div>
-                              {errors[`row.${r.key}.count`] && <FieldError>{errors[`row.${r.key}.count`]}</FieldError>}
+                              {errors[`row.${r.key}.count`] && (
+                                <FieldError>{errors[`row.${r.key}.count`]}</FieldError>
+                              )}
                             </div>
                           )}
                         </li>
@@ -1265,46 +1488,90 @@ function CapturarPage() {
                     })}
                   </ol>
                   {!editing && (
-                    <Button variant="outline" className="mt-3" onClick={() => setRows((prev) => [...prev, newRow(rowDefs)])}>
+                    <Button
+                      variant="outline"
+                      className="mt-3"
+                      onClick={() => setRows((prev) => [...prev, newRow(rowDefs)])}
+                    >
                       <Plus /> Agregar variante
                     </Button>
                   )}
                 </section>
 
-                <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="surface-card p-5">
+                <Collapsible
+                  open={moreOpen}
+                  onOpenChange={setMoreOpen}
+                  className="surface-card p-5"
+                >
                   <CollapsibleTrigger className="flex w-full items-center justify-between text-left">
                     <span className="text-lg font-bold">Información adicional</span>
-                    <ChevronDown className={cn("size-5 transition-transform", moreOpen && "rotate-180")} aria-hidden />
+                    <ChevronDown
+                      className={cn("size-5 transition-transform", moreOpen && "rotate-180")}
+                      aria-hidden
+                    />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="mt-4 grid gap-4 md:grid-cols-2">
                     {showProductForm && (
                       <>
                         <div className="space-y-1.5 md:col-span-2">
                           <Label htmlFor="p-desc">Descripción breve</Label>
-                          <Textarea id="p-desc" value={product.description} maxLength={1000} onChange={(e) => setProduct({ ...product, description: e.target.value })} />
+                          <Textarea
+                            id="p-desc"
+                            value={product.description}
+                            maxLength={1000}
+                            onChange={(e) =>
+                              setProduct({ ...product, description: e.target.value })
+                            }
+                          />
                         </div>
                         <div className="space-y-1.5">
                           <Label htmlFor="p-tags">Usos o aplicaciones (separados por coma)</Label>
-                          <Input id="p-tags" value={product.tags} onChange={(e) => setProduct({ ...product, tags: e.target.value })} placeholder="Ej. moños, escolar, regalo" />
+                          <Input
+                            id="p-tags"
+                            value={product.tags}
+                            onChange={(e) => setProduct({ ...product, tags: e.target.value })}
+                            placeholder="Ej. moños, escolar, regalo"
+                          />
                         </div>
                         <div className="space-y-1.5">
                           <Label htmlFor="p-notes">Observaciones del producto</Label>
-                          <Input id="p-notes" value={product.notes} maxLength={2000} onChange={(e) => setProduct({ ...product, notes: e.target.value })} />
+                          <Input
+                            id="p-notes"
+                            value={product.notes}
+                            maxLength={2000}
+                            onChange={(e) => setProduct({ ...product, notes: e.target.value })}
+                          />
                         </div>
                       </>
                     )}
                     <div className="space-y-1.5">
                       <Label htmlFor="v-legacy">Código anterior</Label>
-                      <Input id="v-legacy" value={legacyCode} maxLength={60} onChange={(e) => setLegacyCode(e.target.value)} />
+                      <Input
+                        id="v-legacy"
+                        value={legacyCode}
+                        maxLength={60}
+                        onChange={(e) => setLegacyCode(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="v-notes">Observaciones de la variante</Label>
-                      <Input id="v-notes" value={variantNotes} maxLength={2000} onChange={(e) => setVariantNotes(e.target.value)} />
+                      <Input
+                        id="v-notes"
+                        value={variantNotes}
+                        maxLength={2000}
+                        onChange={(e) => setVariantNotes(e.target.value)}
+                      />
                     </div>
                     {!editingRegistered && (
                       <div className="space-y-1.5">
                         <Label htmlFor="c-ref">Referencia de captura</Label>
-                        <Input id="c-ref" value={captureRef} maxLength={80} onChange={(e) => setCaptureRef(e.target.value)} placeholder="Ej. Hoja 3, renglón 12" />
+                        <Input
+                          id="c-ref"
+                          value={captureRef}
+                          maxLength={80}
+                          onChange={(e) => setCaptureRef(e.target.value)}
+                          placeholder="Ej. Hoja 3, renglón 12"
+                        />
                       </div>
                     )}
                   </CollapsibleContent>
@@ -1333,25 +1600,43 @@ function CapturarPage() {
                 {keep && (type || locationId) && (
                   <span className="hidden text-xs text-muted-foreground md:inline">
                     {" "}
-                    ({[type?.name, treePath(categories, categoryForDisplay) ?? "Por clasificar", treePath(locations, locationId)].filter(Boolean).join(" · ")})
+                    (
+                    {[
+                      type?.name,
+                      treePath(categories, categoryForDisplay) ?? "Por clasificar",
+                      treePath(locations, locationId),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                    )
                   </span>
                 )}
               </span>
             </label>
           )}
           {formError && (
-            <p className={cn("text-sm font-medium text-destructive", editing && "mr-auto")} role="alert">
+            <p
+              className={cn("text-sm font-medium text-destructive", editing && "mr-auto")}
+              role="alert"
+            >
               {formError}
             </p>
           )}
           {(!editing || editing.status === "draft") && (
             <Button variant="outline" onClick={saveDraft} disabled={busy || !type}>
-              {save.isPending && save.variables === "draft" && <Loader2 className="animate-spin" />} Guardar borrador
+              {save.isPending && save.variables === "draft" && <Loader2 className="animate-spin" />}{" "}
+              Guardar borrador
             </Button>
           )}
           <Button onClick={() => void openSummary()} disabled={busy || !type} title="Ctrl + Enter">
-            {(checking || (save.isPending && save.variables === "registered")) && <Loader2 className="animate-spin" />}
-            {editingRegistered ? "Revisar y guardar cambios" : editing ? "Revisar y confirmar" : "Revisar y guardar"}
+            {(checking || (save.isPending && save.variables === "registered")) && (
+              <Loader2 className="animate-spin" />
+            )}
+            {editingRegistered
+              ? "Revisar y guardar cambios"
+              : editing
+                ? "Revisar y confirmar"
+                : "Revisar y guardar"}
           </Button>
         </div>
       </div>
@@ -1360,13 +1645,17 @@ function CapturarPage() {
         <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Resumen antes de confirmar</DialogTitle>
-            <DialogDescription>Revisa los datos. El SKU se genera cuando el servidor confirme el guardado.</DialogDescription>
+            <DialogDescription>
+              Revisa los datos. El SKU se genera cuando el servidor confirme el guardado.
+            </DialogDescription>
           </DialogHeader>
           {summary && (
             <div className="space-y-4 text-sm">
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 rounded-2xl bg-muted/50 p-4">
                 <dt className="text-muted-foreground">Producto</dt>
-                <dd className="font-semibold">{existing && !updateProduct ? existing.name : product.name}</dd>
+                <dd className="font-semibold">
+                  {existing && !updateProduct ? existing.name : product.name}
+                </dd>
                 <dt className="text-muted-foreground">Tipo</dt>
                 <dd>{type?.name}</dd>
                 <dt className="text-muted-foreground">Categoría</dt>
@@ -1374,7 +1663,8 @@ function CapturarPage() {
                 <dt className="text-muted-foreground">Unidad base</dt>
                 <dd>
                   {baseUnit?.name_plural}
-                  {presentationUnit && ` · ${presentationUnit.name_singular} de ${factorNum !== null ? formatNumber(factorNum) : "contenido desconocido"}`}
+                  {presentationUnit &&
+                    ` · ${presentationUnit.name_singular} de ${factorNum !== null ? formatNumber(factorNum) : "contenido desconocido"}`}
                 </dd>
                 {!editingRegistered && (
                   <>
@@ -1389,7 +1679,10 @@ function CapturarPage() {
                   const dupE = summary.dupExisting.get(i);
                   const dupB = summary.dupBatch.has(i);
                   return (
-                    <li key={r.key} className={cn("px-4 py-3", (dupE || dupB) && "bg-destructive/5")}>
+                    <li
+                      key={r.key}
+                      className={cn("px-4 py-3", (dupE || dupB) && "bg-destructive/5")}
+                    >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="font-semibold">
                           {i + 1}. {rowLabel(r) || "Sin nombre de variante"}
@@ -1405,7 +1698,11 @@ function CapturarPage() {
                       {dupE && (
                         <p className="mt-1 text-destructive" role="alert">
                           Ya existe con las mismas características:{" "}
-                          <Link to="/inventario/$variantId" params={{ variantId: dupE.id }} className="font-semibold underline">
+                          <Link
+                            to="/inventario/$variantId"
+                            params={{ variantId: dupE.id }}
+                            className="font-semibold underline"
+                          >
                             {dupE.sku ?? "borrador"} {dupE.label ?? ""}
                           </Link>
                           . Ábrelo en lugar de duplicarlo.
@@ -1428,16 +1725,29 @@ function CapturarPage() {
             </Button>
             <Button
               onClick={() => save.mutate("registered")}
-              disabled={save.isPending || !!(summary && (summary.dupBatch.size > 0 || summary.dupExisting.size > 0))}
+              disabled={
+                save.isPending ||
+                !!(summary && (summary.dupBatch.size > 0 || summary.dupExisting.size > 0))
+              }
             >
               {save.isPending && <Loader2 className="animate-spin" />}
-              {editingRegistered ? "Guardar cambios" : editing ? "Confirmar y generar SKU" : "Guardar y capturar siguiente"}
+              {editingRegistered
+                ? "Guardar cambios"
+                : editing
+                  ? "Confirmar y generar SKU"
+                  : "Guardar y capturar siguiente"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <CombinationsDialog open={combosOpen} onOpenChange={setCombosOpen} defs={rowDefs} measureUnits={measureUnits} onAdd={addCombos} />
+      <CombinationsDialog
+        open={combosOpen}
+        onOpenChange={setCombosOpen}
+        defs={rowDefs}
+        measureUnits={measureUnits}
+        onAdd={addCombos}
+      />
       <CountDialog target={countTarget} onClose={() => setCountTarget(null)} />
     </div>
   );
@@ -1460,7 +1770,14 @@ function RecentChips({
 }: {
   label: string;
   ids: string[];
-  items: Array<{ id: string; name: string; parent_id: string | null; sort_order: number; depth: number; is_active: boolean }>;
+  items: Array<{
+    id: string;
+    name: string;
+    parent_id: string | null;
+    sort_order: number;
+    depth: number;
+    is_active: boolean;
+  }>;
   active: string | null;
   onPick: (id: string) => void;
 }) {

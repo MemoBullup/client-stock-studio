@@ -12,7 +12,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { comboKey, combinationKeys, parseNumber, type AttrDef, type UnitLite } from "@/lib/capture";
 import { cn } from "@/lib/utils";
 
@@ -57,7 +63,9 @@ function AxisValues({
               onClick={() => onChange(on ? values.filter((x) => x !== o) : [...values, o])}
               className={cn(
                 "rounded-full border px-2.5 py-1 text-xs font-medium",
-                on ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-muted",
+                on
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border hover:bg-muted",
               )}
             >
               {o}
@@ -77,7 +85,9 @@ function AxisValues({
             .split(/[,;]/)
             .map((s) => s.trim())
             .filter(Boolean);
-          onChange(def.data_type === "number" ? parts.filter((p) => parseNumber(p) !== null) : parts);
+          onChange(
+            def.data_type === "number" ? parts.filter((p) => parseNumber(p) !== null) : parts,
+          );
         }}
         placeholder={def.data_type === "number" ? "Ej. 10, 25, 38" : "Separados por coma"}
         aria-label={`Valores de ${def.name}`}
@@ -126,7 +136,10 @@ export function CombinationsDialog({
   useEffect(() => {
     if (!open) return;
     const a = defs.find((d) => d.data_type === "select") ?? defs[0];
-    const b = defs.find((d) => d.id !== a?.id && d.data_type === "number") ?? defs.find((d) => d.id !== a?.id) ?? null;
+    const b =
+      defs.find((d) => d.id !== a?.id && d.data_type === "number") ??
+      defs.find((d) => d.id !== a?.id) ??
+      null;
     setAId(a?.id ?? null);
     setBId(b?.id ?? null);
     setAVals([]);
@@ -138,7 +151,10 @@ export function CombinationsDialog({
 
   const attrA = defs.find((d) => d.id === aId) ?? null;
   const attrB = defs.find((d) => d.id === bId) ?? null;
-  const combos = useMemo(() => (attrA ? combinationKeys(aVals, attrB ? bVals : []) : []), [attrA, attrB, aVals, bVals]);
+  const combos = useMemo(
+    () => (attrA ? combinationKeys(aVals, attrB ? bVals : []) : []),
+    [attrA, attrB, aVals, bVals],
+  );
   const selected = combos.filter(([a, b]) => checked.has(comboKey(a, b)));
   const unitLabel = (id: string | null) => {
     const u = measureUnits.find((x) => x.id === id);
@@ -161,17 +177,28 @@ export function CombinationsDialog({
         <DialogHeader>
           <DialogTitle>Crear variantes en tabla</DialogTitle>
           <DialogDescription>
-            Elige los valores y marca solo las combinaciones que realmente existen. Las demás no se crean.
+            Elige los valores y marca solo las combinaciones que realmente existen. Las demás no se
+            crean.
           </DialogDescription>
         </DialogHeader>
         {defs.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Este tipo de producto no tiene atributos que distingan variantes.</p>
+          <p className="text-sm text-muted-foreground">
+            Este tipo de producto no tiene atributos que distingan variantes.
+          </p>
         ) : (
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Primer atributo</Label>
-                <Select value={aId ?? NONE} onValueChange={(v) => { setAId(v); setAVals([]); setChecked(new Set()); setAUnit(defs.find((d) => d.id === v)?.default_unit_id ?? null); }}>
+                <Select
+                  value={aId ?? NONE}
+                  onValueChange={(v) => {
+                    setAId(v);
+                    setAVals([]);
+                    setChecked(new Set());
+                    setAUnit(defs.find((d) => d.id === v)?.default_unit_id ?? null);
+                  }}
+                >
                   <SelectTrigger aria-label="Primer atributo">
                     <SelectValue />
                   </SelectTrigger>
@@ -184,12 +211,27 @@ export function CombinationsDialog({
                   </SelectContent>
                 </Select>
                 {attrA && (
-                  <AxisValues def={attrA} values={aVals} onChange={setAVals} unitId={aUnit} onUnit={setAUnit} measureUnits={measureUnits} />
+                  <AxisValues
+                    def={attrA}
+                    values={aVals}
+                    onChange={setAVals}
+                    unitId={aUnit}
+                    onUnit={setAUnit}
+                    measureUnits={measureUnits}
+                  />
                 )}
               </div>
               <div className="space-y-2">
                 <Label>Segundo atributo (opcional)</Label>
-                <Select value={bId ?? NONE} onValueChange={(v) => { setBId(v === NONE ? null : v); setBVals([]); setChecked(new Set()); setBUnit(defs.find((d) => d.id === v)?.default_unit_id ?? null); }}>
+                <Select
+                  value={bId ?? NONE}
+                  onValueChange={(v) => {
+                    setBId(v === NONE ? null : v);
+                    setBVals([]);
+                    setChecked(new Set());
+                    setBUnit(defs.find((d) => d.id === v)?.default_unit_id ?? null);
+                  }}
+                >
                   <SelectTrigger aria-label="Segundo atributo">
                     <SelectValue />
                   </SelectTrigger>
@@ -205,7 +247,14 @@ export function CombinationsDialog({
                   </SelectContent>
                 </Select>
                 {attrB && (
-                  <AxisValues def={attrB} values={bVals} onChange={setBVals} unitId={bUnit} onUnit={setBUnit} measureUnits={measureUnits} />
+                  <AxisValues
+                    def={attrB}
+                    values={bVals}
+                    onChange={setBVals}
+                    unitId={bUnit}
+                    onUnit={setBUnit}
+                    measureUnits={measureUnits}
+                  />
                 )}
               </div>
             </div>
@@ -214,7 +263,12 @@ export function CombinationsDialog({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold">Vista previa · marca las que existen</p>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setChecked(new Set(combos.map(([a, b]) => comboKey(a, b))))}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setChecked(new Set(combos.map(([a, b]) => comboKey(a, b))))}
+                  >
                     Marcar todas
                   </Button>
                 </div>

@@ -24,9 +24,25 @@ const ancho: AttrDef = {
   is_variant_defining: true,
   sort_order: 2,
 };
-const color: AttrDef = { ...ancho, id: "c1", code: "color_principal", name: "Color", data_type: "select", options: ["Rojo", "Azul"], sort_order: 1 };
+const color: AttrDef = {
+  ...ancho,
+  id: "c1",
+  code: "color_principal",
+  name: "Color",
+  data_type: "select",
+  options: ["Rojo", "Azul"],
+  sort_order: 1,
+};
 const units: UnitLite[] = [
-  { id: "mm", code: "mm", name_singular: "milímetro", name_plural: "milímetros", symbol: "mm", kind: "measure", allows_decimal: true },
+  {
+    id: "mm",
+    code: "mm",
+    name_singular: "milímetro",
+    name_plural: "milímetros",
+    symbol: "mm",
+    kind: "measure",
+    allows_decimal: true,
+  },
 ];
 
 describe("conteo con presentaciones", () => {
@@ -41,8 +57,15 @@ describe("conteo con presentaciones", () => {
   });
 
   it("pendiente de conteo es distinto de cero", () => {
-    expect(computeCount({ ...emptyCount(), pending: true }, null, true)).toEqual({ ok: true, pending: true });
-    expect(computeCount({ ...emptyCount(), quantity: "0" }, null, true)).toMatchObject({ ok: true, pending: false, total: 0 });
+    expect(computeCount({ ...emptyCount(), pending: true }, null, true)).toEqual({
+      ok: true,
+      pending: true,
+    });
+    expect(computeCount({ ...emptyCount(), quantity: "0" }, null, true)).toMatchObject({
+      ok: true,
+      pending: false,
+      total: 0,
+    });
   });
 
   it("una cantidad vacía no se toma como cero", () => {
@@ -51,7 +74,10 @@ describe("conteo con presentaciones", () => {
 
   it("piezas no admiten fracciones", () => {
     expect(computeCount({ ...emptyCount(), quantity: "2.5" }, null, false).ok).toBe(false);
-    expect(computeCount({ ...emptyCount(), quantity: "35,5" }, null, true)).toMatchObject({ ok: true, total: 35.5 });
+    expect(computeCount({ ...emptyCount(), quantity: "35,5" }, null, true)).toMatchObject({
+      ok: true,
+      total: 35.5,
+    });
   });
 });
 

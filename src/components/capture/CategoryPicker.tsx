@@ -1,7 +1,13 @@
 import { useMemo } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { TreeItem } from "@/lib/tree";
 import { sortItems } from "@/lib/tree";
 
@@ -55,11 +61,18 @@ export function CategoryPicker({
             value={lvl.selected ?? NONE}
             onValueChange={(v) => onChange(v === NONE ? (lvl.parent ?? null) : v)}
           >
-            <SelectTrigger id={i === 0 ? `${idPrefix}-0` : undefined} aria-label={`Categoría nivel ${i + 1}`}>
-              <SelectValue placeholder={i === 0 ? "Elige la categoría" : "Subcategoría (opcional)"} />
+            <SelectTrigger
+              id={i === 0 ? `${idPrefix}-0` : undefined}
+              aria-label={`Categoría nivel ${i + 1}`}
+            >
+              <SelectValue
+                placeholder={i === 0 ? "Elige la categoría" : "Subcategoría (opcional)"}
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={NONE}>{i === 0 ? "Por clasificar" : "— Sin subcategoría —"}</SelectItem>
+              <SelectItem value={NONE}>
+                {i === 0 ? "Por clasificar" : "— Sin subcategoría —"}
+              </SelectItem>
               {lvl.options.map((o) => (
                 <SelectItem key={o.id} value={o.id}>
                   {o.name}

@@ -18,7 +18,10 @@ export const RECORD_LABEL: Record<RecordStatus, string> = {
   registered: "Registrado",
   archived: "Archivado",
 };
-export const REVIEW_LABEL: Record<ReviewStatus, string> = { pending: "Revisión pendiente", validated: "Validado" };
+export const REVIEW_LABEL: Record<ReviewStatus, string> = {
+  pending: "Revisión pendiente",
+  validated: "Validado",
+};
 export const PHOTO_LABEL: Record<PhotoStatus, string> = {
   pending: "Foto pendiente",
   uploaded: "Foto cargada",
@@ -36,7 +39,11 @@ export const productTypesQuery = queryOptions({
   queryKey: ["catalog", "product-types"],
   queryFn: async (): Promise<ProductTypeFull[]> => {
     const [types, links] = await Promise.all([
-      supabase.from("product_types").select("id, name, default_unit_id, sort_order").eq("is_active", true).order("sort_order"),
+      supabase
+        .from("product_types")
+        .select("id, name, default_unit_id, sort_order")
+        .eq("is_active", true)
+        .order("sort_order"),
       supabase
         .from("product_type_attributes")
         .select(
@@ -114,7 +121,10 @@ export const locationsQuery = queryOptions({
 export const staffQuery = queryOptions({
   queryKey: ["catalog", "staff"],
   queryFn: async (): Promise<Array<{ id: string; full_name: string; email: string | null }>> => {
-    const { data, error } = await supabase.from("profiles").select("id, full_name, email").order("full_name");
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .order("full_name");
     if (error) throw error;
     return data ?? [];
   },
@@ -163,7 +173,9 @@ export function catalogQuery(filters: CatalogFilters, pageSize: number) {
     queryKey: ["catalog", "search", filters, pageSize],
     queryFn: async () => {
       const page = Math.max(1, filters.pagina ?? 1);
-      const measureValue = filters.medidaValor ? Number(filters.medidaValor.replace(",", ".")) : undefined;
+      const measureValue = filters.medidaValor
+        ? Number(filters.medidaValor.replace(",", "."))
+        : undefined;
       const raw = {
         _q: filters.q || undefined,
         _category_id: filters.categoria || undefined,
@@ -185,7 +197,9 @@ export function catalogQuery(filters: CatalogFilters, pageSize: number) {
         _limit: pageSize,
         _offset: (page - 1) * pageSize,
       };
-      const args = Object.fromEntries(Object.entries(raw).filter(([, v]) => v !== undefined)) as SearchArgs;
+      const args = Object.fromEntries(
+        Object.entries(raw).filter(([, v]) => v !== undefined),
+      ) as SearchArgs;
       const { data, error } = await supabase.rpc("search_catalog", args);
       if (error) throw error;
       const rows = data ?? [];

@@ -82,7 +82,11 @@ export function effectiveState(def: AttrDef, v: AttrValue | undefined): AttrValu
   return isFilled(def, v) ? "value" : "empty";
 }
 
-export function validateAttr(def: AttrDef, v: AttrValue | undefined, confirming: boolean): string | null {
+export function validateAttr(
+  def: AttrDef,
+  v: AttrValue | undefined,
+  confirming: boolean,
+): string | null {
   const state = effectiveState(def, v);
   if (state === "empty") {
     return def.is_required && confirming
@@ -95,7 +99,11 @@ export function validateAttr(def: AttrDef, v: AttrValue | undefined, confirming:
     if (n === null) return "Escribe un número válido";
     if (n < 0) return "No puede ser negativo";
   }
-  if (def.data_type === "select" && def.options.length > 0 && !def.options.includes(v.text.trim())) {
+  if (
+    def.data_type === "select" &&
+    def.options.length > 0 &&
+    !def.options.includes(v.text.trim())
+  ) {
     return "Elige una opción de la lista";
   }
   if (def.data_type === "text" && v.text.trim().length > 300) return "Máximo 300 caracteres";
@@ -107,13 +115,22 @@ export function attrToPayload(def: AttrDef, v: AttrValue | undefined): AttrPaylo
   if (state === "empty" || !v) return null;
   if (state !== "value") return { attribute_id: def.id, state };
   if (def.data_type === "number")
-    return { attribute_id: def.id, state, number: parseNumber(v.number) ?? undefined, unit_id: v.unitId };
+    return {
+      attribute_id: def.id,
+      state,
+      number: parseNumber(v.number) ?? undefined,
+      unit_id: v.unitId,
+    };
   if (def.data_type === "multiselect") return { attribute_id: def.id, state, options: v.options };
   return { attribute_id: def.id, state, text: v.text.trim() };
 }
 
 /** Texto corto de un atributo: "25 mm", "Rojo", "No aplica". */
-export function attrDisplay(def: AttrDef, v: AttrValue | undefined, units: UnitLite[]): string | null {
+export function attrDisplay(
+  def: AttrDef,
+  v: AttrValue | undefined,
+  units: UnitLite[],
+): string | null {
   const state = effectiveState(def, v);
   if (state !== "value" || !v) return null;
   if (def.data_type === "number") {
@@ -126,7 +143,11 @@ export function attrDisplay(def: AttrDef, v: AttrValue | undefined, units: UnitL
 }
 
 /** Nombre de la variante a partir de sus atributos definitorios. */
-export function buildVariantLabel(defs: AttrDef[], attrs: Record<string, AttrValue>, units: UnitLite[]): string {
+export function buildVariantLabel(
+  defs: AttrDef[],
+  attrs: Record<string, AttrValue>,
+  units: UnitLite[],
+): string {
   return defs
     .filter((d) => d.is_variant_defining)
     .sort((a, b) => a.sort_order - b.sort_order)
@@ -137,7 +158,14 @@ export function buildVariantLabel(defs: AttrDef[], attrs: Record<string, AttrVal
 
 export type CountResult =
   | { ok: true; pending: true }
-  | { ok: true; pending: false; total: number; full: number | null; loose: number | null; quantity: number | null }
+  | {
+      ok: true;
+      pending: false;
+      total: number;
+      full: number | null;
+      loose: number | null;
+      quantity: number | null;
+    }
   | { ok: false; error: string };
 
 /**
@@ -145,17 +173,26 @@ export type CountResult =
  * «presentaciones completas + sueltos» (2 rollos de 20 m + 5 m = 45 m).
  * Sin factor no se inventa la conversión: solo se acepta el total.
  */
-export function computeCount(count: CountInput, factor: number | null, allowsDecimal: boolean): CountResult {
+export function computeCount(
+  count: CountInput,
+  factor: number | null,
+  allowsDecimal: boolean,
+): CountResult {
   if (count.pending) return { ok: true, pending: true };
   const usesPresentations = count.full.trim() !== "" || count.loose.trim() !== "";
   if (usesPresentations) {
     if (!factor || factor <= 0)
-      return { ok: false, error: "Se desconoce el contenido de cada presentación: captura el total en la unidad base." };
+      return {
+        ok: false,
+        error:
+          "Se desconoce el contenido de cada presentación: captura el total en la unidad base.",
+      };
     const full = count.full.trim() === "" ? 0 : parseNumber(count.full);
     const loose = count.loose.trim() === "" ? 0 : parseNumber(count.loose);
     if (full === null || loose === null) return { ok: false, error: "Escribe números válidos" };
     if (full < 0 || loose < 0) return { ok: false, error: "La cantidad no puede ser negativa" };
-    if (!Number.isInteger(full)) return { ok: false, error: "Las presentaciones completas deben ser un número entero" };
+    if (!Number.isInteger(full))
+      return { ok: false, error: "Las presentaciones completas deben ser un número entero" };
     if (!allowsDecimal && !Number.isInteger(loose))
       return { ok: false, error: "Esta unidad solo admite cantidades enteras" };
     const total = Math.round((full * factor + loose) * 1000) / 1000;
@@ -171,11 +208,15 @@ export function computeCount(count: CountInput, factor: number | null, allowsDec
     };
   }
   if (count.quantity.trim() === "")
-    return { ok: false, error: "Escribe la cantidad contada (0 si no hay) o marca «Pendiente de conteo»." };
+    return {
+      ok: false,
+      error: "Escribe la cantidad contada (0 si no hay) o marca «Pendiente de conteo».",
+    };
   const q = parseNumber(count.quantity);
   if (q === null) return { ok: false, error: "Escribe un número válido" };
   if (q < 0) return { ok: false, error: "La cantidad no puede ser negativa" };
-  if (!allowsDecimal && !Number.isInteger(q)) return { ok: false, error: "Esta unidad solo admite cantidades enteras" };
+  if (!allowsDecimal && !Number.isInteger(q))
+    return { ok: false, error: "Esta unidad solo admite cantidades enteras" };
   return { ok: true, pending: false, total: q, full: null, loose: null, quantity: q };
 }
 

@@ -47,11 +47,28 @@ const NAV: NavItem[] = [
   { label: "Inicio", short: "Inicio", icon: Home, to: "/inicio" },
   { label: "Capturar SKU", short: "Capturar", icon: PackagePlus, to: "/capturar" },
   { label: "Inventario", short: "Inventario", icon: Boxes, to: "/inventario" },
-  { label: "Asistente de inventario", short: "Asistente", icon: MessageCircleQuestion, to: "/asistente" },
+  {
+    label: "Asistente de inventario",
+    short: "Asistente",
+    icon: MessageCircleQuestion,
+    to: "/asistente",
+  },
   { label: "Pendientes de fotografía", short: "Fotografía", icon: Camera, upcoming: "D" },
-  { label: "Categorías y ubicaciones", short: "Catálogos", icon: FolderTree, to: "/catalogos", adminOnly: true },
+  {
+    label: "Categorías y ubicaciones",
+    short: "Catálogos",
+    icon: FolderTree,
+    to: "/catalogos",
+    adminOnly: true,
+  },
   { label: "Informes", short: "Informes", icon: FileSpreadsheet, adminOnly: true, upcoming: "C" },
-  { label: "Usuarios y configuración", short: "Usuarios", icon: Users, to: "/usuarios", adminOnly: true },
+  {
+    label: "Usuarios y configuración",
+    short: "Usuarios",
+    icon: Users,
+    to: "/usuarios",
+    adminOnly: true,
+  },
 ];
 
 function initials(name: string) {
@@ -85,8 +102,8 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
     <div className="min-h-screen pb-10">
       {settings?.is_demo_environment && (
         <div className="bg-brand-pink-soft text-center text-xs font-medium text-foreground py-1.5 px-4 border-b border-brand-pink/40">
-          Entorno de demostración · Los registros marcados como <strong>DEMO</strong> son ficticios y
-          pueden retirarse sin afectar los datos reales.
+          Entorno de demostración · Los registros marcados como <strong>DEMO</strong> son ficticios
+          y pueden retirarse sin afectar los datos reales.
         </div>
       )}
       <header className="sticky top-0 z-40 px-3 pt-3 sm:px-6">
@@ -143,10 +160,16 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
               to="/alertas"
               className={cn(
                 "relative flex size-10 items-center justify-center rounded-full transition hover:brightness-95",
-                below > 0 ? "bg-warning-soft text-warning-foreground" : "bg-muted text-muted-foreground",
+                below > 0
+                  ? "bg-warning-soft text-warning-foreground"
+                  : "bg-muted text-muted-foreground",
                 pathname.startsWith("/alertas") && "ring-2 ring-primary",
               )}
-              aria-label={below > 0 ? `Alertas de existencias: ${below} SKU bajo mínimo` : "Alertas de existencias: sin alertas"}
+              aria-label={
+                below > 0
+                  ? `Alertas de existencias: ${below} SKU bajo mínimo`
+                  : "Alertas de existencias: sin alertas"
+              }
               title="Alertas de existencias"
             >
               <Bell className="size-4" aria-hidden />
@@ -156,7 +179,10 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
                 </span>
               )}
             </Link>
-            <Badge variant={isAdmin ? "graphite" : "secondary"} className="hidden sm:inline-flex lg:hidden 2xl:inline-flex">
+            <Badge
+              variant={isAdmin ? "graphite" : "secondary"}
+              className="hidden sm:inline-flex lg:hidden 2xl:inline-flex"
+            >
               {me.role ? ROLE_LABEL[me.role] : "Sin rol"}
             </Badge>
             <DropdownMenu>
@@ -183,11 +209,19 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
 
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="graphite" size="icon" className="lg:hidden" aria-label="Abrir menú">
+                <Button
+                  variant="graphite"
+                  size="icon"
+                  className="lg:hidden"
+                  aria-label="Abrir menú"
+                >
                   <Menu />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] border-none bg-graphite text-graphite-foreground">
+              <SheetContent
+                side="right"
+                className="w-[300px] border-none bg-graphite text-graphite-foreground"
+              >
                 <SheetHeader>
                   <SheetTitle className="text-graphite-foreground">Menú</SheetTitle>
                 </SheetHeader>
@@ -216,7 +250,9 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
                           onClick={() => setOpen(false)}
                           className={cn(
                             "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold",
-                            active ? "bg-primary text-primary-foreground" : "hover:bg-graphite-soft",
+                            active
+                              ? "bg-primary text-primary-foreground"
+                              : "hover:bg-graphite-soft",
                           )}
                         >
                           <Icon className="size-4" aria-hidden /> {item.label}
@@ -249,7 +285,9 @@ export function PageHeader({
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
-        {description && <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{description}</p>}
+        {description && (
+          <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{description}</p>
+        )}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>

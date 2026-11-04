@@ -1,7 +1,13 @@
 import { useId } from "react";
 
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { effectiveState, type AttrDef, type AttrValue, type UnitLite } from "@/lib/capture";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +41,11 @@ export function AttributeInput({
     <div className="flex min-w-0 flex-col gap-1.5">
       <label htmlFor={id} className={cn("text-sm font-medium", hideLabel && "sr-only")}>
         {def.name}
-        {def.is_required && <span className="ml-0.5 text-destructive" aria-hidden>*</span>}
+        {def.is_required && (
+          <span className="ml-0.5 text-destructive" aria-hidden>
+            *
+          </span>
+        )}
         {def.is_required && <span className="sr-only"> (obligatorio)</span>}
       </label>
 
@@ -78,7 +88,11 @@ export function AttributeInput({
           </Select>
         </div>
       ) : def.data_type === "select" ? (
-        <Select value={value.text || NONE} onValueChange={(v) => set({ text: v === NONE ? "" : v })} disabled={disabled ?? false}>
+        <Select
+          value={value.text || NONE}
+          onValueChange={(v) => set({ text: v === NONE ? "" : v })}
+          disabled={disabled ?? false}
+        >
           <SelectTrigger id={id} aria-invalid={!!error}>
             <SelectValue placeholder="Elige…" />
           </SelectTrigger>
@@ -101,10 +115,16 @@ export function AttributeInput({
                 type="button"
                 aria-pressed={on}
                 disabled={disabled}
-                onClick={() => set({ options: on ? value.options.filter((x) => x !== o) : [...value.options, o] })}
+                onClick={() =>
+                  set({
+                    options: on ? value.options.filter((x) => x !== o) : [...value.options, o],
+                  })
+                }
                 className={cn(
                   "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                  on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted",
+                  on
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card hover:bg-muted",
                 )}
               >
                 {o}

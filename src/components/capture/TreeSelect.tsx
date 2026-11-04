@@ -1,6 +1,12 @@
 import { useMemo } from "react";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { treePath } from "@/lib/catalog";
 import { buildTree, flattenTree, type TreeItem } from "@/lib/tree";
 
@@ -31,14 +37,21 @@ export function TreeSelect({
 }) {
   const options = useMemo(() => {
     const visible = includeInactive ? items : items.filter((i) => i.is_active);
-    return flattenTree(buildTree(visible)).map((i) => ({ id: i.id, depth: i.depth, label: i.name, path: treePath(visible, i.id) }));
+    return flattenTree(buildTree(visible)).map((i) => ({
+      id: i.id,
+      depth: i.depth,
+      label: i.name,
+      path: treePath(visible, i.id),
+    }));
   }, [items, includeInactive]);
   const selectedPath = value ? treePath(items, value) : null;
 
   return (
     <Select value={value ?? NONE} onValueChange={(v) => onChange(v === NONE ? null : v)}>
       <SelectTrigger id={id} aria-invalid={ariaInvalid} className={className}>
-        <SelectValue placeholder={placeholder}>{value ? selectedPath : noneLabel ?? placeholder}</SelectValue>
+        <SelectValue placeholder={placeholder}>
+          {value ? selectedPath : (noneLabel ?? placeholder)}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent className="max-h-80">
         {noneLabel && <SelectItem value={NONE}>{noneLabel}</SelectItem>}
