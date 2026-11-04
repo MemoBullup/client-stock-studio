@@ -8,7 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { compatibleUnits, effectiveState, type AttrDef, type AttrValue, type UnitLite } from "@/lib/capture";
+import {
+  compatibleUnits,
+  effectiveState,
+  type AttrDef,
+  type AttrValue,
+  type UnitLite,
+} from "@/lib/capture";
 import { cn } from "@/lib/utils";
 
 const NONE = "__none";

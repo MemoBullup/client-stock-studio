@@ -53,11 +53,20 @@ export interface AttrPayload {
 }
 
 /** Especificaciones físicas que se piden en todos los tipos (sección propia en Capturar). */
-export const SPEC_ATTR_CODES = ["tipo_empaque", "peso", "medida_largo", "medida_ancho", "medida_alto"] as const;
+export const SPEC_ATTR_CODES = [
+  "tipo_empaque",
+  "peso",
+  "medida_largo",
+  "medida_ancho",
+  "medida_alto",
+] as const;
 const WEIGHT_UNIT_CODES = new Set(["g", "kg"]);
 
 /** Unidades que tienen sentido para un atributo numérico: peso con peso, medidas con longitud. */
-export function compatibleUnits(def: Pick<AttrDef, "default_unit_id">, measureUnits: UnitLite[]): UnitLite[] {
+export function compatibleUnits(
+  def: Pick<AttrDef, "default_unit_id">,
+  measureUnits: UnitLite[],
+): UnitLite[] {
   const base = measureUnits.find((u) => u.id === def.default_unit_id);
   const weight = !!base && WEIGHT_UNIT_CODES.has(base.code);
   return measureUnits.filter((u) => WEIGHT_UNIT_CODES.has(u.code) === weight);

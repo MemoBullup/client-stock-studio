@@ -1392,12 +1392,14 @@ function CapturarPage() {
                 {specDefs.length > 0 && (
                   <section className="surface-card p-5" aria-labelledby="spec-titulo">
                     <h2 id="spec-titulo" className="text-lg font-bold">
-                      {editing ? "Especificaciones del SKU" : `${specStep}. Especificaciones del SKU`}
+                      {editing
+                        ? "Especificaciones del SKU"
+                        : `${specStep}. Especificaciones del SKU`}
                     </h2>
                     <p className="mb-4 text-sm text-muted-foreground">
-                      Tipo de empaque, peso y medidas en centímetros. Si las variantes de este guardado
-                      pesan o miden distinto, guárdalas por separado. La ubicación y la cantidad en
-                      existencia se capturan en el siguiente paso.
+                      Tipo de empaque, peso y medidas en centímetros. Si las variantes de este
+                      guardado pesan o miden distinto, guárdalas por separado. La ubicación y la
+                      cantidad en existencia se capturan en el siguiente paso.
                     </p>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                       {specDefs.map((d) => (
@@ -1418,7 +1420,9 @@ function CapturarPage() {
                   <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                     <div>
                       <h2 id="var-titulo" className="text-lg font-bold">
-                        {editing ? "Variante y unidad" : `${variantsStep}. Variantes, ubicación y cantidad en existencia`}
+                        {editing
+                          ? "Variante y unidad"
+                          : `${variantsStep}. Variantes, ubicación y cantidad en existencia`}
                       </h2>
                       <p className="text-sm text-muted-foreground">
                         Cada variante recibe su propio SKU. La ubicación no crea variantes nuevas.
@@ -1674,7 +1678,8 @@ function CapturarPage() {
                                 ) : null}
                                 <div className="w-40 space-y-1">
                                   <Label htmlFor={`qty-${r.key}`} className="text-xs">
-                                    Cantidad en existencia ({baseUnit?.name_plural ?? "unidad base"})
+                                    Cantidad en existencia ({baseUnit?.name_plural ?? "unidad base"}
+                                    )
                                   </Label>
                                   <Input
                                     id={`qty-${r.key}`}
