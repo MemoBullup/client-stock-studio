@@ -18,9 +18,11 @@ import { Route as AuthenticatedAlertasRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
 import { Route as AuthenticatedCapturarRouteImport } from './routes/_authenticated/capturar'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
+import { Route as AuthenticatedRevisionesRouteImport } from './routes/_authenticated/revisiones'
 import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
 import { Route as AuthenticatedAdminCatalogosRouteImport } from './routes/_authenticated/_admin/catalogos'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/_admin/usuarios'
+import { Route as AuthenticatedInventarioIndexRouteImport } from './routes/_authenticated/inventario.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -65,6 +67,11 @@ const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   path: '/inicio',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRevisionesRoute = AuthenticatedRevisionesRouteImport.update({
+  id: '/revisiones',
+  path: '/revisiones',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiAssistantRoute = ApiAssistantRouteImport.update({
   id: '/api/assistant',
   path: '/api/assistant',
@@ -82,6 +89,12 @@ const AuthenticatedAdminUsuariosRoute =
     path: '/usuarios',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedInventarioIndexRoute =
+  AuthenticatedInventarioIndexRouteImport.update({
+    id: '/inventario/',
+    path: '/inventario/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -91,9 +104,11 @@ export interface FileRoutesByFullPath {
   '/asistente': typeof AuthenticatedAsistenteRoute
   '/capturar': typeof AuthenticatedCapturarRoute
   '/inicio': typeof AuthenticatedInicioRoute
+  '/revisiones': typeof AuthenticatedRevisionesRoute
   '/api/assistant': typeof ApiAssistantRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/inventario/': typeof AuthenticatedInventarioIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,9 +118,11 @@ export interface FileRoutesByTo {
   '/asistente': typeof AuthenticatedAsistenteRoute
   '/capturar': typeof AuthenticatedCapturarRoute
   '/inicio': typeof AuthenticatedInicioRoute
+  '/revisiones': typeof AuthenticatedRevisionesRoute
   '/api/assistant': typeof ApiAssistantRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/inventario': typeof AuthenticatedInventarioIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -118,9 +135,11 @@ export interface FileRoutesById {
   '/_authenticated/asistente': typeof AuthenticatedAsistenteRoute
   '/_authenticated/capturar': typeof AuthenticatedCapturarRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
+  '/_authenticated/revisiones': typeof AuthenticatedRevisionesRoute
   '/api/assistant': typeof ApiAssistantRoute
   '/_authenticated/_admin/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/_authenticated/_admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/inventario/': typeof AuthenticatedInventarioIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -132,9 +151,11 @@ export interface FileRouteTypes {
     | '/asistente'
     | '/capturar'
     | '/inicio'
+    | '/revisiones'
     | '/api/assistant'
     | '/catalogos'
     | '/usuarios'
+    | '/inventario/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,9 +165,11 @@ export interface FileRouteTypes {
     | '/asistente'
     | '/capturar'
     | '/inicio'
+    | '/revisiones'
     | '/api/assistant'
     | '/catalogos'
     | '/usuarios'
+    | '/inventario'
   id:
     | '__root__'
     | '/'
@@ -158,9 +181,11 @@ export interface FileRouteTypes {
     | '/_authenticated/asistente'
     | '/_authenticated/capturar'
     | '/_authenticated/inicio'
+    | '/_authenticated/revisiones'
     | '/api/assistant'
     | '/_authenticated/_admin/catalogos'
     | '/_authenticated/_admin/usuarios'
+    | '/_authenticated/inventario/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -236,6 +261,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInicioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/revisiones': {
+      id: '/_authenticated/revisiones'
+      path: '/revisiones'
+      fullPath: '/revisiones'
+      preLoaderRoute: typeof AuthenticatedRevisionesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/assistant': {
       id: '/api/assistant'
       path: '/api/assistant'
@@ -256,6 +288,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/usuarios'
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/inventario/': {
+      id: '/_authenticated/inventario/'
+      path: '/inventario'
+      fullPath: '/inventario/'
+      preLoaderRoute: typeof AuthenticatedInventarioIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
@@ -282,6 +321,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRoute
   AuthenticatedCapturarRoute: typeof AuthenticatedCapturarRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
+  AuthenticatedRevisionesRoute: typeof AuthenticatedRevisionesRoute
+  AuthenticatedInventarioIndexRoute: typeof AuthenticatedInventarioIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -290,6 +331,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAsistenteRoute: AuthenticatedAsistenteRoute,
   AuthenticatedCapturarRoute: AuthenticatedCapturarRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
+  AuthenticatedRevisionesRoute: AuthenticatedRevisionesRoute,
+  AuthenticatedInventarioIndexRoute: AuthenticatedInventarioIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
