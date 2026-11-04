@@ -44,7 +44,7 @@ Especificación completa del cliente: [`docs/especificacion.md`](./especificacio
 3. Ese Administrador crea el resto de las cuentas y asigna roles desde la aplicación. Siempre debe quedar al menos un Administrador activo.
 
 ## QR y dominio
-Los QR usarán la URL base configurada (`app_settings.qr_base_url`) + el ID interno de la variante. Las etiquetas definitivas deben imprimirse con el dominio de producción, no con enlaces de vista previa.
+Los QR apuntan a `<URL base>/q/<ID interno de la variante>` (`app_settings.qr_base_url`; si está vacía se usa la dirección actual y la pantalla avisa). No contienen costos ni cantidades; al abrirlos siempre se pide iniciar sesión y después se muestra la ficha. Las etiquetas definitivas deben imprimirse con el dominio de producción, no con enlaces de vista previa.
 
 ## Datos demostrativos
 Categorías y ubicaciones de ejemplo llevan `is_demo = true` y se muestran con la etiqueta DEMO. Los 30 SKU ficticios (prefijo DEMO-) ya están cargados. Todas las tablas operativas tienen `is_demo` para poder retirar solo lo demostrativo.
@@ -55,7 +55,15 @@ Categorías y ubicaciones de ejemplo llevan `is_demo = true` y se muestran con l
 - **Conteos**: rollos completos + sueltos solo con factor conocido; «Pendiente de conteo» ≠ 0. Un segundo conteo del mismo SKU en la misma ubicación queda «en revisión» y el Administrador decide en «Revisiones» cuál conservar (nunca se suman). Contar en otra ubicación no crea SKU.
 - **Inventario** (`/inventario`): tabla o tarjetas, búsqueda sin acentos y filtros combinables en el servidor, paginación de 25. Costos solo para Administrador.
 - **Ficha** (`/inventario/:id`): existencias por ubicación y total, características con «Dato pendiente»/«No aplica», otras variantes, historial de conteos/ajustes/correcciones; acciones según rol (registrar conteo, variante del mismo modelo, duplicar como plantilla, solicitar corrección; el Administrador valida, archiva, ajusta con motivo y captura el costo).
-- El QR y las etiquetas corresponden al bloque C.
+- Desde la ficha y desde el aviso de «Guardado» se genera la etiqueta del SKU.
+
+## Bloque C · QR, etiquetas, informes y tablero
+- **Etiquetas** (`/etiquetas?ids=…`): QR + SKU + nombre + características principales, tamaño en mm de Configuración, formato rollo (una por hoja) o carta. Editor: una a la vez; Administrador: lotes de hasta 500 (desde Inventario con los filtros actuales).
+- **Escanear** (`/escanear`): cámara del celular o búsqueda manual por SKU/nombre.
+- **Informes** (`/informes`, solo Administrador): CSV UTF-8 y Excel de catálogo, inventario por ubicación (una fila por SKU+ubicación, sin inflar totales), pendientes de conteo, pendientes de fotografía y datos incompletos; costos y valor solo si se activan. Inventario → «Exportar» descarga todos los resultados filtrados.
+- **Inicio**: avance contra la meta, capturas del día, pendientes de revisión/conteo/foto, por clasificar, avance por categoría; el Administrador además ve el valor estimado parcial (solo SKU con conteo y costo), cobertura, costos pendientes y actividad por capturista.
+- **Capturar desde archivo** (`/capturar?modo=archivo`): plantilla de Excel por tipo de producto, revisión fila por fila, las filas correctas se guardan (confirmadas o como borradores) con `save_capture`; volver a subir el mismo archivo no duplica.
+- **Fotografías** (adelanto del Bloque D a petición del cliente): se eligen en Capturar y se ligan a la variante al guardar, o se suben desde la ficha. Almacenamiento privado, miniatura automática, la primera es la principal.
 
 ## Ajustes asistidos con IA
 Retirados de la interfaz a petición del cliente (2026-11-03). Las funciones de ajuste del Administrador se conservan y se usan desde la ficha del SKU.
