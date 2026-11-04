@@ -42,7 +42,10 @@ export const createStaffUser = createServerFn({ method: "POST" })
       .upsert({ id: newId, email: data.email, full_name: data.fullName }, { onConflict: "id" });
     const roleRes = await supabaseAdmin
       .from("user_roles")
-      .upsert({ user_id: newId, role: data.role, assigned_by: context.userId }, { onConflict: "user_id" });
+      .upsert(
+        { user_id: newId, role: data.role, assigned_by: context.userId },
+        { onConflict: "user_id" },
+      );
     if (roleRes.error) throw new Error(roleRes.error.message);
     return { id: newId };
   });
@@ -59,7 +62,9 @@ export const resetStaffPassword = createServerFn({ method: "POST" })
     if (!isAdmin) throw new Error("Solo un Administrador puede gestionar usuarios");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const res = await supabaseAdmin.auth.admin.updateUserById(data.userId, { password: data.password });
+    const res = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      password: data.password,
+    });
     if (res.error) throw new Error(res.error.message);
     return { ok: true };
   });

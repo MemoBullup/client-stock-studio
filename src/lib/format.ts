@@ -14,7 +14,11 @@ export function formatMoney(value: number | null | undefined, currency = "MXN"):
 export function formatDate(value: string | Date | null | undefined): string {
   if (!value) return "—";
   const d = typeof value === "string" ? new Date(value) : value;
-  return new Intl.DateTimeFormat(LOCALE, { day: "2-digit", month: "short", year: "numeric" }).format(d);
+  return new Intl.DateTimeFormat(LOCALE, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(d);
 }
 
 export function formatDateTime(value: string | Date | null | undefined): string {

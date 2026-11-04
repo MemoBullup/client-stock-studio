@@ -39,7 +39,12 @@ export interface MinimumRow {
   total_count: number;
 }
 
-export function minimumsQuery(params: { search: string; onlyAlerts: boolean; page: number; pageSize: number }) {
+export function minimumsQuery(params: {
+  search: string;
+  onlyAlerts: boolean;
+  page: number;
+  pageSize: number;
+}) {
   return queryOptions({
     queryKey: ["stock-alerts", "list", params],
     queryFn: async (): Promise<{ rows: MinimumRow[]; total: number }> => {

@@ -9,9 +9,15 @@ export const Route = createFileRoute("/_authenticated/_admin/catalogos")({
   head: () => ({
     meta: [
       { title: "Categorías y ubicaciones · Aly Inventario" },
-      { name: "description", content: "Administra el árbol de categorías comerciales y las ubicaciones físicas." },
+      {
+        name: "description",
+        content: "Administra el árbol de categorías comerciales y las ubicaciones físicas.",
+      },
       { property: "og:title", content: "Categorías y ubicaciones · Aly Inventario" },
-      { property: "og:description", content: "Administra el árbol de categorías comerciales y las ubicaciones físicas." },
+      {
+        property: "og:description",
+        content: "Administra el árbol de categorías comerciales y las ubicaciones físicas.",
+      },
     ],
   }),
   component: CatalogosPage,
