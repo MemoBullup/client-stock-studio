@@ -11,7 +11,6 @@ import {
   LogOut,
   Menu,
   PackagePlus,
-  Sparkles,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -38,7 +37,7 @@ interface NavItem {
   label: string;
   short: string;
   icon: LucideIcon;
-  to?: "/inicio" | "/asistente" | "/ajustes" | "/catalogos" | "/usuarios";
+  to?: "/inicio" | "/asistente" | "/catalogos" | "/usuarios";
   adminOnly?: boolean;
   /** Bloque en el que se habilita; si existe, aún no está disponible. */
   upcoming?: string;
@@ -49,7 +48,6 @@ const NAV: NavItem[] = [
   { label: "Capturar SKU", short: "Capturar", icon: PackagePlus, upcoming: "B" },
   { label: "Inventario", short: "Inventario", icon: Boxes, upcoming: "B" },
   { label: "Asistente de inventario", short: "Asistente", icon: MessageCircleQuestion, to: "/asistente" },
-  { label: "Ajustes asistidos", short: "Ajustes", icon: Sparkles, to: "/ajustes" },
   { label: "Pendientes de fotografía", short: "Fotografía", icon: Camera, upcoming: "D" },
   { label: "Categorías y ubicaciones", short: "Catálogos", icon: FolderTree, to: "/catalogos", adminOnly: true },
   { label: "Informes", short: "Informes", icon: FileSpreadsheet, adminOnly: true, upcoming: "C" },
