@@ -23,6 +23,7 @@ import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
 import { Route as AuthenticatedAdminCatalogosRouteImport } from './routes/_authenticated/_admin/catalogos'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/_admin/usuarios'
 import { Route as AuthenticatedInventarioIndexRouteImport } from './routes/_authenticated/inventario.index'
+import { Route as AuthenticatedInventarioVariantIdRouteImport } from './routes/_authenticated/inventario.$variantId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -95,6 +96,12 @@ const AuthenticatedInventarioIndexRoute =
     path: '/inventario/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInventarioVariantIdRoute =
+  AuthenticatedInventarioVariantIdRouteImport.update({
+    id: '/inventario/$variantId',
+    path: '/inventario/$variantId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/api/assistant': typeof ApiAssistantRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
   '/inventario/': typeof AuthenticatedInventarioIndexRoute
 }
 export interface FileRoutesByTo {
@@ -122,6 +130,7 @@ export interface FileRoutesByTo {
   '/api/assistant': typeof ApiAssistantRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
   '/inventario': typeof AuthenticatedInventarioIndexRoute
 }
 export interface FileRoutesById {
@@ -139,6 +148,7 @@ export interface FileRoutesById {
   '/api/assistant': typeof ApiAssistantRoute
   '/_authenticated/_admin/catalogos': typeof AuthenticatedAdminCatalogosRoute
   '/_authenticated/_admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
   '/_authenticated/inventario/': typeof AuthenticatedInventarioIndexRoute
 }
 export interface FileRouteTypes {
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/api/assistant'
     | '/catalogos'
     | '/usuarios'
+    | '/inventario/$variantId'
     | '/inventario/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/api/assistant'
     | '/catalogos'
     | '/usuarios'
+    | '/inventario/$variantId'
     | '/inventario'
   id:
     | '__root__'
@@ -185,6 +197,7 @@ export interface FileRouteTypes {
     | '/api/assistant'
     | '/_authenticated/_admin/catalogos'
     | '/_authenticated/_admin/usuarios'
+    | '/_authenticated/inventario/$variantId'
     | '/_authenticated/inventario/'
   fileRoutesById: FileRoutesById
 }
@@ -296,6 +309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInventarioIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/inventario/$variantId': {
+      id: '/_authenticated/inventario/$variantId'
+      path: '/inventario/$variantId'
+      fullPath: '/inventario/$variantId'
+      preLoaderRoute: typeof AuthenticatedInventarioVariantIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -322,6 +342,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCapturarRoute: typeof AuthenticatedCapturarRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedRevisionesRoute: typeof AuthenticatedRevisionesRoute
+  AuthenticatedInventarioVariantIdRoute: typeof AuthenticatedInventarioVariantIdRoute
   AuthenticatedInventarioIndexRoute: typeof AuthenticatedInventarioIndexRoute
 }
 
@@ -332,6 +353,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCapturarRoute: AuthenticatedCapturarRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedRevisionesRoute: AuthenticatedRevisionesRoute,
+  AuthenticatedInventarioVariantIdRoute: AuthenticatedInventarioVariantIdRoute,
   AuthenticatedInventarioIndexRoute: AuthenticatedInventarioIndexRoute,
 }
 
