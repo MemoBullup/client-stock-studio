@@ -88,10 +88,16 @@ export function ImportPanel() {
     });
   }, [matrix, type, units, categories, locations, mode]);
 
-  const groupOk = (g: ImportGroup) =>
-    g.errors.length === 0 && g.variants.every((v) => v.errors.length === 0);
-  const ready = parsed?.groups.filter(groupOk) ?? [];
-  const blocked = parsed?.groups.filter((g) => !groupOk(g)) ?? [];
+  // Se guardan las filas correctas; las filas con error se omiten y se corrigen en el archivo.
+  const ready: ImportGroup[] = (parsed?.groups ?? [])
+    .filter((g) => g.errors.length === 0)
+    .map((g) => ({ ...g, variants: g.variants.filter((v) => v.errors.length === 0) }))
+    .filter((g) => g.variants.length > 0);
+  const badRows = (parsed?.groups ?? []).reduce(
+    (n, g) =>
+      n + (g.errors.length ? g.variants.length : g.variants.filter((v) => v.errors.length).length),
+    0,
+  );
   const readyRows = ready.reduce((n, g) => n + g.variants.length, 0);
   const needsSession =
     mode === "registered" && ready.some((g) => g.variants.some((v) => "location_id" in v.count));
@@ -420,9 +426,9 @@ export function ImportPanel() {
                   tone="ok"
                 />
                 <SummaryTile
-                  label="Con errores (no se guardan)"
-                  value={`${blocked.length} productos`}
-                  tone={blocked.length ? "bad" : "muted"}
+                  label="Filas con errores (no se guardan)"
+                  value={`${badRows} filas`}
+                  tone={badRows ? "bad" : "muted"}
                 />
                 <SummaryTile
                   label="Con cantidad contada"
@@ -508,10 +514,10 @@ export function ImportPanel() {
                 </table>
               </div>
               <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
-                {blocked.length > 0 && (
+                {badRows > 0 && (
                   <p className="mr-auto text-sm text-muted-foreground">
-                    Corrige las filas marcadas en tu archivo y vuelve a subirlo; lo ya guardado no
-                    se duplica.
+                    Las filas marcadas se omiten. Corrígelas en tu archivo y vuelve a subirlo; lo ya
+                    guardado no se duplica.
                   </p>
                 )}
                 {running && (
@@ -574,10 +580,10 @@ export function ImportPanel() {
               </li>
             ))}
           </ul>
-          {blocked.length > 0 && (
+          {badRows > 0 && (
             <p className="mt-3 text-sm text-muted-foreground">
-              {blocked.length} producto(s) con errores no se enviaron. Corrígelos en el archivo y
-              súbelo de nuevo.
+              {badRows} fila(s) con errores no se enviaron. Corrígelas en el archivo y súbelo de
+              nuevo.
             </p>
           )}
         </section>
