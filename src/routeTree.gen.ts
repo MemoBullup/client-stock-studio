@@ -24,6 +24,7 @@ import { Route as AuthenticatedRevisionesRouteImport } from './routes/_authentic
 import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
 import { Route as QVariantIdRouteImport } from './routes/q.$variantId'
 import { Route as AuthenticatedAdminCatalogosRouteImport } from './routes/_authenticated/_admin/catalogos'
+import { Route as AuthenticatedAdminInformesRouteImport } from './routes/_authenticated/_admin/informes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/_admin/usuarios'
 import { Route as AuthenticatedInventarioIndexRouteImport } from './routes/_authenticated/inventario.index'
 import { Route as AuthenticatedInventarioVariantIdRouteImport } from './routes/_authenticated/inventario.$variantId'
@@ -102,6 +103,12 @@ const AuthenticatedAdminCatalogosRoute =
     path: '/catalogos',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminInformesRoute =
+  AuthenticatedAdminInformesRouteImport.update({
+    id: '/informes',
+    path: '/informes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/usuarios',
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/api/assistant': typeof ApiAssistantRoute
   '/q/$variantId': typeof QVariantIdRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
+  '/informes': typeof AuthenticatedAdminInformesRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
   '/inventario/': typeof AuthenticatedInventarioIndexRoute
@@ -153,6 +161,7 @@ export interface FileRoutesByTo {
   '/api/assistant': typeof ApiAssistantRoute
   '/q/$variantId': typeof QVariantIdRoute
   '/catalogos': typeof AuthenticatedAdminCatalogosRoute
+  '/informes': typeof AuthenticatedAdminInformesRoute
   '/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
   '/inventario': typeof AuthenticatedInventarioIndexRoute
@@ -174,6 +183,7 @@ export interface FileRoutesById {
   '/api/assistant': typeof ApiAssistantRoute
   '/q/$variantId': typeof QVariantIdRoute
   '/_authenticated/_admin/catalogos': typeof AuthenticatedAdminCatalogosRoute
+  '/_authenticated/_admin/informes': typeof AuthenticatedAdminInformesRoute
   '/_authenticated/_admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/inventario/$variantId': typeof AuthenticatedInventarioVariantIdRoute
   '/_authenticated/inventario/': typeof AuthenticatedInventarioIndexRoute
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/api/assistant'
     | '/q/$variantId'
     | '/catalogos'
+    | '/informes'
     | '/usuarios'
     | '/inventario/$variantId'
     | '/inventario/'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/api/assistant'
     | '/q/$variantId'
     | '/catalogos'
+    | '/informes'
     | '/usuarios'
     | '/inventario/$variantId'
     | '/inventario'
@@ -232,6 +244,7 @@ export interface FileRouteTypes {
     | '/api/assistant'
     | '/q/$variantId'
     | '/_authenticated/_admin/catalogos'
+    | '/_authenticated/_admin/informes'
     | '/_authenticated/_admin/usuarios'
     | '/_authenticated/inventario/$variantId'
     | '/_authenticated/inventario/'
@@ -353,6 +366,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCatalogosRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/_admin/informes': {
+      id: '/_authenticated/_admin/informes'
+      path: '/informes'
+      fullPath: '/informes'
+      preLoaderRoute: typeof AuthenticatedAdminInformesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/_admin/usuarios': {
       id: '/_authenticated/_admin/usuarios'
       path: '/usuarios'
@@ -379,12 +399,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCatalogosRoute: typeof AuthenticatedAdminCatalogosRoute
+  AuthenticatedAdminInformesRoute: typeof AuthenticatedAdminInformesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
     AuthenticatedAdminCatalogosRoute: AuthenticatedAdminCatalogosRoute,
+    AuthenticatedAdminInformesRoute: AuthenticatedAdminInformesRoute,
     AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   }
 
