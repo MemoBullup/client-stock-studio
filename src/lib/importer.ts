@@ -370,9 +370,13 @@ export function parseImport(
 
     const attributes: AttrPayload[] = [];
     const definingText: string[] = [];
+    const badAttrs = new Set<string>();
     for (const { def, col, unitHint } of attrIdx) {
       const r = parseAttrCell(def, row[col] ?? "", ctx.units, unitHint);
-      if (r && "error" in r) errors.push(r.error);
+      if (r && "error" in r) {
+        errors.push(r.error);
+        badAttrs.add(def.id);
+      }
       else if (r) {
         attributes.push(r.payload);
         if (def.is_variant_defining && r.display) definingText.push(r.display);
@@ -380,7 +384,7 @@ export function parseImport(
     }
     if (ctx.confirming) {
       for (const d of defs.filter((x) => x.is_required)) {
-        if (!attributes.some((a) => a.attribute_id === d.id)) {
+        if (!badAttrs.has(d.id) && !attributes.some((a) => a.attribute_id === d.id)) {
           errors.push(`«${d.name}» es obligatorio: escribe el valor, «pendiente» o «no aplica».`);
         }
       }
