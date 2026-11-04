@@ -3,7 +3,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   Bell,
   Boxes,
-  MessageCircleQuestion,
   Camera,
   FileSpreadsheet,
   FolderTree,
@@ -55,12 +54,6 @@ const NAV: NavItem[] = [
   { label: "Inicio", short: "Inicio", icon: Home, to: "/inicio" },
   { label: "Capturar SKU", short: "Capturar", icon: PackagePlus, to: "/capturar" },
   { label: "Inventario", short: "Inventario", icon: Boxes, to: "/inventario" },
-  {
-    label: "Asistente de inventario",
-    short: "Asistente",
-    icon: MessageCircleQuestion,
-    to: "/asistente",
-  },
   { label: "Pendientes de fotografía", short: "Fotografía", icon: Camera, upcoming: "D" },
   {
     label: "Categorías y ubicaciones",
