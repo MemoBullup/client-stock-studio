@@ -57,6 +57,7 @@ import {
   parseTags,
   validateAttr,
   type AttrDef,
+  type AttrPayload,
   type AttrValue,
   type CountInput,
 } from "@/lib/capture";
@@ -276,6 +277,8 @@ function CapturarPage() {
     sku: string | null;
   } | null>(null);
   const [countTarget, setCountTarget] = useState<CountTarget | null>(null);
+  // Atributos que esta pantalla no muestra: al editar se conservan tal como estaban.
+  const [passthrough, setPassthrough] = useState<AttrPayload[]>([]);
   const appliedSource = useRef<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -300,7 +303,9 @@ function CapturarPage() {
       nextShared[d.id] = (keepValues ? shared[d.id] : undefined) ?? emptyAttr(d);
     setShared(nextShared);
     setRows([newRow(t?.attributes.filter((a) => a.is_variant_defining) ?? [])]);
-    setBaseUnitId(t?.default_unit_id ?? (keepValues ? baseUnitId : null) ?? inventoryUnits[0]?.id ?? null);
+    setBaseUnitId(
+      t?.default_unit_id ?? (keepValues ? baseUnitId : null) ?? inventoryUnits[0]?.id ?? null,
+    );
   }
 
   // ---------- Carga inicial: editar, nueva variante o plantilla ----------
@@ -367,7 +372,14 @@ function CapturarPage() {
       setFormError(null);
       setSaveKey(newKey());
 
+      setPassthrough([]);
       if (search.editar) {
+        setPassthrough(
+          tDefs
+            .filter((d) => UNIT_ATTR_CODES.has(d.code))
+            .map((d) => attrToPayload(d, byId.get(d.id)))
+            .filter((x): x is AttrPayload => !!x),
+        );
         const dc = (variant.draft_count ?? null) as Record<string, unknown> | null;
         setEditing({
           id: variant.id,
@@ -631,6 +643,7 @@ function CapturarPage() {
     return [
       ...sharedDefs.map((d) => attrToPayload(d, shared[d.id])),
       ...rowDefs.map((d) => attrToPayload(d, r.attrs[d.id])),
+      ...(editing ? passthrough : []),
     ].filter(Boolean);
   }
 
